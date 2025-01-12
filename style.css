@@ -1,0 +1,444 @@
+/* -------------------- RESET -------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Scrolling fluide, si on utilise encore des ancres internes */
+html {
+  scroll-behavior: smooth;
+}
+
+/* -------------------- COULEURS GLOBALES -------------------- 
+   - Fond global : #ecf7f1 (vert très pâle)
+   - Texte : #061818 (vert très foncé)
+   - Couleur principale (hover / boutons) : #40a770 (vert clair)
+*/
+body {
+  font-family: Arial, sans-serif;
+  background-color: #ecf7f1;
+  color: #061818;
+  min-height: 100vh;
+}
+
+/* -------------------- CLASSE .HIDDEN --------------------
+   Permet de masquer une section. 
+   On l’applique quand on veut qu’une section ne soit pas affichée.
+*/
+.hidden {
+  display: none;
+}
+
+/* -------------------- HEADER & MENU -------------------- */
+.main-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #061818; /* Fond foncé */
+  color: #fff;
+  z-index: 999;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.logo-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+}
+
+/* Menu principal en grand écran : liste horizontale */
+#main-nav ul {
+  display: flex;
+  list-style: none;
+}
+
+#main-nav li {
+  margin-left: 1rem;
+}
+
+#main-nav a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #fff; /* Menu en blanc */
+  padding: 0.5rem 0.75rem;
+  transition: background-color 0.3s;
+}
+
+/* Hover du menu : fond vert clair */
+#main-nav a:hover {
+  background-color: #40a770;
+  border-radius: 4px;
+}
+
+.menu-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+}
+
+/* Bouton burger : caché sur grand écran, visible en mobile */
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.burger-menu .bar {
+  width: 25px;
+  height: 3px;
+  background-color: #fff;
+  margin: 4px 0;
+}
+
+/* Sur mobile, si nav-closed est actif, on cache le menu */
+.nav-closed ul {
+  display: none;
+}
+
+/* -------------------- SECTION GLOBALE -------------------- */
+main {
+  margin-top: 80px; /* pour que le contenu ne soit pas caché par le header fixe */
+  padding: 1rem;
+}
+
+/* -------------------- ACCUEIL (#accueil) -------------------- */
+#accueil {
+  text-align: center;
+  padding: 2rem;
+}
+
+#accueil h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.accueil-figure {
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.accueil-image {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(64,167,112,0.3); /* léger halo vert */
+}
+
+/* -------------------- JEUX (#jeux) -------------------- */
+#jeux {
+  padding: 2rem 0;
+}
+
+/* Chaque jeu est un bloc .game-row */
+.game-row {
+  display: flex;
+  align-items: center;
+  background-color: #dceee6;  /* fond vert clair (cohérent avec #ecf7f1) */
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem; /* espace entre les jeux */
+  box-shadow: 0 2px 6px rgba(6,24,24,0.1);
+}
+
+/* Jaquette */
+.jaquette-cell {
+  width: 200px;
+  text-align: center;
+  margin-right: 1rem; /* écart entre jaquette et description */
+}
+
+.jaquette {
+  width: 100%;
+  max-width: 200px;
+  transition: transform 0.3s;
+  border-radius: 5px;
+}
+
+.jaquette:hover {
+  transform: scale(1.05);
+}
+
+/* Description */
+.description-cell {
+  flex: 1;  /* occupe tout l’espace restant */
+}
+
+/* Bouton "Jouer" */
+.btn-jouer {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #40a770; /* vert clair */
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.btn-jouer:hover {
+  background-color: #349060; /* plus foncé au survol */
+}
+
+/* Responsive : empile jaquette + description */
+@media (max-width: 768px) {
+  .game-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .jaquette-cell {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  .description-cell {
+    width: 100%;
+  }
+}
+
+/* -------------------- NEWS (#news) -------------------- */
+#news {
+  padding: 2rem 0;
+}
+
+#news .news-content {
+  margin: 0 auto; /* centre la zone actualités */
+}
+
+@media (min-width: 1000px) {
+  #news .news-content {
+    margin-left: 200px;
+    margin-right: 200px;
+  }
+}
+
+#news-container {
+  margin-top: 1rem;
+}
+
+.news-item {
+  position: relative;       /* nécessaire pour des éléments internes positionnés */
+  background-color: #fff;   /* fond blanc */
+  margin-bottom: 1rem;      /* espacement entre les éléments */
+  padding: 1rem;            /* espace interne */
+  border-radius: 4px;       /* coins arrondis */
+  box-shadow: 0 2px 6px rgba(6,24,24,0.1); /* ombre légère */
+  cursor: pointer;          /* curseur de clic */
+}
+
+
+/* -------------------- LIVRE D'OR (#livre-dor) -------------------- */
+#livre-dor {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 5px;
+  padding: 2rem;
+  box-shadow: 0 2px 6px rgba(6,24,24,0.1);
+}
+
+#livre-dor form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #cde3d9;
+  border-radius: 3px;
+}
+
+button[type="submit"] {
+  width: 150px;
+  padding: 0.5rem;
+  background-color: #40a770;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #349060;
+}
+
+#messages-container {
+  margin-top: 2rem;
+  background: #f9fdfb;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.message-item {
+  border-bottom: 1px solid #cde3d9;
+  padding: 0.5rem 0;
+}
+
+.message-item:last-child {
+  border-bottom: none;
+}
+
+/* -------------------- FOOTER -------------------- */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #061818;
+  color: #fff;
+  margin-top: 2rem;
+}
+
+/* -------------------- RESPONSIVE DESIGN (MENU) -------------------- */
+@media (max-width: 768px) {
+  /* Bouton burger visible sur mobile */
+  .burger-menu {
+    display: flex;
+  }
+  /* Menu en colonne au lieu de flex-row */
+  #main-nav ul {
+    flex-direction: column;
+  }
+  #main-nav li {
+    margin-left: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+#jeux .games-container {
+  margin: 0 auto; /* Centre automatiquement en grand écran. 
+                     Sur mobile, ça reste lisible */
+}
+
+@media (min-width: 1000px) {
+  #jeux .games-container {
+    margin-left: 400px;
+    margin-right: 400px;
+  }
+}
+
+#news-details {
+  max-width: 600px;
+  margin: 2rem auto;       /* centré horizontalement */
+  background-color: #fff;  /* fond blanc */
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(6,24,24,0.2);
+}
+
+#news-details h2 {
+  margin-bottom: 1rem;
+}
+
+#news-details.hidden {
+  display: none;
+}
+
+/* Ex: le bouton "Fermer" */
+#close-news-details {
+  background-color: #40a770; /* vert clair */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+#close-news-details:hover {
+  background-color: #349060;
+}
+
+#tooltip {
+  position: absolute;       /* positionnement par rapport à la souris */
+  background: #333;         /* fond sombre */
+  color: #fff;              /* texte blanc */
+  padding: 5px 10px;        /* espace interne */
+  border-radius: 4px;       /* coins arrondis */
+  font-size: 0.9rem;        /* taille de police réduite */
+  pointer-events: none;     /* souris "traverse" l'élément */
+  z-index: 9999;            /* au-dessus des autres éléments */
+}
+
+/* Caché par défaut */
+#tooltip.hidden {
+  display: none;
+}
+
+/*********************************
+ * SECTION DISCORD
+ *********************************/
+#discord {
+  /* On limite la largeur pour centrer le contenu 
+     et éviter qu'il s'étale sur de très grands écrans */
+  max-width: 600px;
+
+  /* On centre le bloc dans la page */
+  margin: 2rem auto;
+
+  /* Fond blanc (ou un vert très pâle si tu veux rester 
+     dans la charte globale #ecf7f1 / #dceee6) */
+  background: #fff; 
+
+  /* Effet "carte" : coins arrondis, ombre légère */
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(6,24,24,0.1);
+
+  /* Espacement intérieur */
+  padding: 2rem;
+}
+
+#discord h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+#discord p {
+  /* Un peu de marge en bas du texte */
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+/* Le bouton "Rejoindre le Discord" */
+.btn-discord {
+  display: inline-block;
+  background-color: #40a770;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.75rem 1.25rem;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  margin-bottom: 1.5rem; /* Séparation du texte suivant */
+}
+
+.btn-discord:hover {
+  /* Un peu plus foncé sur hover */
+  background-color: #349060; 
+}
+
+.discord-image {
+  display: block;
+  margin: 1rem auto;
+  width: 300px;
+  height: auto;
+  border-radius: 10px;
+}
+
+
+
+

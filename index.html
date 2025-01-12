@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ToncPlay - Le plaisir du jeu</title>
+  <!-- Lien vers la feuille de style externe -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ====================== HEADER (MENU FIXE) ====================== -->
+  <header class="main-header">
+    <div class="logo-container">
+      <!-- Bouton burger (mobile) -->
+      <button class="burger-menu" id="burger-menu" aria-label="Menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+
+      <!-- Menu principal avec data-section -->
+      <nav id="main-nav" class="nav-closed">
+        <ul>
+          <li>
+            <a href="#" data-section="accueil">
+              <img src="images/logo.png" alt="logo" class="menu-icon" />
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a href="#" data-section="jeux">
+              <img src="images/logo.png" alt="logo" class="menu-icon" />
+              Jeux
+            </a>
+          </li>
+          <li>
+            <a href="#" data-section="news">
+              <img src="images/logo.png" alt="logo" class="menu-icon" />
+              News
+            </a>
+          </li>
+          <li>
+            <a href="#" data-section="livre-dor">
+              <img src="images/logo.png" alt="logo" class="menu-icon" />
+              Livre d'or
+            </a>
+          </li>
+          <li>
+            <a href="#" data-section="discord">
+              <img src="images/logo.png" alt="logo" class="menu-icon" />
+              Discord
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ====================== CONTENU PRINCIPAL ====================== -->
+  <main>
+    <!-- ----------- SECTION ACCUEIL ----------- -->
+    <section id="accueil">
+      <h1>Bienvenue sur ToncPlay</h1>
+      <p>
+        ToncPlay vous propose une sélection de jeux gratuits entièrement codés 
+        en JavaScript, créés avec l’aide de ChatGPT. Profitez de nos différents 
+        univers et amusez-vous !
+      </p>
+      <figure class="accueil-figure">
+        <img 
+          src="images/toncplay.jpg" 
+          alt="ToncPlay" 
+          class="accueil-image" 
+        />
+        <figcaption>Plongez dans l'univers de ToncPlay !</figcaption>
+      </figure>
+    </section>
+
+    <!-- ----------- SECTION JEUX ----------- -->
+<section id="jeux" class="hidden">
+  <h1>Nos Jeux</h1>
+<div class="games-container">
+  <!-- Carton Game -->
+  <div class="game-row">
+    <div class="jaquette-cell">
+      <img 
+        src="jaquette/cartongame.png" 
+        alt="Carton Game" 
+        class="jaquette"
+      />
+    </div>
+    <div class="description-cell">
+      <h2>Carton Game</h2>
+      <p>
+        Un jeu de type cliqueur où vous devez produire du carton, optimiser votre fabrication et le vendre au meilleur prix ! Profitez de nombreuses améliorations pour booster votre production, débloquez des succès motivants et devenez le magnat du carton !
+      </p>
+      <a href="jeux/cartongame/index.html" class="btn-jouer">Jouer</a>
+    </div>
+  </div>
+
+  <!-- Galactic Defender -->
+  <div class="game-row">
+    <div class="jaquette-cell">
+      <img 
+        src="jaquette/galacticdefender.png" 
+        alt="Galactic Defender" 
+        class="jaquette"
+      />
+    </div>
+    <div class="description-cell">
+      <h2>Galactic Defender</h2>
+      <p>
+        Un jeu type Shoot 'Em Up ! Plongez dans un univers galactique et affrontez des vagues d'ennemis redoutables, des boss colossaux et des pluies de météorites menaçantes. Survivrez-vous au chaos ?
+      </p>
+      <a href="jeux/galacticdefender/index.html" class="btn-jouer">Jouer</a>
+    </div>
+  </div>
+
+  <!-- Surviv'Hordes -->
+  <div class="game-row">
+    <div class="jaquette-cell">
+      <img 
+        src="jaquette/survivhordes.jpg" 
+        alt="Surviv'Hordes" 
+        class="jaquette"
+      />
+    </div>
+    <div class="description-cell">
+      <h2>Surviv'Hordes</h2>
+      <p>
+        "Vous les entendez. Il en vient de partout !" Jeu de type roguelike. Survivez à l'assaut incessant des hordes de zombies et luttez pour votre survie face à une menace sans fin !
+      </p>
+      <a href="jeux/survivhordes/index.html" class="btn-jouer">Jouer</a>
+    </div>
+  </div>
+
+  <!-- Luminescence -->
+  <div class="game-row">
+    <div class="jaquette-cell">
+      <img 
+        src="jaquette/luminescence.jpg" 
+        alt="Luminescence" 
+        class="jaquette"
+      />
+    </div>
+    <div class="description-cell">
+      <h2>Luminescence</h2>
+      <p>
+        Rammassez les orbes et éviter les obtacles ! 1er jeu du projet ToncPlay.
+      </p>
+      <a href="jeux/luminescence/index.html" class="btn-jouer">Jouer</a>
+    </div>
+  </div>
+</div>
+
+</section>
+
+<!-- SECTION NEWS -->
+<section id="news" class="hidden">
+  <h1>Actualités</h1>
+
+  <!-- Encart de détails, caché par défaut, 
+       placé AU-DESSUS de la liste de news -->
+  <div id="news-details" class="hidden">
+    <h2 id="news-details-title"></h2>
+    <p id="news-details-body"></p>
+    <button id="close-news-details">Fermer</button>
+  </div>
+
+  <!-- Conteneur où s'injectent les news via JS -->
+  <div id="news-container">
+    <!-- Insertion dynamique des news via script.js -->
+  </div>
+</section>
+
+    <!-- ----------- SECTION LIVRE D'OR ----------- -->
+    <section id="livre-dor" class="hidden">
+      <h1>Livre d'or ( actuellement en développement)</h1>
+      <form id="livre-dor-form">
+        <div class="form-group">
+          <label for="nom">Votre nom :</label>
+          <input type="text" id="nom" name="nom" required />
+        </div>
+        <div class="form-group">
+          <label for="message">Votre message :</label>
+          <textarea id="message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit">Envoyer</button>
+      </form>
+
+      <!-- Zone d'affichage des messages -->
+      <div id="messages-container"></div>
+    </section>
+<div id="tooltip" class="hidden"></div>
+
+<!-- ----------- SECTION DISCORD ----------- -->
+<section id="discord" class="hidden">
+  <h1>Rejoingnez-nous sur notre Discord</h1>
+
+  <p>
+    Rejoignez notre serveur Discord pour partager vos meilleurs scores, discuter des differents jeux ou simplement faire un retour. Tour retour positif ou négatif est la bienvenue !
+  </p>
+
+  <a 
+    href="https://discord.gg/8Rj2gN7Tgz" 
+    class="btn-discord"
+    target="_blank"
+  >
+    Rejoindre le Discord
+  </a>
+      <br>
+        <img src="images/toncplay.jpg" alt="ToncPlay" class="discord-image">
+</section>
+  </main>
+
+  <!-- ====================== FOOTER ====================== -->
+  <footer>
+    <p>&copy;Sluto - Projet ToncPlay - Tous droits réservés.</p>
+  </footer>
+
+  <!-- Script JS externe -->
+  <script src="script.js"></script>
+</body>
+</html>
