@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Luminescence</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner à la page d'accueil ToncPlay">
+    <img src="../../images/logo.png" alt="ToncPlay Logo">
+</a>
+<div id="dynamicTitle">
+    <h1 id="gameTitle"><span>L</span><span>u</span><span>m</span><span>i</span><span>n</span><span>e</span><span>s</span><span>c</span><span>e</span><span>n</span><span>c</span><span>e</span></h1>
+</div>
+    <div id="ui">
+        <div id="score">Score : 0</div>
+        <div id="lives">Vies : 3</div>
+        <div id="level">Niveau : 1</div>
+        <div id="combo" style="display: none;">Combo x1</div>
+        <div id="powerUpIndicators"></div>
+    </div>
+    <div id="buttonContainer">
+      <button id="restartButton">Rejouer</button>
+      <button id="menuButton">Retour au Menu</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+<div id="belowCanvasUI">
+    <div id="highScore">Meilleur Score : 0</div>
+    <button id="pauseButton">⏸️</button>
+</div>
+    <script src="game.js"></script>
+<div id="footerText">©Sluto - Ce jeu fait partie du projet <a href="../../index.html">ToncPlay</a>.</div>
+</body>
+</html>

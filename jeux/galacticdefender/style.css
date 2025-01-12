@@ -1,0 +1,237 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    position: relative;
+    width: 320px;
+    height: 480px;
+    background-color: black;
+    padding-top: 20px;
+    overflow: hidden;
+}
+
+#game-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+#menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    width: 80%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+#tutorial {
+    position: fixed;
+    top: 5%; /* Ajuste légèrement la position haute */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    width: 80%; /* Réduit la largeur pour un affichage plus centré */
+    max-width: 400px; /* Définit une largeur maximale */
+    max-height: 90vh; /* Limite la hauteur de la boutique */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    overflow-y: auto; /* Active le défilement pour les éléments qui débordent */
+}
+
+#shop {
+    position: fixed;
+    top: 5%; /* Ajuste légèrement la position haute */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    width: 80%; /* Réduit la largeur pour un affichage plus centré */
+    max-width: 400px; /* Définit une largeur maximale */
+    max-height: 90vh; /* Limite la hauteur de la boutique */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    overflow-y: auto; /* Active le défilement pour les éléments qui débordent */
+}
+
+#menu h1, #tutorial h2, #shop h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+#replay-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    font-size: 18px;
+    display: none;
+    color: white;
+    background-color: #333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.shop-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Espacement entre chaque item de la boutique */
+}
+
+.preview-image {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px; /* Espace entre l'image et le bouton */
+}
+
+#game-over-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Espace de 15 pixels entre les boutons */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10; /* Assure que le conteneur est au-dessus du fond */
+}
+
+#game-over-text {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2; /* Pour qu'il s'affiche devant les autres éléments */
+    color: white;
+    font-size: 30px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#mute-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background-color: #333;
+    color: white;
+    font-size: 24px;
+    display: flex; /* Utiliser flexbox */
+    justify-content: center; /* Centrer horizontalement */
+    align-items: center; /* Centrer verticalement */
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transition: background-color 0.3s;
+}
+
+#mute-button:hover {
+    background-color: #555;
+}
+
+/* CSS dans le fichier style.css */
+#footerText {
+    position: fixed; /* Fixe l'élément au bas de la fenêtre */
+    bottom: 0;       /* Distance par rapport au bas de la fenêtre */
+    left: 0;         /* Aligne sur le bord gauche */
+    width: 100%;     /* Prend toute la largeur de la page */
+    text-align: center; /* Centre le texte */
+    padding: 10px 0;  /* Optionnel : espace intérieur */
+    font-size: 14px; /* Optionnel : taille de la police */
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1); /* Optionnel : ombre pour la barre */
+}
+
+/* Style du logo ToncPlay */
+#toncplay-logo {
+    position: absolute; /* Positionnement par rapport à la page */
+    top: 10px;          /* Distance du haut de la page */
+    left: 10px;         /* Distance du côté gauche */
+    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
+    display: block;     /* Assure que le lien reste un bloc cliquable */
+}
+
+#toncplay-logo img {
+    width: 60px;       /* Ajustez la taille du logo */
+    height: auto;       /* Maintient les proportions */
+    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+}
+
+/* Position et style du tooltip */
+#toncplay-logo[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+    position: absolute;
+    top: 110%; /* Ajuste la position sous l'image */
+    left: 50%; /* Centre horizontalement */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Marges internes */
+    border-radius: 5px; /* Coins arrondis */
+    white-space: nowrap; /* Empêche le texte de se couper */
+    font-size: 12px; /* Taille du texte */
+    z-index: 1000; /* Affiche au-dessus des autres éléments */
+    pointer-events: none; /* Empêche de cliquer sur le tooltip */
+    opacity: 0; /* Rend invisible par défaut */
+    transition: opacity 0.3s; /* Transition pour l'apparition */
+}
+
+/* Style de base pour le tooltip */
+#tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 12px; /* Taille de la police */
+    pointer-events: none; /* Empêche d'interagir avec le tooltip */
+    z-index: 1000; /* Affiche par-dessus les autres éléments */
+    white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+

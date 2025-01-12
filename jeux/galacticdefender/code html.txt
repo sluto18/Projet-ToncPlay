@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Defender</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="game-over-text" style="display: none;">Game Over</div>
+
+        <!-- Menu Principal -->
+        <div id="menu" class="menu-overlay">
+            <h1>Galactic Defender</h1>
+            <button onclick="startGame()">Jouer</button><BR>
+            <button onclick="showTutorial()">Tutoriel</button><BR>
+            <button onclick="showShop()">Boutique</button>
+        </div>
+
+        <!-- Tutoriel -->
+        <div id="tutorial" style="display: none;" class="menu-overlay">
+            <h2>Tutoriel</h2>
+            <p>Bienvenue dans Galactic Defender <img src="images/avion.png" alt="Aperçu de l'avion" class="text-image" width="16" height="16">!</p><br>
+            <br>
+            <p>Votre mission : survivre face à l'assaut incessant des vaisseaux ennemis<img src="images/ennemi.png" class="text-image" width="16" height="16">, éliminer des boss redoutables<img src="images/boss.png" class="text-image" width="16" height="16"> mais faites attention aux météorites <img src="images/meteorite.png" class="text-image" width="16" height="16">. Tentez de survivre le plus longtemps possible dans cette bataille spatiale épique.</p>
+            <br>
+            <p>Déplacez-vous avec les touches ZQSD ou les flèches directionnelles. Récupérez des Power-Ups pour obtenir des avantages temporaires, mais attention : chaque nouveau Power-Up ramasse remplace l'effet du précédent.</p>
+            <br>
+            <p>Collectez des pièces<img src="images/piece.png" class="text-image" width="16" height="16">  pour personnaliser votre vaisseau ou changer le fond d'écran du jeu !</p>
+            <br>
+            <h3>Power-ups disponible :</h3>
+            <br>
+            <ul>
+                <li><img src="images/shield.png" alt="Shield" style="vertical-align: middle; margin-right: 10px; width: 20px; height: 20px;"><strong>Shield</strong> : Protège contre un coup.</li>
+                <li><img src="images/rapidfire.png" alt="Rapid Fire" style="vertical-align: middle; margin-right: 10px; width: 20px; height: 20px;"><strong>Rapid Fire</strong> : Augmente la cadence de tir temporairement.</li>
+                <li><img src="images/doubleshot.png" alt="Double Shot" style="vertical-align: middle; margin-right: 10px; width: 20px; height: 20px;"><strong>Double Shot</strong> : Tire deux projectiles à la fois.</li>
+            </ul><br>
+             <p>Réinitialiser votre progression<button onclick="resetProgress()">Réinitialiser</button></p> 
+            <br>
+            <p> N'hésitez pas a partager votre meilleur score sur notre Discord !</p>
+            <button onclick="backToMenu()">Retour au Menu</button>
+        </div>
+
+        <!-- Boutique -->
+        <div id="shop" style="display: none;" class="menu-overlay">
+            <h2>Boutique</h2>
+            <p>Pièces disponibles : <span id="total-coins-display"></span></p>
+            <p>Personnalisez le jeu en achetant des skins d'avions ou des fond différent dans la boutique.</p>
+    <div class="item">
+        <h3>Skins d'avion</h3>
+        <div>
+         <div id="skin-button-base"></div>
+         <div id="skin-button-2"></div>
+         <div id="skin-button-3"></div>
+         <div id="skin-button-4"></div>
+         <div id="skin-button-5"></div>
+        </div>
+    </div>
+    <div class="item">
+        <h3>Fond d'écran</h3>
+        <div>
+         <div id="background-button-base"></div>
+         <div id="background-button-2"></div>
+         <div id="background-button-3"></div>
+        </div>
+    </div>
+
+            <button onclick="backToMenu()">Retour au Menu</button><br>
+        </div>
+        <br>
+        <button id="replay-button" style="display: none;" onclick="startGame()">Rejouer</button>
+    </div>
+
+    <script src="game.js"></script>
+<button id="mute-button" onclick="toggleMute()">🔊</button>
+</body>
+</html>

@@ -1,0 +1,181 @@
+        /* Styles personnalisés */
+        .stats-item, .actions-item, .transactions, .amelioration-item {
+            background-color: #b39d82;
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5dfca;
+            color: #333;
+        }
+
+        header {
+            background-color: #b39d82;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: white;
+        }
+
+        nav ul {
+            background-color: #b39d82;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Onglet Jeu  */
+        .amelioration-item, .stats-item p, .actions-item p {
+            margin: 10px 0;
+        }
+
+        .amelioration-item h3, .stats-item h3, .actions-item h3 {
+            margin-bottom: 10px;
+            color: #000000;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #b39d82;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #a3856c;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            background-color: #8b6e58;
+            transform: scale(0.98);
+        }
+
+        /* Onglet Améliorations */
+        .amelioration-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            align-items: start;
+            justify-items: center;
+        }
+
+        .amelioration-item button {
+            background-color: #b39d82;
+            color: #000000;
+            border: 2px solid #6d5540;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 12px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .amelioration-item button:hover {
+            background-color: #7a5f4b;
+            transform: translateY(-2px);
+        }
+
+        .amelioration-item button:active {
+            background-color: #6d5540;
+            transform: scale(0.98);
+        }
+
+        /* Styles pour les succès */
+        .succès-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .succès-list li {
+            margin-bottom: 10px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+/* Style du logo ToncPlay */
+#toncplay-logo {
+    position: absolute; /* Positionnement par rapport à la page */
+    top: 10px;          /* Distance du haut de la page */
+    left: 10px;         /* Distance du côté gauche */
+    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
+    display: block;     /* Assure que le lien reste un bloc cliquable */
+}
+
+#toncplay-logo img {
+    width: 60px;       /* Ajustez la taille du logo */
+    height: auto;       /* Maintient les proportions */
+    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+}
+
+/* Position et style du tooltip */
+#toncplay-logo[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+    position: absolute;
+    top: 110%; /* Ajuste la position sous l'image */
+    left: 50%; /* Centre horizontalement */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Marges internes */
+    border-radius: 5px; /* Coins arrondis */
+    white-space: nowrap; /* Empêche le texte de se couper */
+    font-size: 12px; /* Taille du texte */
+    z-index: 1000; /* Affiche au-dessus des autres éléments */
+    pointer-events: none; /* Empêche de cliquer sur le tooltip */
+    opacity: 0; /* Rend invisible par défaut */
+    transition: opacity 0.3s; /* Transition pour l'apparition */
+}
+
+/* Style de base pour le tooltip */
+#tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 12px; /* Taille de la police */
+    pointer-events: none; /* Empêche d'interagir avec le tooltip */
+    z-index: 1000; /* Affiche par-dessus les autres éléments */
+    white-space: nowrap; /* Empêche le texte de se couper */
+}

@@ -1,0 +1,120 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: url('images/fondecran.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    user-select: none;
+}
+
+#gameTitle {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+    margin: 20px 0;
+}
+
+canvas {
+    display: block;
+    margin: 20px auto;
+    border: 2px solid #222;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    background: url('images/fondgame.jpg') no-repeat center center;
+    background-size: cover;
+    cursor: crosshair;
+}
+
+#footerText {
+    text-align: center;
+    font-size: 12px;
+    color: white;
+    margin: 20px auto;
+}
+
+  #level-up-container {
+    position: absolute;
+    top: 50%; /* Ajustez selon vos préférences */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Pour éviter de bloquer les clics */
+  }
+  #level-up-text {
+    font-size: 60px;
+    font-weight: bold;
+    color: red;
+    opacity: 0;
+    text-shadow: 
+      0 2px 0 #8B0000, 
+      0 4px 4px #8B0000, 
+      0 6px 8px rgba(0, 0, 0, 0.5);
+    transform: scale(0.5) rotate(0deg);
+    animation: none; /* Par défaut, aucune animation */
+  }
+  @keyframes pulseShake {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(0deg);
+    }
+    25% {
+      opacity: 1;
+      transform: scale(1.2) rotate(3deg);
+    }
+    50% {
+      transform: scale(1.1) rotate(-3deg);
+    }
+    75% {
+      transform: scale(1.2) rotate(3deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+/* Style du logo ToncPlay */
+#toncplay-logo {
+    position: absolute; /* Positionnement par rapport à la page */
+    top: 10px;          /* Distance du haut de la page */
+    left: 10px;         /* Distance du côté gauche */
+    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
+    display: block;     /* Assure que le lien reste un bloc cliquable */
+}
+
+#toncplay-logo img {
+    width: 60px;       /* Ajustez la taille du logo */
+    height: auto;       /* Maintient les proportions */
+    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+}
+
+/* Position et style du tooltip */
+#toncplay-logo[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+    position: absolute;
+    top: 110%; /* Ajuste la position sous l'image */
+    left: 50%; /* Centre horizontalement */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Marges internes */
+    border-radius: 5px; /* Coins arrondis */
+    white-space: nowrap; /* Empêche le texte de se couper */
+    font-size: 12px; /* Taille du texte */
+    z-index: 1000; /* Affiche au-dessus des autres éléments */
+    pointer-events: none; /* Empêche de cliquer sur le tooltip */
+    opacity: 0; /* Rend invisible par défaut */
+    transition: opacity 0.3s; /* Transition pour l'apparition */
+}
+
+/* Style de base pour le tooltip */
+#tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 12px; /* Taille de la police */
+    pointer-events: none; /* Empêche d'interagir avec le tooltip */
+    z-index: 1000; /* Affiche par-dessus les autres éléments */
+    white-space: nowrap; /* Empêche le texte de se couper */
+}

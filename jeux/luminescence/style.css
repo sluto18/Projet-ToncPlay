@@ -1,0 +1,316 @@
+body {
+    margin: 0;
+    overflow: auto;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+    display: flex; /* Utilise flexbox pour la mise en page */
+    flex-direction: column; /* Dispose les éléments verticalement */
+    align-items: center; /* Centre horizontalement */
+    height: 100vh; /* Hauteur totale de la fenêtre */
+    justify-content: flex-start; /* Le titre reste en haut */
+    gap: 5px; /* Espacement entre le titre et le canvas */
+}
+
+#gameCanvas {
+    display: block;
+    width: 1024px;
+    height: 768px;
+    margin: 0 auto; /* Centre horizontalement */
+    border-radius: 20px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+#ui {
+    position: relative;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    width: 1024px; /* Alignez avec la largeur du canvas */
+    margin: 0 auto 5px; 
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+}
+
+
+#ui div {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+#combo {
+    color: #FFD700;
+    font-weight: bold;
+}
+
+#pauseButton {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: rgba(0, 0, 0, 0.7); /* Fond semi-transparent */
+    color: #fff;
+    border: none;
+    border-radius: 5px; /* Coins arrondis */
+    cursor: pointer;
+    text-align: center;
+    margin-right: 10px; /* Décalage depuis le bord droit */
+    display: inline-block; /* Assure un positionnement horizontal */
+}
+
+#pauseButton:hover {
+    color: #FFD700;
+}
+
+#buttonContainer {
+    position: absolute; /* Position relative au canvas */
+    top: 50%; /* Centre verticalement */
+    left: 50%; /* Centre horizontalement */
+    transform: translate(-50%, -50%); /* Ajuste le centrage exact */
+    display: none; /* Masqué par défaut */
+    flex-direction: column; /* Place les boutons verticalement */
+    gap: 20px; /* Espacement entre les boutons */
+    z-index: 100; /* Assure que le conteneur reste au-dessus du canvas */
+    text-align: center;
+}
+
+#restartButton,
+#menuButton {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 5px; /* Coins arrondis */
+    cursor: pointer;
+    text-align: center;
+    width: 150px; /* Taille uniforme pour les boutons */
+}
+
+#restartButton:hover,
+#menuButton:hover {
+    background-color: #444; /* Fond plus sombre au survol */
+}
+
+#powerUpIndicators {
+    margin-top: 10px;
+}
+
+.power-up-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+}
+
+.power-up-icon img {
+    width: 100%;
+    height: auto;
+}
+
+/* Styles pour le menu principal */
+#mainMenu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    text-align: center;
+    z-index: 20;
+}
+
+#mainMenu h1 {
+    font-size: 64px;
+    margin-bottom: 40px;
+}
+
+.menu-button {
+    padding: 15px 30px;
+    font-size: 24px;
+    margin: 10px;
+    cursor: pointer;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
+
+.menu-button:hover {
+    background-color: #444;
+}
+
+/* Styles pour le tutoriel */
+#tutorialScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    z-index: 30;
+    display: none;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#tutorialScreen h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#tutorialScreen p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+#tutorialScreen table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+#tutorialScreen th,
+#tutorialScreen td {
+    border: 1px solid #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+#tutorialScreen .close-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    display: block;
+    margin: 20px auto 0;
+}
+
+#tutorialScreen .close-button:hover {
+    background-color: #444;
+}
+
+#powerUpIndicators {
+    position: absolute;
+    top: 20px; /* Position au-dessus du canvas */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #FFFFFF; /* Par défaut, blanc */
+    background-color: rgba(0, 0, 0, 0.7); /* Fond semi-transparent */
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#gameTitle {
+    position: relative; /* Ne pas utiliser absolute */
+    margin: 20px auto; /* Centre le titre horizontalement */
+    font-size: 48px; /* Taille de police */
+    font-weight: bold; /* Gras */
+    color: #FFFFFF; /* Couleur blanche */
+    text-align: center; /* Centré au niveau du texte */
+    font-family: Arial, sans-serif;
+    width: 100%; /* Prend toute la largeur pour éviter le déplacement */
+}
+
+/* Style du logo ToncPlay */
+#toncplay-logo {
+    position: absolute; /* Positionnement par rapport à la page */
+    top: 10px;          /* Distance du haut de la page */
+    left: 10px;         /* Distance du côté gauche */
+    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
+    display: block;     /* Assure que le lien reste un bloc cliquable */
+}
+
+#toncplay-logo img {
+    width: 60px;       /* Ajustez la taille du logo */
+    height: auto;       /* Maintient les proportions */
+    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+}
+
+/* Position et style du tooltip */
+#toncplay-logo[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+    position: absolute;
+    top: 110%; /* Ajuste la position sous l'image */
+    left: 50%; /* Centre horizontalement */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Marges internes */
+    border-radius: 5px; /* Coins arrondis */
+    white-space: nowrap; /* Empêche le texte de se couper */
+    font-size: 12px; /* Taille du texte */
+    z-index: 1000; /* Affiche au-dessus des autres éléments */
+    pointer-events: none; /* Empêche de cliquer sur le tooltip */
+    opacity: 0; /* Rend invisible par défaut */
+    transition: opacity 0.3s; /* Transition pour l'apparition */
+}
+
+/* Style de base pour le tooltip */
+#tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 12px; /* Taille de la police */
+    pointer-events: none; /* Empêche d'interagir avec le tooltip */
+    z-index: 1000; /* Affiche par-dessus les autres éléments */
+    white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+#footerText {
+    text-align: center;
+    font-size: 12px;
+    color: white;
+    margin: 20px auto;
+}
+
+#dynamicTitle {
+    display: flex; /* Aligne les lettres horizontalement */
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    text-align: center;
+    margin: 20px auto;
+}
+
+#dynamicTitle span {
+    display: inline-block; /* Permet des animations individuelles */
+    animation: colorChange 3s infinite; /* Animation de changement de couleur */
+}
+
+/* Animation pour changer la couleur */
+@keyframes colorChange {
+    0% { color: #ff0000; }
+    25% { color: #00ff00; }
+    50% { color: #0000ff; }
+    75% { color: #ff00ff; }
+    100% { color: #ff0000; }
+}
+
+#belowCanvasUI {
+    display: flex;
+    justify-content: space-between; /* Écarte les enfants horizontalement */
+    align-items: center; /* Centre verticalement les enfants */
+    width: 1024px; /* Aligné avec la largeur du canvas */
+    margin: 10px auto 0; /* Place le conteneur en dessous du canvas */
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    color: #fff;
+    position: relative; /* Positionné par rapport au canvas */
+}
+
+
+
+
+
+
