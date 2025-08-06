@@ -11,717 +11,341 @@
     <img src="../../images/logo.png" alt="ToncPlay Logo">
 </a>
     <header>
-        <img src="image/banniere1.png" alt="Carton Game Banner" width="890" height="260" style="display: block; margin: 0 auto;">
+        <img src="image/banniere1.png" alt="Carton Game Banner" width="890" height="180" style="display: block; margin: 0 auto;">
         <nav>
             <ul>
-                <li><a href="#" class="tab-link" data-tab="accueil"><img src="image/accueil.png" alt="Accueil" width="155" height="125"></a></li>
-                <li><a href="#" class="tab-link" data-tab="jeu"><img src="image/jeu.png" alt="Jeu" width="155" height="125"></a></li>
-                <li><a href="#" class="tab-link" data-tab="ameliorations"><img src="image/ameliorations.png" alt="Améliorations" width="155" height="125"></a></li>
-                <li><a href="#" class="tab-link" data-tab="succès"><img src="image/succes.png" alt="Succès" width="155" height="125"></a></li>
-                <li><a href="#" class="tab-link" data-tab="aide"><img src="image/aide.png" alt="Aide" width="155" height="125"></a></li>
-                <li><a href="#" class="tab-link" data-tab="contact"><img src="image/contact.png" alt="Contact" width="155" height="125"></a></li>
+                <li><a href="#" class="tab-link" data-tab="accueil"><img src="image/cartonmenu.png" alt="Accueil" class="menu-icon" onerror="this.onerror=null;this.src='https://placehold.co/32x32/cccccc/000000?text=IMG'" /> Accueil</a></li>
+                <li><a href="#" class="tab-link" data-tab="jeu"><img src="image/cartonmenu.png" alt="Jeu" class="menu-icon" onerror="this.onerror=null;this.src='https://placehold.co/32x32/cccccc/000000?text=IMG'" /> Jeu</a></li>
+                <!-- L'onglet Améliorations a été supprimé -->
+                <li><a href="#" class="tab-link" data-tab="succès"><img src="image/cartonmenu.png" alt="Succès" class="menu-icon" onerror="this.onerror=null;this.src='https://placehold.co/32x32/cccccc/000000?text=IMG'" /> Succès</a></li>
+                <li><a href="#" class="tab-link" data-tab="aide"><img src="image/cartonmenu.png" alt="Aide" class="menu-icon" onerror="this.onerror=null;this.src='https://placehold.co/32x32/cccccc/000000?text=IMG'" /> Aide</a></li>
+                <!-- L'onglet Contact a été supprimé comme demandé -->
             </ul>
         </nav>
-        <div style="width: 100%; height: 20px; background: url('image/barre.png') repeat-x center; background-size: contain; margin: 0;"></div>
     </header>
 
     <main>
         <!-- Onglet Accueil -->
         <section id="accueil" class="tab-content active">
             <h2>Bienvenue dans Carton Game !</h2>
-            <p>Vous pensiez que le carton n'avait rien de passionnant ? Détrompez-vous ! Bienvenue sur **Carton Game**, le jeu qui va transformer votre vie monotone en une aventure palpitante... en carton ! Cliquez frénétiquement pour fabriquer des cartons, vendez-les à prix d'or (enfin... presque) et devenez le magnat ultime du carton.<br>
-            Attention, l'empire du carton n'attend pas ! À vous de jouer et de montrer que même une boîte peut contenir des rêves énormes !<br>
+            <p>Ici, c'est pas de la science-fiction, c'est pas de la magie, c'est du carton. Du vrai. On a un peu de papier, on a des doigts, et paf, on a un carton. Qui n'a jamais rêvé de se lancer dans le business très lucratif de la boîte en carton ? C'est le grand soir ! Préparez vos pouces, vos index, voire même vos coudes si vous êtes motivé, car l'heure est au clic frénétique. Devenez le magnat ultime du carton et bâtissez un empire, carton après carton. C'est l'histoire d'une boîte... qui a fait fortune.<br>
             <br>
-            Carton Game est un jeu de type cliqueur
-            <b>Note de mise à jour :</b><br>
-            - 29/10/24 : Mise en ligne du jeu V1.0</p>
+            Carton Game est un jeu de type cliqueur.<br>
+             
+              <div class="news-item">
+                <h3>Nouvelle mise a jour, un peu de fraicheur</h3>
+                <div class="date">02/08/25 - Maj V1.1</div>
+                <p>Attention les mirettes, on a dépoussiéré le site avec une mise à jour visuelle qui claque, même si on n'avait qu'un rouleau de scotch et un feutre.<br>
+                On a tout regroupé toutes les fonctionnalités sur la page 'Jeu' pour que vous ne vous perdiez plus comme un dahu dans la forêt du web.<br>
+                Et, cerise sur le carton, on a mis à jour les succès ! C'est le moment de prouver que vous êtes un as du clic, ou du moins, un amateur éclairé du carton.</p>
+              </div>
+              <div class="news-item">
+               <h3>Mise en ligne du Jeu</h3>
+               <div class="date">29/10/24 - Maj V1.0</div>
+               <p>Mise en ligne du Jeu Carton Game ! Tu sais, le jeu ou faut cliquer frénétiquement, ben il arrive en format carton !</p>
+              </div>
+            
         </section>
 
         <!-- Onglet Jeu -->
         <section id="jeu" class="tab-content" style="background-color: #e5dfca;">
-            <h2>Le Jeu</h2>
-            <div class="section-container" style="display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 30px; text-align: center; width: 100%;">
-                <div class="stats-item">
-                    <h3>Statistiques</h3>
-                    <p><strong>Total de cartons fabriqués :</strong> <span id="totalCarton">0</span></p>
-                    <p><strong>Cartons en stock :</strong> <span id="stockCarton">0</span> / <span id="stockageMax">1000</span></p>
-                    <p><strong>Papier disponible :</strong> <span id="papierDispo">1000</span></p>
-                    <p><strong>Argent :</strong> <span id="argent">0.00</span> €</p>
-                    <p><strong>Prix unitaire du carton :</strong> <span id="prixVenteCarton">0.10</span> €</p>
-                    <p><strong>Prix unitaire du papier :</strong> <span id="prixAchatPapier">0.01</span> €</p>
-                    <p id="cartonParSeconde" style="display: none;"><strong>Cartons par seconde :</strong> <span id="cps">0</span></p>
+            <div class="game-layout-container">
+                <!-- Colonne de gauche : Statistiques et Actions -->
+                <div class="left-game-panel">
+                    <!-- <h2>Le Jeu</h2> Titre supprimé -->
+                    <div class="stats-item">
+                        <h3>Statistiques</h3>
+                        <div class="stats-grid">
+                            <p>Total de cartons fabriqués :</p><p><span id="totalCarton" class="stat-value">0</span></p>
+                            <p>Argent :</p><p><span id="argent" class="stat-value">0.00 €</span></p>
+
+                            <p>Cartons en stock :</p><p><span id="stockDisplay" class="stat-value"><span id="stockCarton">0</span> / <span id="stockageMax">1000</span></span></p>
+                            <p>Papier disponible :</p><p><span id="papierDispo" class="stat-value">1000</span></p>
+
+                            <p>Prix carton :</p><p><span id="prixVenteCarton" class="stat-value">0.10 €</span></p>
+                            <p>Prix papier :</p><p><span id="prixAchatPapier" class="stat-value">0.01 €</span> <img id="priceAlertIcon" class="price-alert-icon" src="" alt="Alerte prix" style="display: none;"></p>
+
+                            <p id="cartonParSecondeLabel" style="display: none;">Cartons par seconde :</p><p id="cartonParSecondeValue" style="display: none;"><span id="cps" class="stat-value">0</span></p>
+                            <p id="autoPapierStatLabel" style="display: none;">Auto Achat papier :</p><p id="autoPapierStatValue" style="display: none;"><button id="toggleAutoPaperButton" class="stat-value">OFF</button></p>
+                        </div>
+                    </div>
+
+                    <div class="game-actions-panel">
+                        <div class="action-buttons-wrapper">
+                            <div class="sub-actions-column">
+                                <div class="transaction-item">
+                                    <a href="#" id="vendreCarton" data-tooltip="Vendre tout le carton en stock"><img src="image/vente.png" alt="Vendre le carton" width="125" height="125"></a>
+                                </div>
+                                <div class="transaction-item">
+                                    <a href="#" id="acheterpapier" data-tooltip="Acheter du papier"><img src="image/papier.png" alt="Acheter du papier" width="150" height="150"></a>
+                                </div>
+                            </div>
+                            <div class="main-action-column">
+                                <button id="fabriquerCarton" style="border: none; background: none; padding: 0;"><img src="image/clic.png" alt="Fabriquer du carton" width="250" height="250"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Nouveau conteneur pour le journal d'événements -->
+                    <div id="eventLogContainer">
+    <div class="event-log-header">
+        <h2>Journal d'évènement</h2>
+        
+        <!-- Votre div de bouton déplacée ici -->
+        <div class="event-button-container">
+            <button id="eventButton" class="event-button">
+                <img src="image/event.png" alt="Événements" class="event-icon" />
+                <span>Événements</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="eventLog">
+        <!-- Le contenu du journal va ici -->
+    </div>
+    <a href="#" id="viewFullHistoryLink" class="history-link" style="display: none;">Voir l'historique complet</a>
+</div>
                 </div>
 
-                <div class="actions-item">
-                    <h3>Actions</h3>
-                    <button id="fabriquerCarton" style="border: none; background: none; padding: 0;"><img src="image/clic.png" alt="Fabriquer du carton" width="250" height="250"></button>
-                </div>
-                <div class="transactions">
-                    <h3>Transactions</h3>
-                    <p><b>Vendre le carton</b> <a href="#" id="vendreCarton"><img src="image/vente.png" alt="Vendre le carton" width="125" height="125" align="middle"></a></p>
-                    <br>
-                    <br>
-                    <p> <b>Acheter du papier</b>  <a href="#" id="acheterpapier"><img src="image/papier.png" alt="Acheter du papier" width="150" height="150" align="middle"></a></p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Onglet Améliorations -->
-        <section id="ameliorations" class="tab-content">
-            <h2>Améliorations</h2>
-            <div class="amelioration-list">
-                <!-- Améliorations individuelles -->
-                <div class="amelioration-item">
-                    <h3>Hangar</h3>
-                    <p>Augmente la capacité de stockage de +1000 unités.</p>
-                    <p>Prix: <span id="prixHangar">100</span> € | Niveau : <span id="niveauHangar">0</span></p>
-                    <button data-type="hangar">Acheter Hangar</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>Production améliorée</h3>
-                    <p>Augmente la production par clic de +1.</p>
-                    <p>Prix: <span id="prixProductionamelioree">50</span> € | Niveau : <span id="niveauProductionamelioree">0</span></p>
-                    <button data-type="productionamelioree">Acheter Production Améliorée</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>Autoproduction</h3>
-                    <p>Augmente la production automatique de +1 carton/seconde.</p>
-                    <p>Prix: <span id="prixAutoprod">200</span> € | Niveau : <span id="niveauAutoprod">0</span></p>
-                    <button data-type="autoprod">Acheter Autoproduction</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>SPeria</h3>
-                    <p>Augmente la production automatique de +3 cartons/seconde.</p>
-                    <p>Prix: <span id="prixSperia">500</span> € | Niveau : <span id="niveauSperia">0</span></p>
-                    <button data-type="speria">Acheter SPeria</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>SPanthera</h3>
-                    <p>Augmente la production automatique de +10 cartons/seconde.</p>
-                    <p>Prix: <span id="prixSpanthera">1000</span> € | Niveau : <span id="niveauSpanthera">0</span></p>
-                    <button data-type="spanthera">Acheter SPanthera</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>ExperFold</h3>
-                    <p>Augmente la production automatique de +20 cartons/seconde.</p>
-                    <p>Prix: <span id="prixExperfold">2000</span> € | Niveau : <span id="niveauExperfold">0</span></p>
-                    <button data-type="experfold">Acheter ExperFold</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>Usine</h3>
-                    <p>Augmente la production automatique de +100 cartons/seconde.</p>
-                    <p>Prix: <span id="prixUsine">5000</span> € | Niveau : <span id="niveauUsine">0</span></p>
-                    <button data-type="usine">Acheter Usine</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>Exporter</h3>
-                    <p>Augmente la production automatique de +1000 cartons/seconde.</p>
-                    <p>Prix: <span id="prixExporter">10000</span> € | Niveau : <span id="niveauExporter">0</span></p>
-                    <button data-type="exporter">Acheter Exporter</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>Influence Marché</h3>
-                    <p>Influencer le marché, vous permetrra d'augmenter le prix de vente d'un carton</p>
-                    <p>Prix: <span id="prixInfluencemarche">1000</span> € | Niveau : <span id="niveauInfluencemarche">0</span></p>
-                    <button data-type="influencemarche">Acheter Influence Marché</button>
-                </div>
-                <div class="amelioration-item">
-                    <h3>Double Papier</h3>
-                    <p>Double l'achat de papier.</p>
-                    <p>Prix: <span id="prixDoublepapier">100</span> € | Niveau : <span id="niveauDoublepapier">0</span></p>
-                    <button data-type="doublepapier">Acheter Double Papier</button>
-                </div>
-                <div class="amelioration-item" id="amelioration-statsavancees">
-                    <h3>Statistiques Avancées</h3>
-                    <p>Affiche des statistiques avancées sur votre production.</p>
-                    <p>Prix: <span id="prixStatsavancees">150</span> €</p>
-                    <button data-type="statsavancees" id="acheter-statsavancees">Acheter Statistiques Avancées</button>
-                </div>
-                <div class="amelioration-item" id="amelioration-machinepapier">
-                    <h3>Machine à Papier</h3>
-                    <p>Acheter automatiquement du papier quand le stock atteint 0.</p>
-                    <p>Prix: <span id="prixMachinepapier">500</span> €</p>
-                    <button data-type="machinepapier" id="acheter-machinepapier">Acheter Machine à Papier</button>
+                <!-- Colonne de droite : Améliorations -->
+                <div class="right-game-panel">
+                    <!-- <h2>Améliorations</h2> Titre supprimé -->
+                    <div class="upgrade-categories">
+                        <div class="upgrade-category">
+                            <h3>Production</h3>
+                            <div class="category-items">
+                                <!-- Production améliorée -->
+                                <div class="amelioration-item" data-type="productionamelioree">
+                                    <h4>Production améliorée</h4>
+                                    <p class="amelioration-description">Augmente la production par clic de +1.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauProductionamelioree">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixProductionamelioree">50</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Autoproduction -->
+                                <div class="amelioration-item" data-type="autoprod">
+                                    <h4>Autoproduction</h4>
+                                    <p class="amelioration-description">Augmente la production automatique de +1 carton/seconde.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauAutoprod">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixAutoprod">200</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Speria -->
+                                <div class="amelioration-item" data-type="speria">
+                                    <h4>SPeria</h4>
+                                    <p class="amelioration-description">Augmente la production automatique de +3 cartons/seconde.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauSperia">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixSperia">500</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Spanthera -->
+                                <div class="amelioration-item" data-type="spanthera">
+                                    <h4>SPanthera</h4>
+                                    <p class="amelioration-description">Augmente la production automatique de +10 cartons/seconde.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauSpanthera">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixSpanthera">1000</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- ExperFold -->
+                                <div class="amelioration-item" data-type="experfold">
+                                    <h4>ExperFold</h4>
+                                    <p class="amelioration-description">Augmente la production automatique de +20 cartons/seconde.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauExperfold">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixExperfold">2000</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Usine -->
+                                <div class="amelioration-item" data-type="usine">
+                                    <h4>Usine</h4>
+                                    <p class="amelioration-description">Augmente la production automatique de +100 cartons/seconde.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauUsine">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixUsine">5000</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Exporter -->
+                                <div class="amelioration-item" data-type="exporter">
+                                    <h4>Exporter</h4>
+                                    <p class="amelioration-description">Augmente la production automatique de +1000 cartons/seconde.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauExporter">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixExporter">10000</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="upgrade-category">
+                            <h3>Stockage & Matières Premières</h3>
+                            <div class="category-items">
+                                <!-- Hangar -->
+                                <div class="amelioration-item" data-type="hangar">
+                                    <h4>Hangar</h4>
+                                    <p class="amelioration-description">Augmente la capacité de stockage de +1000 unités.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauHangar">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixHangar">100</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Double Papier -->
+                                <div class="amelioration-item" data-type="doublepapier">
+                                    <h4>Double Papier</h4>
+                                    <p class="amelioration-description">Double l'achat de papier.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauDoublepapier">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixDoublepapier">100</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Machine à Papier -->
+                                <div class="amelioration-item" id="amelioration-machinepapier" data-type="machinepapier">
+                                    <h4>Machine à Papier</h4>
+                                    <p class="amelioration-description">Achète automatiquement du papier quand le stock atteint 0.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Prix: <span id="prixMachinepapier">500</span> €</p>
+                                        <div class="price-button-stack">
+                                            <button id="acheter-machinepapier">Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="upgrade-category">
+                            <h3>Marché & Statistiques</h3>
+                            <div class="category-items">
+                                <!-- Influence Marché -->
+                                <div class="amelioration-item" data-type="influencemarche">
+                                    <h4>Influence Marché</h4>
+                                    <p class="amelioration-description">Influence le marché pour augmenter le prix de vente d'un carton.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Niveau : <span id="niveauInfluencemarche">0</span></p>
+                                        <div class="price-button-stack">
+                                            <p class="amelioration-price">Prix: <span id="prixInfluencemarche">1000</span> €</p>
+                                            <button>Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Statistiques Avancées -->
+                                <div class="amelioration-item" id="amelioration-statsavancees" data-type="statsavancees">
+                                    <h4>Statistiques Avancées</h4>
+                                    <p class="amelioration-description">Affiche des statistiques avancées sur votre production.</p>
+                                    <div class="amelioration-details-group">
+                                        <p class="amelioration-level">Prix: <span id="prixStatsavancees">150</span> €</p>
+                                        <div class="price-button-stack">
+                                            <button id="acheter-statsavancees">Acheter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Onglet Succès -->
         <section id="succès" class="tab-content">
-            <h2>Succès</h2>
-            <ul class="succès-list" id="succèsList">
-                <!-- Les succès seront générés ici -->
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <h2>Vos Succès</h2>
+                <span id="succesCounter" class="succes-counter">0/0 succès débloqués</span>
+            </div>
+            <ul id="succèsList" class="succès-list">
+                <!-- Les succès seront générés ici par JavaScript -->
             </ul>
         </section>
 
         <!-- Onglet Aide -->
         <section id="aide" class="tab-content">
-            <h2>Aide</h2>
-            <p>Votre but est de produire et vendre le plus de cartons possible pour agrandir votre entreprise.</p>
-            <h3>Comment jouer</h3>
-            <p>Cliquez sur "Fabriquer du carton" pour produire du carton. Vous avez besoin de papier pour chaque carton produit. Le papier peut être acheté en cliquant sur "Acheter du papier". Vendez votre stock de cartons pour gagner de l'argent. Utilisez cet argent pour acheter des améliorations qui augmentent la production de cartons.</p>
-            <h3>Réinitialiser</h3>
-            <p>Vous pouvez réinitialiser votre partie et recommencer à zéro en cliquant sur le bouton ci-dessous. Toutes vos améliorations et statistiques seront perdues.</p>
-            <button id="resetGame" style="width: auto; padding: 0.5em;">Réinitialiser</button>
-        </section>
-
-        <!-- Onglet Contact -->
-        <section id="contact" class="tab-content">
-    <h2>Contact</h2>
-<form id="contactForm" action="send_mail.php" method="POST">
-    <label for="nom">Nom:</label>
-    <input type="text" id="nom" name="nom" required><br><br>
-
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required><br><br>
-
-    <label for="message">Message:</label><br>
-    <textarea id="message" name="message" rows="5" required></textarea><br><br>
-
-    <button type="submit">Envoyer</button>
-</form>
+            <h2>Aide et Options</h2>
+            <div class="help-section">
+                <h3>Comment jouer ?</h3>
+                <p>C'est simple, même votre grand-mère pourrait le faire (si elle avait un ordinateur et le sens des affaires). Cliquez comme un forcené sur le carton géant pour en fabriquer. Mais attention, pas de carton sans **papier** ! Gardez un œil sur votre stock de papier, achetez-en quand il manque, et surtout, vendez vos cartons pour amasser un max de pognon. Avec cet argent, débloquez des améliorations de dingue pour produire encore plus vite. C'est le cercle vertueux du carton, baby !</p>
+                <h3>Objectif du jeu</h3>
+                <p>Devenir le Pablo Escobar du carton, mais sans les problèmes de justice (enfin, on espère). Accumulez des millions de cartons, des montagnes d'argent, et débloquez tous les succès pour prouver que vous êtes le boss incontesté de l'industrie cartonnée. Votre nom sera gravé dans l'histoire, ou du moins, sur une boîte en carton recyclée.</p>
+                <h3>Réinitialiser la partie</h3>
+                <button id="resetGame">Réinitialiser le jeu</button>
+            </div>
+        </div>
         </section>
     </main>
 
     <footer style="background-color: #b39d82; padding: 10px;">
-    <p style="margin: 0; text-align: center;"><b>&copy; 2024 Carton Game. Tous droits réservés.</b></p>
+    <p style="margin: 0; text-align: center;"><b>&copy;Sluto - Ce jeu fait partie du<a href="../../index.html"> Projet ToncPlay</a>.</b></p>
     </footer>
 
-    <!-- JavaScript -->
-    <script>
-        // Attendre que le DOM soit complètement chargé avant d'exécuter le code
-        document.addEventListener("DOMContentLoaded", () => {
-            let totalCarton = 0;
-let stockCarton = 0;
-let papierDispo = 1000;
-let argent = 0;
-let prixVenteCarton = (Math.random() * (0.20 - 0.10) + 0.10).toFixed(2);
-let prixAchatPapier = (Math.random() * (0.05 - 0.01) + 0.01).toFixed(2);
-let productionParClic = 1;
-let stockageMax = 1000;
-let autoprod = 0;
-let doublepapier = false;
-let statsAvancees = false;
-let cartonsParSeconde = 0;
+    <!-- Fenêtre modale pour l'historique complet -->
+    <div id="fullHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Historique complet des événements</h2>
+            <div id="fullEventLog" class="full-event-log"></div>
+        </div>
+    </div>
 
-let prixameliorations = {
-    hangar: 100,
-    productionamelioree: 50,
-    autoprod: 200,
-    speria: 500,
-    spanthera: 1000,
-    experfold: 2000,
-    usine: 5000,
-    exporter: 10000,
-    influencemarche: 1000,
-    doublepapier: 100,
-    statsavancees: 150,
-    machinepapier: 500
-};
+    <!-- Fenêtre modale pour les événements spéciaux -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeEventModal">&times;</span>
+            <h2>Événements en cours</h2>
+            <div id="eventContainer">
+                <!-- Les événements dynamiques seront ajoutés ici -->
+            </div>
+        </div>
+    </div>
 
-let niveauxameliorations = {
-    hangar: 0,
-    productionamelioree: 0,
-    autoprod: 0,
-    speria: 0,
-    spanthera: 0,
-    experfold: 0,
-    usine: 0,
-    exporter: 0,
-    influencemarche: 0,
-    doublepapier: 0,
-    statsavancees: 0,
-    machinepapier: 0
-};
+<!-- Modale pour les alertes simples -->
+<div id="alertModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <h3 id="alertModalTitle" class="custom-modal-title">Notification</h3>
+        <p id="alertModalMessage" class="custom-modal-message"></p>
+        <button id="closeAlertModal" class="btn btn-primary w-full">Fermer</button>
+    </div>
+</div>
 
-            let totalPapierAchete = 0;
-            let totalVendu = 0;
+<!-- Modale pour les confirmations -->
+<div id="confirmModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <h3 id="confirmModalTitle" class="custom-modal-title">Confirmation</h3>
+        <p id="confirmModalMessage" class="custom-modal-message"></p>
+        <div class="custom-modal-actions">
+            <button id="cancelConfirmModal" class="btn btn-secondary">Non</button>
+            <button id="acceptConfirmModal" class="btn btn-primary">Oui</button>
+        </div>
+    </div>
+</div>
 
-// Fonction pour calculer le total des améliorations
-function totalAmeliorations() {
-    return Object.values(niveauxameliorations).reduce((acc, niveau) => acc + niveau, 0);
-}
-
-            // Sauvegarde et restauration des données
-            function saveGame() {
-                let gameData = {
-                    totalCarton,
-                    stockCarton,
-                    papierDispo,
-                    argent,
-                    prixVenteCarton,
-                    prixAchatPapier,
-                    productionParClic,
-                    stockageMax,
-                    autoprod,
-                    doublepapier,
-                    statsAvancees,
-                    cartonsParSeconde,
-                    prixameliorations,
-                    niveauxameliorations
-                };
-                localStorage.setItem("cartonGameSave", JSON.stringify(gameData));
-            }
-
-            function loadGame() {
-                let savedData = JSON.parse(localStorage.getItem("cartonGameSave"));
-                if (savedData) {
-                    totalCarton = savedData.totalCarton || 0;
-                    stockCarton = savedData.stockCarton || 0;
-                    papierDispo = savedData.papierDispo || 1000;
-                    argent = savedData.argent || 0;
-                    prixVenteCarton = savedData.prixVenteCarton || (Math.random() * (0.20 - 0.10) + 0.10).toFixed(2);
-                    prixAchatPapier = savedData.prixAchatPapier || (Math.random() * (0.05 - 0.01) + 0.01).toFixed(2);
-                    productionParClic = savedData.productionParClic || 1;
-                    stockageMax = savedData.stockageMax || 1000;
-                    autoprod = savedData.autoprod || 0;
-                    doublepapier = savedData.doublepapier || false;
-                    statsAvancees = savedData.statsAvancees || false;
-                    cartonsParSeconde = savedData.cartonsParSeconde || 0;
-                    prixameliorations = savedData.prixameliorations || prixameliorations;
-                    niveauxameliorations = savedData.niveauxameliorations || niveauxameliorations;
-                    updateStats();
-    checkSuccessions();
-    checkSuccessions();
-    checkSuccessions();
-                }
-            }
-
-            window.addEventListener("beforeunload", saveGame);
-            window.addEventListener("load", loadGame);
-
-            // Fonction pour réinitialiser le jeu
-            document.getElementById("resetGame").addEventListener("click", () => {
-                if (confirm("Êtes-vous sûr de vouloir réinitialiser votre partie ? Toutes vos données seront perdues.")) {
-                    localStorage.removeItem("cartonGameSave");
-                    totalCarton = 0;
-                    stockCarton = 0;
-                    papierDispo = 1000;
-                    argent = 100000;
-                    prixVenteCarton = (Math.random() * (0.20 - 0.10) + 0.10).toFixed(2);
-                    prixAchatPapier = (Math.random() * (0.05 - 0.01) + 0.01).toFixed(2);
-                    productionParClic = 1;
-                    stockageMax = 1000;
-                    autoprod = 0;
-                    doublepapier = false;
-                    statsAvancees = false;
-                    cartonsParSeconde = 0;
-                    prixameliorations = {
-                        hangar: 100,
-                        productionamelioree: 50,
-                        autoprod: 200,
-                        speria: 500,
-                        spanthera: 1000,
-                        experfold: 2000,
-                        usine: 5000,
-                        exporter: 10000,
-                        influencemarche: 1000,
-                        doublepapier: 100,
-                        statsavancees: 150,
-                        machinepapier: 500
-                    };
-                    niveauxameliorations = {
-                        hangar: 0,
-                        productionamelioree: 0,
-                        autoprod: 0,
-                        speria: 0,
-                        spanthera: 0,
-                        experfold: 0,
-                        usine: 0,
-                        exporter: 0,
-                        influencemarche: 0,
-                        doublepapier: 0,
-                        statsavancees: 0,
-                        machinepapier: 0
-                    };
-                    // Supprimer les éléments acquis pour les améliorations "Statistiques Avancées" et "Machine à Papier"
-                    document.getElementById("amelioration-statsavancees").innerHTML = '<h3>Statistiques Avancées</h3><p>Affiche des statistiques avancées sur votre production.</p><p>Prix: <span id="prixStatsavancees">150</span> €</p><button data-type="statsavancees" id="acheter-statsavancees">Acheter Statistiques Avancées</button>';
-                    document.getElementById("amelioration-machinepapier").innerHTML = '<h3>Machine à Papier</h3><p>Acheter automatiquement du papier quand le stock atteint 0.</p><p>Prix: <span id="prixMachinepapier">500</span> €</p><button data-type="machinepapier" id="acheter-machinepapier">Acheter Machine à Papier</button>';
-                    if (document.getElementById("papierAuto")) {
-                        document.getElementById("papierAuto").remove();
-                    }
-completedSuccessions = [];
-document.getElementById('succèsList').innerHTML = '';
-checkSuccessions();
-
-                    successions.forEach((success, index) => {
-                        let li = document.createElement('li');
-                        li.textContent = success.text;
-                        document.getElementById('succèsList').appendChild(li);
-                    });
-                    updateStats();
-                    alert("Jeu réinitialisé ! Vous pouvez recommencer.");
-                }
-            });
-            
-            // Fonctions pour mettre à jour les stats
-            function updateStats() {
-                document.getElementById("totalCarton").innerText = totalCarton;
-                document.getElementById("niveauHangar").innerText = niveauxameliorations.hangar;
-                document.getElementById("niveauProductionamelioree").innerText = niveauxameliorations.productionamelioree;
-                document.getElementById("niveauAutoprod").innerText = niveauxameliorations.autoprod;
-                document.getElementById("niveauSperia").innerText = niveauxameliorations.speria;
-                document.getElementById("niveauSpanthera").innerText = niveauxameliorations.spanthera;
-                document.getElementById("niveauExperfold").innerText = niveauxameliorations.experfold;
-                document.getElementById("niveauUsine").innerText = niveauxameliorations.usine;
-                document.getElementById("niveauExporter").innerText = niveauxameliorations.exporter;
-                document.getElementById("niveauInfluencemarche").innerText = niveauxameliorations.influencemarche;
-                document.getElementById("niveauDoublepapier").innerText = niveauxameliorations.doublepapier;
-                document.getElementById("argent").innerText = argent.toFixed(2);
-                document.getElementById("prixVenteCarton").innerText = prixVenteCarton;
-                document.getElementById("prixAchatPapier").innerText = prixAchatPapier;
-                document.getElementById("stockCarton").innerText = stockCarton;
-                document.getElementById("papierDispo").innerText = papierDispo;
-                document.getElementById("stockageMax").innerText = stockageMax;
-                if (statsAvancees) {
-                    document.getElementById("cartonParSeconde").style.display = "block";
-                    document.getElementById("cps").innerText = cartonsParSeconde.toFixed(2);
-                }
-            }
-
-            function calculerCartonsParSeconde() {
-                cartonsParSeconde = autoprod;
-                updateStats();
-            }
-
-            // Fabriquer des cartons
-            document.getElementById("fabriquerCarton").addEventListener("click", () => {
-                if (papierDispo > 0 && stockCarton < stockageMax) {
-                    let cartonsPossibles = Math.min(productionParClic, stockageMax - stockCarton);
-                    if (cartonsPossibles > 0) {
-                        papierDispo -= cartonsPossibles;
-                        stockCarton += cartonsPossibles;
-                        totalCarton += cartonsPossibles;
-                        calculerCartonsParSeconde();
-    updateStats();
-    checkSuccessions();
-                    } else {
-                        alert("Capacité de stockage atteinte ! Vous ne pouvez plus fabriquer de cartons tant que vous n'avez pas vendu ou augmenté votre stockage.");
-                    }
-                } else if (stockCarton >= stockageMax) {
-                    alert("Stockage maximum atteint ! Veuillez vendre vos cartons ou augmenter la capacité de stockage.");
-                } else if (papierDispo <= 0) {
-                    alert("Vous n'avez plus de papier !");
-                }
-            });
-            
-            // Vendre tout le stock de cartons
-document.getElementById("vendreCarton").addEventListener("click", () => {
-    if (stockCarton > 0) {
-        totalVendu += stockCarton;
-                    argent += stockCarton * prixVenteCarton;
-                    stockCarton = 0;
-                    updateStats();
-                } else {
-                    alert("Vous n'avez pas de cartons à vendre !");
-                }
-            });
-            
-            // Acheter du papier
-document.getElementById("acheterpapier").addEventListener("click", () => {
-    let quantitePapier = doublepapier ? 2000 : 1000;
-    if (argent >= prixAchatPapier * quantitePapier) {
-        argent -= prixAchatPapier * quantitePapier;
-    papierDispo += quantitePapier;
-    totalPapierAchete += quantitePapier;
-    updateStats();
-    checkSuccessions();
-    } else {
-        alert("Pas assez d'argent pour acheter du papier.");
-    }
-});
-            
-            // Gestion des améliorations
-            document.querySelectorAll('.amelioration-item button').forEach(button => {
-                button.addEventListener('click', () => {
-                    let ameliorationType = button.getAttribute('data-type');
-                    acheteramelioration(ameliorationType);
-                });
-            });
-            
-            // Acheter une amélioration
-            function acheteramelioration(type) {
-                if (type) {
-    console.log('Tentative d\'achat pour le type: ' + type);
-} else {
-    console.error('Erreur : type est indéfini.');
-}
-                console.log('prixameliorations avant achat: ', prixameliorations);
-                let prix = prixameliorations[type];
-                if (prix === undefined) {
-                    console.error(`Erreur : le prix pour l'amélioration de type '${type}' est indéfini. Vérifiez que le type est bien défini et que les prix sont bien chargés.`);
-                    console.log('prixameliorations:', prixameliorations);
-                    console.log('type demandé:', type);
-                    return;
-                }
-                console.log('Tentative d\'achat pour ' + type + ': Argent disponible = ' + argent + ', Prix = ' + prix);
-                if (Number(argent) >= Number(prix)) {
-                    argent -= prix;
-    checkSuccessions();
-    switch (type) {
-                        case 'machinepapier':
-                            if (document.getElementById("acheter-machinepapier")) {
-                                document.getElementById("acheter-machinepapier").remove();
-                            }
-                            document.getElementById("amelioration-machinepapier").insertAdjacentHTML('beforeend', '<p>Acquis</p>');
-                            niveauxameliorations.machinepapier = 1;
-                            const papierAutoElement = document.createElement('p');
-                            papierAutoElement.id = 'papierAuto';
-                            papierAutoElement.innerText = 'Auto Achat papier ON';
-                            document.querySelector(".transactions").appendChild(papierAutoElement);
-                            console.log('Achat de Machine à Papier effectué');
-                            break;
-                        case 'hangar':
-                            stockageMax += 1000;
-                            niveauxameliorations.hangar++;
-                            document.getElementById('niveauHangar').innerText = niveauxameliorations.hangar;
-                            document.getElementById('prixHangar').innerText = prixameliorations.hangar;
-                            break;
-                        case 'productionamelioree':
-                            productionParClic += 1;
-                            niveauxameliorations.productionamelioree++;
-                            document.getElementById('niveauProductionamelioree').innerText = niveauxameliorations.productionamelioree;
-                            document.getElementById('prixProductionamelioree').innerText = prixameliorations.productionamelioree;
-                            prixameliorations.productionamelioree = Math.round(prixameliorations.productionamelioree * 1.5);
-                            break;
-                        case 'autoprod':
-                            autoprod += 1;
-                            niveauxameliorations.autoprod++;
-                            document.getElementById('niveauAutoprod').innerText = niveauxameliorations.autoprod;
-                            document.getElementById('prixAutoprod').innerText = prixameliorations.autoprod;
-                            prixameliorations.autoprod = Math.round(prixameliorations.autoprod * 2);
-                            break;
-                        case 'speria':
-                            autoprod += 3;
-                            niveauxameliorations.speria++;
-                            document.getElementById('niveauSperia').innerText = niveauxameliorations.speria;
-                            document.getElementById('prixSperia').innerText = prixameliorations.speria;
-                            prixameliorations.speria = Math.round(prixameliorations.speria * 1.7);
-                            break;
-                        case 'spanthera':
-                            autoprod += 10;
-                            niveauxameliorations.spanthera++;
-                            document.getElementById('niveauSpanthera').innerText = niveauxameliorations.spanthera;
-                            document.getElementById('prixSpanthera').innerText = prixameliorations.spanthera;
-                            prixameliorations.spanthera = Math.round(prixameliorations.spanthera * 1.8);
-                            break;
-                        case 'experfold':
-                            autoprod += 20;
-                            niveauxameliorations.experfold++;
-                            document.getElementById('niveauExperfold').innerText = niveauxameliorations.experfold;
-                            document.getElementById('prixExperfold').innerText = prixameliorations.experfold;
-                            prixameliorations.experfold = Math.round(prixameliorations.experfold * 1.9);
-                            break;
-                        case 'usine':
-                            autoprod += 100;
-                            niveauxameliorations.usine++;
-                            document.getElementById('niveauUsine').innerText = niveauxameliorations.usine;
-                            document.getElementById('prixUsine').innerText = prixameliorations.usine;
-                            prixameliorations.usine = Math.round(prixameliorations.usine * 2.0);
-                            break;
-                        case 'exporter':
-                            autoprod += 1000;
-                            niveauxameliorations.exporter++;
-                            document.getElementById('niveauExporter').innerText = niveauxameliorations.exporter;
-                            document.getElementById('prixExporter').innerText = prixameliorations.exporter;
-                            prixameliorations.exporter = Math.round(prixameliorations.exporter * 2.5);
-                            break;
-                        case 'influencemarche':
-                            prixVenteCarton = 0.05;
-                            niveauxameliorations.influencemarche++;
-                            document.getElementById('niveauInfluencemarche').innerText = niveauxameliorations.influencemarche;
-                            document.getElementById('prixInfluencemarche').innerText = prixameliorations.influencemarche;
-                            document.getElementById("prixVenteCarton").innerText = prixVenteCarton;
-                            prixameliorations.influencemarche = Math.round(prixameliorations.influencemarche * 1.4);
-                            break;
-                        case 'doublepapier':
-                            doublepapier = true;
-                            niveauxameliorations.doublepapier++;
-                            document.getElementById('niveauDoublepapier').innerText = niveauxameliorations.doublepapier;
-                            document.getElementById('prixDoublepapier').innerText = Math.round(prixameliorations.doublepapier * 1.5);
-                            prixameliorations.doublepapier = Math.round(prixameliorations.doublepapier * 1.5);
-                            break;
-                        case 'statsavancees':
-                            statsAvancees = true;
-                            document.getElementById("cartonParSeconde").style.display = "block";
-                            cartonsParSeconde = 0;
-                            calculerCartonsParSeconde();
-                            if (document.getElementById("acheter-statsavancees")) {
-                                document.getElementById("acheter-statsavancees").remove();
-                            }
-                            niveauxameliorations.statsavancees = 1;
-                            let statsAvanceesDiv = document.getElementById("amelioration-statsavancees");
-                            statsAvanceesDiv.innerHTML += '<p>Acquis</p>';
-                            prixameliorations.statsavancees = Math.round(prixameliorations.statsavancees * 1.6);
-                            break;
-                        default:
-                            console.error('Type d\'amélioration non reconnu:', type);
-                            break;
-                    }
-                    updateStats();
-                } else {
-                    alert("Pas assez d'argent pour acheter cette amélioration.");
-                }
-            }
-
-            // Utiliser setInterval pour gérer la production automatique toutes les secondes
-            setInterval(() => {
-                // Vérification pour l'achat automatique de papier si l'amélioration est achetée
-                if (niveauxameliorations.machinepapier > 0 && papierDispo <= 0 && argent >= prixAchatPapier * 1000) {
-                    let quantitePapier = doublepapier ? 2000 : 1000;
-                    argent -= prixAchatPapier * quantitePapier;
-                    papierDispo += quantitePapier;
-                    updateStats();
-                }
-                if (autoprod > 0) {
-                    let cartonsProduit = Math.min(autoprod, papierDispo, stockageMax - stockCarton);
-                    if (cartonsProduit > 0) {
-                        papierDispo -= cartonsProduit;
-                        stockCarton += cartonsProduit;
-                        totalCarton += cartonsProduit;
-                    }
-                    calculerCartonsParSeconde();
-                    updateStats();
-                }
-            }, 1000);
-
-            // Démarrer la mise à jour des prix à intervalles réguliers
-            setInterval(() => {
-                prixVenteCarton = (Math.random() * (0.20 - 0.10) + 0.10).toFixed(2);
-                prixAchatPapier = (Math.random() * (0.05 - 0.01) + 0.01).toFixed(2);
-                updateStats();
-            }, 5000);
-
-            // Gestion des onglets
-            document.querySelectorAll('.tab-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const target = this.getAttribute('data-tab');
-                    document.querySelectorAll('.tab-content').forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-                    document.getElementById(target).classList.add('active');
-                });
-            });
-            
-            // Initialiser sur l'onglet accueil
-            document.getElementById('accueil').classList.add('active');
-    
-            // Générer les succès
-            let successions = [
-                { condition: () => totalCarton >= 10, text: "Fabriquer 10 cartons" },
-                { condition: () => totalCarton >= 100, text: "Fabriquer 100 cartons" },
-                { condition: () => totalCarton >= 500, text: "Fabriquer 500 cartons" },
-                { condition: () => totalCarton >= 1000, text: "Fabriquer 1000 cartons" },
-                { condition: () => totalCarton >= 5000, text: "Fabriquer 5000 cartons" },
-                { condition: () => totalCarton >= 10000, text: "Fabriquer 10 000 cartons" },
-                { condition: () => totalCarton >= 50000, text: "Fabriquer 50 000 cartons" },
-                { condition: () => totalCarton >= 100000, text: "Fabriquer 100 000 cartons" },
-                { condition: () => totalCarton >= 500000, text: "Fabriquer 500 000 cartons" },
-                { condition: () => totalCarton >= 1000000, text: "Fabriquer 1 000 000 cartons" },
-                { condition: () => totalAmeliorations() >= 1, text: "Acheter votre première amélioration" },
-                { condition: () => totalAmeliorations() >= 10, text: "Acheter 10 améliorations" },
-                { condition: () => totalAmeliorations() >= 25, text: "Acheter 25 améliorations" },
-                { condition: () => totalAmeliorations() >= 50, text: "Acheter 50 améliorations" },
-                { condition: () => totalAmeliorations() >= 100, text: "Acheter 100 améliorations" },
-                { condition: () => niveauxameliorations.statsavancees >= 1, text: "Acheter la Stats Avancées" },
-                { condition: () => niveauxameliorations.autoprod >= 1, text: "Avoir un Autoprod" },
-                { condition: () => niveauxameliorations.speria >= 1, text: "Avoir une SPeria" },
-                { condition: () => niveauxameliorations.spanthera >= 1, text: "Avoir une SPanthera" },
-                { condition: () => niveauxameliorations.experfold >= 1, text: "Avoir une ExperFold" },
-                { condition: () => niveauxameliorations.usine >= 1, text: "Avoir une Usine" },
-                { condition: () => niveauxameliorations.exporter >= 1, text: "Avoir Exporter" },
-                { condition: () => niveauxameliorations.influencemarche >= 1, text: "Influer le marché" },
-                { condition: () => niveauxameliorations.doublepapier >= 1, text: "Acheter Double Papier" },
-                { condition: () => niveauxameliorations.machinepapier >= 1, text: "Acheter Machine à Papier" },
-                { condition: () => totalVendu >= 10, text: "Vendre vos premiers cartons" },
-                { condition: () => totalVendu >= 1000, text: "Vendre 1000 cartons" },
-                { condition: () => totalVendu >= 5000, text: "Vendre 5000 cartons" },
-                { condition: () => totalVendu >= 10000, text: "Vendre 10 000 cartons" },
-                { condition: () => totalVendu >= 50000, text: "Vendre 50 000 cartons" },
-                { condition: () => totalVendu >= 100000, text: "Vendre 100 000 cartons" },
-                { condition: () => totalVendu >= 500000, text: "Vendre 500 000 cartons" },
-                { condition: () => totalVendu >= 1000000, text: "Vendre 1 000 000 cartons" },
-                { condition: () => totalPapierAchete >= 10000, text: "Acheter 10 000 papiers" },
-                { condition: () => totalPapierAchete >= 50000, text: "Acheter 50 000 papiers" },
-                { condition: () => totalPapierAchete >= 500000, text: "Acheter 500 000 papiers" },
-                { condition: () => totalPapierAchete >= 1000000, text: "Acheter 1 000 000 papiers" },
-                { condition: () => niveauxameliorations.productionamelioree >= 10, text: "Augmenter l'amélioration Production améliorée au niveau 10" },
-                { condition: () => niveauxameliorations.autoprod >= 10, text: "Augmenter l'amélioration Autoproduction au niveau 10" },
-                { condition: () => niveauxameliorations.speria >= 10, text: "Augmenter l'amélioration SPeria au niveau 10" },
-                { condition: () => niveauxameliorations.spanthera >= 10, text: "Augmenter l'amélioration SPanthera au niveau 10" },
-                { condition: () => niveauxameliorations.experfold >= 10, text: "Augmenter l'amélioration ExperFold au niveau 10" },
-                { condition: () => niveauxameliorations.usine >= 10, text: "Augmenter l'amélioration Usine au niveau 10" },
-                { condition: () => niveauxameliorations.exporter >= 10, text: "Augmenter l'amélioration Exporter au niveau 10" },
-                { condition: () => niveauxameliorations.influencemarche >= 10, text: "Augmenter l'amélioration Influence Marché au niveau 10" },
-                { condition: () => niveauxameliorations.doublepapier >= 10, text: "Augmenter l'amélioration Double Papier au niveau 10" }
-            ];
-
-            let completedSuccessions = [];
-
-function checkSuccessions() {
-    successions.forEach((success, index) => {
-        if (!completedSuccessions.includes(index) && success.condition()) {
-            completedSuccessions.push(index);
-            let successElement = document.getElementById('succèsList').children[index];
-            if (successElement) {
-                successElement.classList.add('completed');
-                successElement.style.textDecoration = 'line-through';
-            }
-        }
-    });
-}
-
-// Initialiser les succès dans le HTML
-successions.forEach((success, index) => {
-    let li = document.createElement('li');
-    li.textContent = success.text;
-    document.getElementById('succèsList').appendChild(li);
-});
-
-
-    });
-document.addEventListener('DOMContentLoaded', () => {
-    const tooltip = document.createElement('div'); // Crée un élément pour le tooltip
-    tooltip.id = 'tooltip';
-    tooltip.style.display = 'none';
-    tooltip.style.position = 'absolute';
-    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    tooltip.style.color = '#fff';
-    tooltip.style.padding = '5px 10px';
-    tooltip.style.borderRadius = '5px';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.pointerEvents = 'none';
-    tooltip.style.whiteSpace = 'nowrap';
-    tooltip.style.zIndex = '1000';
-    document.body.appendChild(tooltip);
-
-    const logo = document.getElementById('toncplay-logo');
-
-    if (logo) {
-        // Montrer le tooltip
-        logo.addEventListener('mouseenter', (e) => {
-            const text = logo.getAttribute('data-tooltip');
-            if (text) {
-                tooltip.textContent = text;
-                tooltip.style.display = 'block';
-            }
-        });
-
-        // Déplacer le tooltip avec la souris
-        logo.addEventListener('mousemove', (e) => {
-            tooltip.style.left = e.pageX + 10 + 'px'; // Position horizontale
-            tooltip.style.top = e.pageY + 10 + 'px'; // Position verticale
-        });
-
-        // Cacher le tooltip
-        logo.addEventListener('mouseleave', () => {
-            tooltip.style.display = 'none';
-        });
-    }
-});
-    
-    </script>
+    <!-- Lien vers le fichier JavaScript externe -->
+    <script src="game.js"></script>
 </body>
 </html>
-

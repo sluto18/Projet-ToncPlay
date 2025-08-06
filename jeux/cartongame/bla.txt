@@ -1,0 +1,13 @@
+j'aimerais ajouter des évènements temporaire qui est indiquer au joueur dans le journal d'évènement.
+
+Evènement qui influe le prix du papier :
+-phrase dans le journal "Une papeterie voisine est en feu, le prix du papier explose" conséquence : augmentation du prix du papier de 200% pendant 1 minute. Un petit icone apparait a coter de la div qui indique le prix du papier, pour montrer  au joueur visuellement le malus le temps de la durée.
+-phrase dans le journal "Une usine a papier a litéralement exploser. Les prix flambes !" conséquence : augmentation du prix du papier de 100% pendant 1 minute. Un petit icone apparait a coter de la div qui indique le prix du papier, pour montrer  au joueur visuellement le malus le temps de la durée.
+
+Evènements liés a l'achat ou la vente de carton en extra :
+- phrase dans le journal "L'usine AubonCarton a un surplus de production. Il vous propose des cartons au rabais." conséquence possibiliter d'acheter un lot de carton au prix très très bas.
+- phrase dans le journal "La laiterie QuiVaLa a un besoin urgent de carton!" conséquence possibilité de vendre du carton plus cher que le prix du marché. 
+Ajoute d'autre évènements dans ce style pour diversifier les évènements.
+
+Pour les actions liés a l'achat ou la vente via un evenement temporaire, j'avais l'idée d'incorporer un petit bouton a coter du bouton pour vendre le carton, ce petit bouton ouvrirais une fenetre qui indiquerais les évènements en cours. Desciption de l'évènement, ce qu'il y a a acheter ou vendre, un bouton acheter ou vendre pour ces évènements temporaires. Respecte les couleurs globales du site pour cette fenetre. 
+

@@ -1,181 +1,1007 @@
-        /* Styles personnalisés */
-        .stats-item, .actions-item, .transactions, .amelioration-item {
-            background-color: #b39d82;
-            border: 1px solid #ccc;
-            padding: 20px;
-            width: 100%;
-            max-width: 300px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #e5dfca;
-            color: #333;
-        }
+/*==================================
+  Styles Généraux et Typographie
+====================================*/
+/*
+  Le style global du corps de la page est défini ici.
+  Nous utilisons une police sans-serif pour la lisibilité
+  et une palette de couleurs basée sur le carton.
+*/
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e5dfca; /* Couleur de fond "papier carton" */
+    color: #333;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
-        header {
-            background-color: #b39d82;
-            padding: 10px 20px;
-            text-align: center;
-        }
+/* Assure que le conteneur principal prend l'espace disponible */
+main {
+    flex: 1; /* Permet à la section principale de s'étendre et de remplir l'espace */
+    padding: 10px 20px;
+    box-sizing: border-box;
+}
 
-        header h1 {
-            color: white;
-        }
+/* Styles pour les titres */
+h1, h2, h3, h4 {
+    color: #4a3525;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
 
-        nav ul {
-            background-color: #b39d82;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            justify-content: center;
-        }
+/*==================================
+  Navigation et En-tête
+====================================*/
+/*
+  L'en-tête contient la bannière et la navigation.
+  Le style est conçu pour être compact et élégant.
+*/
+header {
+    background-color: #b39d82;
+    padding: 10px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    padding-bottom: 20px;
+}
 
-        nav ul li {
-            margin: 0 15px;
-        }
+header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: url('image/cartonmenu.png') repeat-x center;
+  background-size: 10px 10px;
+}
 
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-        }
+/* Style de la bannière pour la rendre responsive */
+header img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+}
 
-        main {
-            padding: 20px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Onglet Jeu  */
-        .amelioration-item, .stats-item p, .actions-item p {
-            margin: 10px 0;
-        }
-
-        .amelioration-item h3, .stats-item h3, .actions-item h3 {
-            margin-bottom: 10px;
-            color: #000000;
-        }
-
-        button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #b39d82;
-            color: white;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            border-radius: 10px;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        button:hover {
-            background-color: #a3856c;
-            transform: scale(1.05);
-        }
-
-        button:active {
-            background-color: #8b6e58;
-            transform: scale(0.98);
-        }
-
-        /* Onglet Améliorations */
-        .amelioration-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            align-items: start;
-            justify-items: center;
-        }
-
-        .amelioration-item button {
-            background-color: #b39d82;
-            color: #000000;
-            border: 2px solid #6d5540;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 12px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .amelioration-item button:hover {
-            background-color: #7a5f4b;
-            transform: translateY(-2px);
-        }
-
-        .amelioration-item button:active {
-            background-color: #6d5540;
-            transform: scale(0.98);
-        }
-
-        /* Styles pour les succès */
-        .succès-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .succès-list li {
-            margin-bottom: 10px;
-        }
-
-        .completed {
-            text-decoration: line-through;
-            color: gray;
-        }
-
-/* Style du logo ToncPlay */
+/* Styles pour le logo et le tooltip */
 #toncplay-logo {
-    position: absolute; /* Positionnement par rapport à la page */
-    top: 10px;          /* Distance du haut de la page */
-    left: 10px;         /* Distance du côté gauche */
-    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
-    display: block;     /* Assure que le lien reste un bloc cliquable */
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    transition: transform 0.2s ease-in-out;
+}
+
+#toncplay-logo:hover {
+    transform: scale(1.1);
 }
 
 #toncplay-logo img {
-    width: 60px;       /* Ajustez la taille du logo */
-    height: auto;       /* Maintient les proportions */
-    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+    width: 60px;
+    height: auto;
+    cursor: pointer;
+    border-radius: 50%;
 }
 
-/* Position et style du tooltip */
-#toncplay-logo[data-tooltip]:hover::after {
-    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+/*==================================
+  Tooltips pour les boutons
+====================================*/
+/*
+  Ces styles gèrent l'affichage des tooltips.
+  Pour qu'ils fonctionnent, l'élément HTML (ex: <a>)
+  DOIT avoir l'attribut `data-tooltip="Votre texte"`.
+*/
+a[data-tooltip] {
+    position: relative;
+    display: inline-block; /* Assure que la position relative s'applique correctement */
+}
+
+a[data-tooltip]::before, a[data-tooltip]::after {
     position: absolute;
-    top: 110%; /* Ajuste la position sous l'image */
-    left: 50%; /* Centre horizontalement */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+    left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
-    color: #fff; /* Texte blanc */
-    padding: 5px 10px; /* Marges internes */
-    border-radius: 5px; /* Coins arrondis */
-    white-space: nowrap; /* Empêche le texte de se couper */
-    font-size: 12px; /* Taille du texte */
-    z-index: 1000; /* Affiche au-dessus des autres éléments */
-    pointer-events: none; /* Empêche de cliquer sur le tooltip */
-    opacity: 0; /* Rend invisible par défaut */
-    transition: opacity 0.3s; /* Transition pour l'apparition */
 }
 
-/* Style de base pour le tooltip */
-#tooltip {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
-    color: #fff; /* Texte blanc */
-    padding: 5px 10px; /* Espacement interne */
-    border-radius: 5px; /* Coins arrondis */
-    font-size: 12px; /* Taille de la police */
-    pointer-events: none; /* Empêche d'interagir avec le tooltip */
-    z-index: 1000; /* Affiche par-dessus les autres éléments */
-    white-space: nowrap; /* Empêche le texte de se couper */
+a[data-tooltip]::before {
+    content: attr(data-tooltip);
+    background-color: #6d5540;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    /* Positionnement du tooltip au-dessus de l'image */
+    bottom: calc(100% + 5px); /* Place le bas du tooltip 5px au-dessus de l'image */
 }
+
+a[data-tooltip]::after {
+    content: '';
+    border-width: 5px;
+    border-style: solid;
+    border-color: #6d5540 transparent transparent transparent;
+    /* Positionnement du petit triangle sous le tooltip */
+    bottom: 100%;
+}
+
+a[data-tooltip]:hover::before, a[data-tooltip]:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Styles pour la barre de navigation */
+nav {
+    margin-top: 10px;
+}
+
+nav ul {
+    background-color: #b39d82;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+}
+
+nav ul li a {
+    display: flex;
+    align-items: center;
+    background-color: #9c8a74; /* Légèrement plus foncé pour les onglets */
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+nav ul li a:hover {
+    background-color: #a3856c;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+nav ul li a.active {
+    background-color: #6d5540; /* Couleur pour l'onglet actif */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+    transform: translateY(0);
+}
+
+.menu-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+/*==================================
+  Contenu des Onglets
+====================================*/
+/*
+  Masque les onglets inactifs et affiche l'onglet actif.
+*/
+.tab-content {
+    display: none;
+    padding: 20px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/*==================================
+  Section Accueil
+====================================*/
+#accueil {
+    background-color: #b39d82;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 900px;
+    margin: 20px auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+#accueil h2 {
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+#accueil p {
+    line-height: 1.6;
+    text-align: justify;
+    font-size: 1.1em;
+}
+
+#accueil b {
+    color: #6d5540;
+}
+
+/*==================================
+  Section Jeu et Layouts
+====================================*/
+/*
+  Cette section gère la disposition à deux colonnes
+  pour le jeu et les améliorations.
+*/
+#jeu {
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin: 20px auto;
+    background-color: #e5dfca;
+}
+
+.game-layout-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.left-game-panel, .right-game-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1; /* Permet aux panneaux de grandir et de prendre de l'espace */
+    min-width: 320px; /* Assure un minimum de largeur */
+}
+
+/*==================================
+  Panneau de Gauche (Statistiques et Actions)
+====================================*/
+.stats-item, .game-actions-panel, #eventLogContainer {
+    background-color: #b39d82;
+    border: 1px solid #6d5540;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Ajustement de la grille des statistiques pour afficher deux paires par ligne */
+.stats-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr; /* Label1, Value1, Label2, Value2 */
+    gap: 8px 15px; /* Espace vertical, Espace horizontal */
+    align-items: baseline;
+    width: 100%;
+}
+.stats-grid p {
+    margin: 0;
+    padding: 2px 0;
+    font-size: 1em;
+}
+
+.stats-grid .stat-value {
+    background-color: #e5dfca;
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+#priceAlertIcon {
+    margin-left: 5px;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+/* Disposition des actions */
+.action-buttons-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.sub-actions-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.main-action-column {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+#fabriquerCarton img {
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+#fabriquerCarton:hover img {
+    transform: scale(1.05);
+}
+
+#fabriquerCarton:active img {
+    transform: scale(0.95);
+}
+
+.sub-actions-column a img {
+    width: 90px;
+    height: 90px;
+    transition: transform 0.2s ease-in-out;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sub-actions-column a:hover img {
+    transform: scale(1.1);
+}
+
+.sub-actions-column a:active img {
+    transform: scale(0.9);
+}
+
+.event-button {
+    background-color: #4a3525;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.event-button:hover {
+    background-color: #6d5540;
+    transform: translateY(-2px);
+}
+.event-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Journal d'événements */
+#eventLogContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* En-tête pour aligner le titre et le bouton */
+.event-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-log-header h2 {
+    margin: 0; /* Retire la marge par défaut du titre */
+}
+
+
+
+.history-link {
+    display: block;
+    text-align: right;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #4a3525;
+    text-decoration: none;
+}
+
+.history-link:hover {
+    text-decoration: underline;
+}
+
+
+#eventLog {
+    background-color: #e5dfca;
+    border: 1px solid #6d5540;
+    border-radius: 10px;
+    padding: 10px;
+    height: 100px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+/*==================================
+  Panneau de Droite (Améliorations)
+====================================*/
+.upgrade-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.upgrade-category {
+    background-color: #b39d82;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    padding: 20px;
+    border: 1px solid #6d5540;
+}
+
+.upgrade-category h3 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.category-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.amelioration-item {
+    background-color: #e5dfca;
+    border: 1px solid #ccc;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.amelioration-item h4 {
+    margin: 0;
+    font-size: 1.2em;
+    flex: 1 1 180px;
+}
+
+.amelioration-description {
+    margin: 0;
+    font-size: 0.9em;
+    color: #555;
+    flex: 1 1 250px;
+}
+
+.amelioration-details-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.amelioration-level, .amelioration-price {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.price-button-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.amelioration-item button, #resetGame {
+    background-color: #6d5540;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.amelioration-item button:hover, #resetGame:hover {
+    background-color: #5a4535;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.amelioration-item button:active, #resetGame:active {
+    background-color: #4a3525;
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/*==================================
+  Section Succès et Aide
+====================================*/
+#succès, #aide {
+    background-color: #b39d82;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 900px;
+    margin: 20px auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border: 1px solid #6d5540;
+}
+
+.succes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.succes-header h2 {
+    margin: 0;
+}
+
+.succes-counter {
+    font-size: 1em;
+    font-weight: bold;
+    color: #4a3525;
+}
+
+.succès-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.succès-list li {
+    background-color: #e5dfca;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    transition: background-color 0.2s;
+}
+.succès-list li.completed {
+    text-decoration: line-through;
+    color: #666;
+    background-color: #d4cbb8;
+}
+
+/*==================================
+  Footer
+====================================*/
+footer {
+    background-color: #6d5540;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/*==================================
+  Modales
+====================================*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7);
+    padding-top: 60px;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: #b39d82;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    border: 2px solid #6d5540;
+}
+
+.modal-content h2 {
+    color: #4a3525;
+    margin-top: 0;
+    border-bottom: 2px solid #6d5540;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.close-button {
+    color: #4a3525;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover, .close-button:focus {
+    color: #000;
+}
+
+.full-event-log {
+    background-color: #e5dfca;
+    border: 1px solid #6d5540;
+    border-radius: 10px;
+    padding: 10px;
+    height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+/*==================================
+  Styles pour les Événements en Cours
+====================================*/
+/*
+  Ces styles gèrent l'affichage des événements dynamiques
+  d'achat et de vente de carton.
+*/
+.current-events-container {
+    background-color: #b39d82;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border: 1px solid #6d5540;
+}
+
+.current-events-container h3 {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #6d5540;
+    padding-bottom: 10px;
+}
+
+.event-offer-item {
+    display: flex;
+    flex-direction: column; /* Mise en page sur une seule colonne pour plus de clarté */
+    background-color: #e5dfca;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.event-offer-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.event-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.event-details p {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.event-timer {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #f44336; /* Un rouge vif pour le temps restant */
+    min-width: 60px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.event-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.event-buy-button, .event-sell-button, .event-reject-button {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    font-weight: bold;
+    flex: 1;
+    min-width: 120px;
+}
+
+.event-buy-button {
+    background-color: #4CAF50; /* Vert pour acheter */
+    background: linear-gradient(145deg, #4CAF50, #388E3C);
+}
+
+.event-buy-button:hover {
+    background: linear-gradient(145deg, #388E3C, #4CAF50);
+    transform: translateY(-2px);
+}
+
+.event-sell-button {
+    background-color: #f44336; /* Rouge pour vendre */
+    background: linear-gradient(145deg, #f44336, #D32F2F);
+}
+
+.event-sell-button:hover {
+    background: linear-gradient(145deg, #D32F2F, #f44336);
+    transform: translateY(-2px);
+}
+
+.event-reject-button {
+    background-color: #9e9e9e; /* Gris pour rejeter */
+    background: linear-gradient(145deg, #9e9e9e, #757575);
+}
+
+.event-reject-button:hover {
+    background: linear-gradient(145deg, #757575, #9e9e9e);
+    transform: translateY(-2px);
+}
+
+/*==================================
+  Animations
+====================================*/
+/*
+  Animations pour les effets visuels flottants
+*/
+.floating-production-text {
+    position: absolute;
+    font-size: 2em;
+    font-weight: bold;
+    color: #4CAF50;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    animation: floatAndFade 1.5s forwards;
+    z-index: 1000;
+    user-select: none;
+}
+
+.floating-carton-image {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 1000;
+    user-select: none;
+}
+
+@keyframes floatAndFade {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    50% { opacity: 1; transform: translateY(-30px) scale(1.1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+}
+
+@keyframes fallAndFadeLeft {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50px, 80px) scale(0.8); }
+}
+
+@keyframes fallAndFadeRight {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(50px, 80px) scale(0.8); }
+}
+
+/*==================================
+  Réactivité (Media Queries)
+====================================*/
+/*
+  Ajustements pour les petits écrans
+*/
+@media (max-width: 1024px) {
+    .game-layout-container {
+        flex-direction: column;
+    }
+    .left-game-panel, .right-game-panel {
+        min-width: unset;
+    }
+}
+
+@media (max-width: 768px) {
+    header img {
+        height: 100px;
+    }
+    nav ul {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .stats-grid {
+        grid-template-columns: auto 1fr; /* Reviens à une seule colonne sur les petits écrans */
+    }
+    .main-action-column {
+        flex: 1;
+    }
+    .sub-actions-column {
+        flex-direction: row;
+        justify-content: center;
+    }
+    .action-buttons-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .amelioration-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .amelioration-details-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .amelioration-description {
+        margin-bottom: 10px;
+    }
+    .event-offer-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .event-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .event-timer {
+        text-align: left;
+    }
+}
+
+.btn-game {
+    background-color: #6d5540;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-game:hover {
+    background-color: #5a4535;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.btn-game:active {
+    background-color: #4a3525;
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Custom Modals */
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    padding: 1rem;
+}
+
+.custom-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.custom-modal-content {
+    background-color: #fff;
+    color: #111;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+body.dark-mode .custom-modal-content {
+    background-color: #1a202c;
+    color: #f7fafc;
+}
+
+.custom-modal.is-open .custom-modal-content {
+    transform: scale(1);
+}
+
+.custom-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.custom-modal-message {
+    margin-bottom: 1.5rem;
+    color: #4a5568;
+}
+
+body.dark-mode .custom-modal-message {
+    color: #a0aec0;
+}
+
+.custom-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.custom-modal .btn {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border: none;
+}
+
+.custom-modal .btn-primary {
+    background-color: #3b82f6; /* Blue 500 */
+    color: #fff;
+}
+
+.custom-modal .btn-primary:hover {
+    background-color: #2563eb; /* Blue 600 */
+}
+
+.custom-modal .btn-secondary {
+    background-color: #6b7280; /* Gray 500 */
+    color: #fff;
+}
+
+.custom-modal .btn-secondary:hover {
+    background-color: #4b5563; /* Gray 600 */
+}
+
+    .news-item {
+      background-color: #e5dfca;
+      border-left: 5px solid #4a3525;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .news-item h2 {
+      margin: 0 0 10px 0;
+      font-size: 0.5em;
+    }
+    .news-item .date {
+      color: #888;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+    }
+    .news-item p {
+      font-size: 1.1em;
+      color: #4a3525;
+    }
