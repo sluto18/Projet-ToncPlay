@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rasta Jump</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner à la page d'accueil ToncPlay">
+    <img src="../../images/logo.png" alt="ToncPlay Logo">
+</a>
+  <h1>Rasta Jump</h1>
+  <div id="scoreBoard">
+    <span>Score: <strong id="score">0</strong></span>
+    <span>Meilleur: <strong id="best">0</strong></span>
+  </div>
+  <div id="gameContainer">
+    <canvas id="gameCanvas" width="1000" height="400"></canvas>
+    <img id="gameOverImg" src="images/rastaperdu.png" alt="Perdu" />
+    <button id="restartBtn">Rejouer</button>
+  </div>
+<div id="footerText">©Sluto - Ce jeu fait partie du<a href="../../index.html"> Projet ToncPlay</a>.</div>
+  <!-- Le script est déplacé ici pour s'assurer que tous les éléments HTML sont chargés -->
+  <script src="script.js"></script>
+</body>
+</html>

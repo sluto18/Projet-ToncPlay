@@ -1,0 +1,146 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Nouveau fond d'écran pour tout le site */
+  background-image: url('images/fond.png');
+  background-repeat: repeat; /* Répète l'image pour couvrir tout l'écran */
+  background-size: auto; /* Maintient la taille originale de l'image */
+  background-attachment: fixed; /* Fixe l'image de fond pour qu'elle ne défile pas avec le contenu */
+
+  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+  position: relative; /* Nécessaire pour positionner le footerText */
+}
+h1 {
+  margin-top: 20px;
+  font-size: 3rem;
+  color: #FF0000; /* Texte du titre du jeu en rouge */
+}
+#scoreBoard {
+  margin: 15px 0;
+  display: flex; /* Visible par défaut */
+  font-size: 1.5rem;
+  color: #333;
+  background: rgba(255,255,255,0.8);
+  padding: 8px 16px;
+  border-radius: 5px;
+  gap: 20px;
+}
+/* Styles pour le bouton Démarrer HTML supprimés car il est maintenant dessiné sur le canvas */
+#gameContainer {
+  position: relative;
+}
+#gameCanvas {
+  border: 5px solid hsl(0, 0%, 0%);
+  border-radius: 10px;
+}
+#restartBtn {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 12px 24px;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  display: none;
+}
+#restartBtn:hover { background: #c0392b; }
+#gameOverImg {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  border-radius: 10px;
+  display: none;
+}
+/* Styles pour #bottomInfo, #rastaLogo, #instructions supprimés car déplacés dans le canvas */
+
+/* Style du logo ToncPlay */
+#toncplay-logo {
+    position: absolute; /* Positionnement par rapport à la page */
+    top: 10px;          /* Distance du haut de la page */
+    left: 10px;         /* Distance du côté gauche */
+    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
+    display: block;     /* Assure que le lien reste un bloc cliquable */
+    overflow: visible;
+}
+
+#toncplay-logo img {
+    width: 60px;       /* Ajustez la taille du logo */
+    height: auto;       /* Maintient les proportions */
+    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+}
+
+/* Position et style du tooltip */
+#toncplay-logo[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+    position: absolute;
+    top: 110%; /* Ajuste la position sous l'image */
+    left: 50%; /* Centre horizontalement */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Marges internes */
+    border-radius: 5px; /* Coins arrondis */
+    white-space: nowrap; /* Empêche le texte de se couper */
+    font-size: 12px; /* Taille du texte */
+    z-index: 1000; /* Affiche au-dessus des autres éléments */
+    pointer-events: none; /* Empêche de cliquer sur le tooltip */
+    opacity: 1; /* Rend invisible par default */
+    transition: opacity 0.3s; /* Transition pour l'apparition */
+    max-width: 200px; /* limite la largeur si le texte est long */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: normal;
+}
+
+/* Style de base pour le tooltip */
+#tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 12px; /* Taille de la police */
+    pointer-events: none; /* Empêche d'interagir avec le tooltip */
+    z-index: 1000; /* Affiche par-dessus les autres éléments */
+    white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+#footerText {
+  position: absolute;
+  bottom: 0;
+  /* Utilise fit-content pour que la largeur s'adapte au contenu */
+  width: fit-content;
+  /* Centre la div horizontalement */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.8);
+  color: #333;
+  font-size: 0.9rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+#footerText a {
+  color: #007bff;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+#footerText a:hover {
+  text-decoration: underline;
+}
