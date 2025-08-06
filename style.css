@@ -22,12 +22,21 @@ body {
   min-height: 100vh;
 }
 
+/* -------------------- STYLES GÉNÉRAUX H1 (pour résoudre l'avertissement) -------------------- */
+h1 {
+  font-size: 2.5rem; /* Taille de police par défaut pour les titres principaux */
+  margin-bottom: 1.5rem; /* Marge inférieure par défaut */
+  text-align: center; /* Centrer les titres principaux par défaut */
+  color: #061818; /* Couleur cohérente avec le texte du corps */
+}
+
 /* -------------------- CLASSE .HIDDEN --------------------
    Permet de masquer une section. 
    On l’applique quand on veut qu’une section ne soit pas affichée.
+   Pour les éléments qui doivent transitionner, on utilise max-height et opacity.
 */
 .hidden {
-  display: none;
+  display: none; /* Fallback for no JS or if transition is not desired */
 }
 
 /* -------------------- HEADER & MENU -------------------- */
@@ -108,18 +117,53 @@ main {
 
 /* -------------------- ACCUEIL (#accueil) -------------------- */
 #accueil {
-  text-align: center;
+  text-align: center; /* Pour centrer le contenu du wrapper */
   padding: 2rem;
 }
 
-#accueil h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+/* Nouvelle div pour encapsuler tout le contenu principal de l'accueil */
+.accueil-wrapper {
+  background-color: #dceee6; /* Couleur de fond comme les jeux */
+  border-radius: 8px;
+  padding: 1.5rem; /* Espacement interne */
+  box-shadow: 0 2px 6px rgba(6,24,24,0.1); /* Ombre comme les jeux */
+  max-width: 1000px; /* Largeur maximale pour le wrapper */
+  margin: 0 auto 2rem auto; /* Centre le wrapper et ajoute de la marge en bas */
 }
 
+/* Ajustement du titre h1 à l'intérieur du wrapper */
+.accueil-wrapper h1 {
+  margin-top: 0; /* Supprime la marge supérieure si elle existait */
+  margin-bottom: 0.5rem; /* Réduit la marge pour rapprocher le sous-titre */
+  text-align: center; /* S'assurer que le titre est centré dans le wrapper */
+}
+
+/* Nouveau style pour le sous-titre de la page d'accueil */
+.accueil-subtitle {
+  font-size: 1.8rem; /* Plus petit que le h1 (2.5rem par défaut) */
+  margin-top: 0; /* Supprime la marge supérieure par default */
+  margin-bottom: 1.5rem; /* Marge sous le sous-titre */
+  text-align: center;
+  color: #061818; /* Même couleur que le texte principal */
+  font-weight: normal; /* Moins gras que le titre principal */
+}
+
+/* Conteneur Flexbox pour l'image et le texte latéral */
+.accueil-content {
+  display: flex;
+  flex-wrap: wrap; /* Permet aux éléments de s'empiler sur petits écrans */
+  justify-content: center; /* Centre le contenu quand il s'empile */
+  align-items: flex-start; /* Aligne les éléments en haut */
+  max-width: 100%; /* Prend toute la largeur du .accueil-wrapper */
+  margin: 0 auto; /* Centre le contenu à l'intérieur du wrapper */
+  gap: 2rem; /* Espacement entre l'image et le texte */
+}
+
+/* Styles pour l'image de la section accueil */
 .accueil-figure {
-  margin: 2rem auto;
-  max-width: 600px;
+  flex-shrink: 0; /* Empêche l'image de rétrécir */
+  width: 400px; /* Largeur fixe pour le conteneur de l'image */
+  margin: 0; /* Réinitialise les marges précédentes */
 }
 
 .accueil-image {
@@ -127,6 +171,21 @@ main {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(64,167,112,0.3); /* léger halo vert */
 }
+
+/* Styles pour le conteneur de texte de la section accueil */
+.accueil-text-wrapper {
+  flex: 1; /* Permet au texte de prendre l'espace restant */
+  min-width: 300px; /* Largeur minimale avant que le contenu ne s'empile */
+  text-align: left; /* Aligne le texte à gauche à l'intérieur de son conteneur */
+}
+
+/* Styles pour les paragraphes à l'intérieur du wrapper de texte */
+.accueil-text-wrapper p {
+  max-width: none; /* Annule la max-width précédente, le wrapper gère la largeur */
+  margin: 0 0 1em 0; /* Ajuste les marges des paragraphes */
+  line-height: 1.6; /* Améliore la lisibilité */
+}
+
 
 /* -------------------- JEUX (#jeux) -------------------- */
 #jeux {
@@ -217,83 +276,166 @@ main {
 
 #news-container {
   margin-top: 1rem;
+  display: block; /* Affichage en bloc, l'un sous l'autre */
+  max-width: 800px; /* Limite la largeur du conteneur de news */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem; /* Padding pour les bords sur mobile */
 }
 
 .news-item {
-  position: relative;       /* nécessaire pour des éléments internes positionnés */
-  background-color: #fff;   /* fond blanc */
-  margin-bottom: 1rem;      /* espacement entre les éléments */
-  padding: 1rem;            /* espace interne */
-  border-radius: 4px;       /* coins arrondis */
-  box-shadow: 0 2px 6px rgba(6,24,24,0.1); /* ombre légère */
-  cursor: pointer;          /* curseur de clic */
+  position: relative;
+  background-color: #dceee6; /* Couleur de fond des jeux */
+  padding: 0.75rem; /* Réduction du padding pour un encadré plus compact */
+  border-radius: 8px; /* Coins plus arrondis */
+  box-shadow: 0 4px 10px rgba(6,24,24,0.15); /* Ombre plus prononcée */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transitions au survol */
+  margin-bottom: 1.5rem; /* Espace entre les actualités */
+  display: flex; /* Utilisation de flexbox pour l'image et le texte */
+  flex-direction: column; /* Les éléments s'empilent verticalement par défaut */
+  align-items: flex-start; /* Alignement en haut */
+  overflow: hidden; /* TRÈS IMPORTANT pour que max-height fonctionne */
 }
 
-
-/* -------------------- LIVRE D'OR (#livre-dor) -------------------- */
-#livre-dor {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: 5px;
-  padding: 2rem;
-  box-shadow: 0 2px 6px rgba(6,24,24,0.1);
+.news-item:hover {
+  transform: translateY(-5px); /* Léger soulèvement au survol */
+  box-shadow: 0 8px 15px rgba(6,24,24,0.25); /* Ombre plus intense au survol */
 }
 
-#livre-dor form {
+/* Style pour la prévisualisation de la news (toujours visible) */
+.news-item-preview {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  cursor: pointer; /* Indique que la zone est cliquable */
+  padding-bottom: 1rem; /* Espace entre le header et le contenu étendu */
+  position: relative; /* Ajouté pour positionner le bouton à l'intérieur */
 }
 
-.form-group {
-  margin-bottom: 1rem;
+.news-item-preview-image {
+  width: 100px; /* Taille fixe pour l'image dans la liste des news */
+  height: 100px;
+  object-fit: cover; /* Recadre l'image pour remplir le conteneur */
+  border-radius: 4px;
+  flex-shrink: 0; /* Empêche l'image de rétrécir */
 }
 
-label {
+.news-item-info {
+  flex: 1; /* Prend l'espace restant pour le texte du résumé */
+  /* Ajout de padding-right pour laisser de la place au bouton */
+  padding-right: 60px; /* Largeur approximative du bouton + marge */
+}
+
+.news-item h2 {
+  color: #061818; /* Couleur du texte foncé */
+  font-size: 1.4rem;
   margin-bottom: 0.5rem;
+}
+
+.news-item p {
+  color: #40a770; /* Couleur de la date en vert clair */
+  font-size: 0.9rem;
   font-weight: bold;
 }
 
-input[type="text"],
-textarea {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #cde3d9;
-  border-radius: 3px;
+/* Styles pour le contenu détaillé de la news (initialement caché) */
+.news-item-detail {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.7s ease-in-out, opacity 0.5s ease-in-out;
+  width: 100%; /* S'assure qu'il prend toute la largeur disponible */
 }
 
-button[type="submit"] {
+/* Style lorsque la news est "expanded" - max-height sera défini par JS */
+.news-item.expanded .news-item-detail {
+  opacity: 1;
+}
+
+/* Conteneur pour le texte dans le détail (l'image est supprimée) */
+.news-item-detail-content {
+    display: flex; /* Conserve flex pour la flexibilité future si besoin */
+    align-items: flex-start;
+    gap: 1rem;
+    padding-top: 1rem; /* Ajoute du padding ici */
+    padding-bottom: 1rem; /* Ajoute du padding ici */
+    white-space: pre-wrap; /* Préserve les retours à la ligne du data-details */
+    line-height: 1.6; /* Meilleure lisibilité du texte */
+    color: #333; /* Texte légèrement plus clair pour les détails */
+    font-size: 0.95rem;
+}
+
+/* L'image de détail est maintenant supprimée, donc ces styles ne sont plus utilisés */
+/*
+.news-item-detail-image {
   width: 150px;
-  padding: 0.5rem;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+*/
+
+.news-item-detail-text {
+    flex: 1; /* Prend l'espace restant pour le texte */
+}
+
+/* Bouton de bascule "Lire plus/moins" */
+.toggle-news-btn { 
   background-color: #40a770;
   color: #fff;
   border: none;
   border-radius: 4px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
-  margin-top: 1rem;
   transition: background-color 0.3s;
+  
+  /* Positionnement absolu pour le placer en bas à droite de news-item-preview */
+  position: absolute;
+  bottom: 0.75rem; /* Ajusté pour être au niveau de l'image */
+  right: 0.75rem; /* Marge à droite */
+  z-index: 1; /* S'assure qu'il est au-dessus du contenu */
 }
 
-button[type="submit"]:hover {
+.toggle-news-btn:hover {
   background-color: #349060;
 }
 
-#messages-container {
-  margin-top: 2rem;
-  background: #f9fdfb;
-  padding: 1rem;
-  border-radius: 4px;
+/* Responsive adjustment for news-details-expanded-image */
+@media (max-width: 480px) {
+    .news-item-detail-content {
+        flex-direction: column; /* Empile l'image et le texte verticalement sur petits écrans */
+        align-items: center;
+    }
+    /* L'image de détail est supprimée, ces styles ne sont plus utilisés */
+    /*
+    .news-item-detail-image {
+        width: 100%;
+        max-width: 200px;
+        margin-bottom: 1rem;
+    }
+    */
 }
 
-.message-item {
-  border-bottom: 1px solid #cde3d9;
-  padding: 0.5rem 0;
+/* Media query pour les écrans plus petits afin d'empiler l'image et le texte */
+@media (max-width: 768px) {
+  .accueil-content {
+    flex-direction: column; /* Empile l'image et le texte verticalement */
+    align-items: center; /* Centre les éléments quand ils sont empilés */
+  }
+  .accueil-figure {
+    width: 100%; /* L'image prend toute la largeur disponible */
+    margin-bottom: 1.5rem; /* Ajoute de l'espace en dessous de l'image */
+  }
+  .accueil-text-wrapper {
+    width: 100%; /* Le texte prend toute la largeur disponible */
+  }
+  .accueil-text-wrapper p {
+    text-align: center; /* Centre le texte sur petits écrans si désiré */
+  }
 }
 
-.message-item:last-child {
-  border-bottom: none;
-}
 
 /* -------------------- FOOTER -------------------- */
 footer {
@@ -332,52 +474,23 @@ footer {
   }
 }
 
-#news-details {
-  max-width: 600px;
-  margin: 2rem auto;       /* centré horizontalement */
-  background-color: #fff;  /* fond blanc */
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(6,24,24,0.2);
-}
-
-#news-details h2 {
-  margin-bottom: 1rem;
-}
-
-#news-details.hidden {
-  display: none;
-}
-
-/* Ex: le bouton "Fermer" */
-#close-news-details {
-  background-color: #40a770; /* vert clair */
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-}
-
-#close-news-details:hover {
-  background-color: #349060;
-}
-
+/* Le tooltip est supprimé */
+/*
 #tooltip {
-  position: absolute;       /* positionnement par rapport à la souris */
-  background: #333;         /* fond sombre */
-  color: #fff;              /* texte blanc */
-  padding: 5px 10px;        /* espace interne */
-  border-radius: 4px;       /* coins arrondis */
-  font-size: 0.9rem;        /* taille de police réduite */
-  pointer-events: none;     /* souris "traverse" l'élément */
-  z-index: 9999;            /* au-dessus des autres éléments */
+  position: absolute;
+  background: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 9999;
 }
 
-/* Caché par défaut */
 #tooltip.hidden {
   display: none;
 }
+*/
 
 /*********************************
  * SECTION DISCORD
@@ -393,7 +506,6 @@ footer {
   /* Fond blanc (ou un vert très pâle si tu veux rester 
      dans la charte globale #ecf7f1 / #dceee6) */
   background: #fff; 
-
   /* Effet "carte" : coins arrondis, ombre légère */
   border-radius: 5px;
   box-shadow: 0 2px 6px rgba(6,24,24,0.1);
@@ -413,7 +525,6 @@ footer {
   line-height: 1.4;
 }
 
-/* Le bouton "Rejoindre le Discord" */
 .btn-discord {
   display: inline-block;
   background-color: #40a770;
@@ -438,7 +549,3 @@ footer {
   height: auto;
   border-radius: 10px;
 }
-
-
-
-
