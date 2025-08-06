@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Le BloB</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner à la page d'accueil ToncPlay">
+    <img src="../../images/logo.png" alt="ToncPlay Logo">
+</a>
+<header>
+  <img id="blob-left-icon" src="images/blob.png" alt="Blob gauche" class="header-blob-icon">
+  <h1>Le BloB</h1>
+  <img id="blob-right-icon" src="images/blobinverse.png" alt="Blob inversé droite" class="header-blob-icon">
+</header>
+
+  <main>
+    <div class="game-container">
+      <div id="welcomeScreen" class="welcome-screen">
+        <!-- Titre modifié avec l'image du blobfin -->
+        <h2 class="welcome-title">Bienvenue dans le monde du Blob <img src="images/blobfin.png" alt="Blob" class="welcome-title-blob-icon"></h2>
+        <!-- Phrase supprimée -->
+        
+        <!-- Phrase modifiée avec un retour à la ligne -->
+        <p>Incarnez un Blob affam&eacute;, sans emploi, mais d&eacute;termin&eacute; &agrave; manger toutes les avoines d&rsquo;un monde &eacute;trange (et probablement sans gluten). Un seul objectif : bouffer d&rsquo;abord, poser des questions apr&egrave;s.<br>Ou testez votre foi en la physique dans le mode Jump. Le Blob saute comme un ressort sous Red Bull, et vous priez pour ne pas finir sur un pique. Bonne chance.</p>
+        
+        <div class="menu-buttons-container">
+            <div class="adventure-mode-group">
+                <button id="playAdventureModeBtn" class="main-menu-button">Jouer mode Aventure</button>
+                <div class="level-selection-container">
+                    <label for="levelSelect">Sélectionner un niveau :</label>
+                    <select id="levelSelect"></select>
+                </div>
+            </div>
+
+            <div class="jump-mode-group">
+                <button id="playJumpModeBtn" class="main-menu-button">Jouer mode<br>Jump</button>
+                <!-- Affichage du meilleur score pour le mode Jump sur l'écran d'accueil -->
+                <div class="high-score-display" id="jumpHighScoreDisplay">
+                    Meilleur Score: <span id="highScoreValue">0</span>
+                </div>
+            </div>
+
+            <!-- Nouveau bouton 'Aide au Jeu' -->
+            <button id="helpBtn" class="main-menu-button full-width-button">Aide au Jeu</button>
+        </div>
+      </div>
+
+      <canvas id="gameCanvas" width="1000" height="600"></canvas>
+      
+      <!-- Indicateurs de jeu -->
+      <div class="game-indicator level-indicator" id="levelIndicator">Niveau 1</div>
+      <div class="game-indicator avoine-indicator" id="avoineIndicator">
+          <span id="collectedAvoine">0</span>
+          <img src="images/avoine1.png" alt="Flocon d'avoine" class="avoine-icon">
+          <span>/</span>
+          <span id="totalAvoine">0</span>
+          <img src="images/avoine1.png" alt="Flocon d'avoine" class="avoine-icon">
+      </div>
+      <div class="game-indicator lives-indicator" id="livesIndicator">
+          <span id="playerLives">3</span>
+          <img src="images/blob.png" alt="Vie du joueur" class="lives-icon">
+      </div>
+      <div class="game-indicator jump-score-indicator" id="jumpScoreIndicator" style="display: none;">
+          Score: <span id="jumpScoreValue">0</span>
+      </div>
+    
+
+    <!-- Fenêtre Game Over -->
+    <div id="gameOverScreen" class="game-over-screen">
+        <h2 id="gameOverTitle">Game Over, mon pauvre Blob !</h2>
+        <p id="gameOverMessage">Tu as perdu toutes tes vies. Le chemin de l'avoine est semé d'embûches, mais ne lâche rien !</p>
+        <div class="game-over-buttons">
+            <button id="restartGameBtn">Rejouer</button>
+            <button id="backToHomeBtn">Accueil</button>
+        </div>
+    </div>
+
+    <!-- Fenêtre d'aide (modal) -->
+    <div id="helpModal" class="help-modal">
+        <div class="help-content">
+            <h2>Aide au Jeu : Le BloB</h2>
+            <h3>Pr&eacute;sentation des Modes de Jeu :</h3>
+            <p><strong>Mode Aventure :</strong> C&rsquo;est l&rsquo;histoire d&rsquo;un Blob, l&eacute;g&egrave;rement obsessionnel, dont le seul but dans la vie est de gober tous les flocons d&rsquo;avoine d&rsquo;un monde rempli de pi&egrave;ges mortels. Collectez-les tous pour avancer, mais attention : entre deux cuill&egrave;res d&rsquo;avoine, c&rsquo;est surtout vous qui allez manger.</p>
+            <p><strong>Mode Jump :</strong> Le mode qui rend fou. Le Blob saute tout seul comme s&rsquo;il avait bu trois caf&eacute;s. Vous, vous g&eacute;rez la direction et la panique. Le but ? Monter. Encore. Toujours. Jusqu&rsquo;&agrave; la chute. Une vraie m&eacute;taphore de la vie&hellip; sauf qu&rsquo;ici, les pics sont en pixels.</p>
+
+            <h3>Commandes :</h3>
+            <ul>
+                <li><strong>ZQSD ou Fl&egrave;ches directionnelles :</strong> Parce que m&ecirc;me un Blob m&eacute;rite un GPS.<br>Z / Haut : Sauter. Parce que voler, c&rsquo;est pas pr&eacute;vu dans le budget.<br>Q / Gauche : &Agrave; gauche, l&agrave; o&ugrave; il y a toujours un pi&egrave;ge. Toujours.<br>D / Droite : &Agrave; droite, c&rsquo;est pareil, mais tu crois que c&rsquo;est mieux. C&rsquo;est pas mieux</li>
+            </ul>
+
+            <h3>Éléments du Jeu :</h3>
+            <ul>
+                <li><img src="images/avoine1.png" alt="Flocon d'avoine" class="help-icon"> <strong>Avoine (le flocon qui rend accro) :</strong> Ramasse-les toutes pour terminer un niveau en mode Aventure. C&rsquo;est comme Pok&eacute;mon, mais sans Pikachu, sans sc&eacute;nario, et avec plus de fibres.</li>
+                <li><img src="images/blob.png" alt="Limace" class="help-icon"> <strong>Vies (le compteur d&rsquo;humiliation)</strong> Si vous les perdez toutes, c&rsquo;est Game Over. Et vous verrez appara&icirc;tre un Blob qui pleure. Vraiment. Enfin&hellip; dans votre t&ecirc;te.</li>
+                <li><img src="images/limace.png" alt="Limace" class="help-icon"> <strong>Limace (ennemi gluant non identifi&eacute;):</strong> &Agrave; &eacute;viter. S&eacute;rieusement. M&ecirc;me au resto. Si vous les touchez, vous perdez une vie et votre dignit&eacute;.</li>
+                <li><img src="images/oiseau.png" alt="Oiseau" class="help-icon"> <strong> Oiseau (ennemi a&eacute;rien, sans permis)</strong> Il vole. Il pique. Il ruine vos plans. Bref, l&rsquo;oiseau vous d&eacute;teste personnellement.</li>
+                <li><img src="images/pic.png" alt="Pic" class="help-icon"> <strong>Pics (pas sympas)</strong> Touchez-les et c&rsquo;est la punition imm&eacute;diate. Comme un contr&ocirc;le fiscal, mais avec du sang pixelis&eacute;</li>
+                <li><img src="images/trampo.png" alt="Trampoline" class="help-icon"> <strong>Trampoline (le coussin magique):</strong> Vous envoie tr&egrave;s haut. Mais genre, tr&egrave;s haut. Parfait pour les amateurs de sensations fortes et de chutes dramatiques.</li>
+                <li><img src="images/teleporter.png" alt="T&eacute;l&eacute;porteur" class="help-icon"> <strong>T&eacute;l&eacute;porteur (magie ou technologie ? On sait pas):</strong> Entrez dedans, et POUF, vous r&eacute;apparaissez ailleurs. Le r&ecirc;ve de tout salari&eacute; coinc&eacute; &agrave; la machine &agrave; caf&eacute;.</li>
+                <li><img src="images/blobfixe.png" alt="Vie suppl&eacute;mentaire" class="help-icon"> <strong>Vie Suppl&eacute;mentaire (cadeau du ciel) :</strong> Ramassez-la pour obtenir une vie de plus. Et non, &ccedil;a ne marche pas IRL.</li>
+                <li><img src="images/plateformebois.png" alt="Plateforme mouvante" class="help-icon"> <strong> Plateforme mouvante (toujours en retard ou en avance) :</strong> Elle bouge. Vous, vous attendez. Une histoire d&rsquo;amour compliqu&eacute;e.</li>
+                <li><img src="images/plateformeverre.png" alt="Plateforme disparaissante" class="help-icon"> <strong>Plateforme disparaissante (spoiler : elle dispara&icirc;t) :</strong> Elle vous trahit d&egrave;s que vous posez le pied dessus. Comme un ami qui vous ghoste au resto.</li>
+                <li><img src="images/plateformecollante1.png" alt="Plateforme collante" class="help-icon"> <strong>Plateforme collante (sensation chewing-gum) :</strong> Vous ralentit et r&eacute;duit vos sauts. Bref, elle vous plombe le moral et le gameplay.</li>
+                <li><img src="images/plateformerebondissante1.png" alt="Plateforme rebondissante" class="help-icon"> <strong> Plateforme rebondissante (effet trampoline + Red Bull) :</strong> Vous fait sauter plus haut. Id&eacute;al pour fuir les responsabilit&eacute;s (ou les limaces).</li>
+                <li><img src="images/mur.png" alt="Mur" class="help-icon"> <strong>Mur (classique, mais toujours l&agrave;):</strong> Il bloque. Il juge. Il vous rappelle que la vie est faite d&rsquo;obstacles, et qu&rsquo;il faut apprendre &agrave;&hellip; faire avec.</li>
+            </ul>
+
+            <h3>Crédits :</h3>
+            <p>Jeu créé par Sluto, champion de l'avoine.</p>
+            <p>Inspiré par les jeux de plateforme classiques, des cauchemars de d&eacute;veloppeurs, et des Blobs sous caf&eacute;ine.</p>
+            <p>Images : Pixel Art du Blob <img src="images/blobfuck.png" alt="Blob qui tire la langue" class="help-icon"></p>
+
+            <!-- Bouton de réinitialisation de la progression -->
+            <button id="resetProgressBtn" class="main-menu-button reset-button">Supprimer la progression</button>
+            <button id="backFromHelpBtn" class="main-menu-button">Retour</button>
+        </div>
+    </div>
+
+    <!-- Fenêtre de confirmation de réinitialisation -->
+    <div id="resetConfirmModal" class="confirm-modal">
+        <div class="confirm-content">
+            <h2>Confirmation de réinitialisation</h2>
+            <p>Êtes-vous sûr de vouloir supprimer toute votre progression, mode aventure et mode jump ? Cette action est irréversible.</p>
+            <div class="confirm-buttons">
+                <button id="confirmResetBtn" class="main-menu-button">Ouais, j'suis sur</button>
+                <button id="cancelResetBtn" class="main-menu-button">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <!-- Nouveau bouton "Retour à l'Accueil" en dessous du canvas -->
+    <button id="backToHomeInGameBtn" class="main-menu-button">Retour à l'Accueil</button>
+  </main>
+
+  <script src="game.js"></script>
+  <script src="levels.js"></script>
+  <script src="jump.js"></script>
+<div id="footerText">©Sluto - Ce jeu fait partie du projet <a href="../../index.html">ToncPlay</a>.</div>
+<!-- Modale de fin de jeu -->
+<div id="endGameModal" style="display: none;" class="end-game-modal">
+    <div class="modal-content">
+        <h2 class="modal-title">Félicitations ! 🎉</h2>
+        <p class="modal-message">Le blob est rassasié. Il a mangé plus de flocons qu’un hamster sous stéroïdes.<br>
+Grâce à toi, il peut maintenant entamer sa digestion… en paix… dans un hamac… face à un lever de soleil… sur Saturne.<br>
+Merci pour lui. Et pour les flocons.</p>
+        <button id="restartButton" class="modal-button">
+            Retour à l'accueil
+        </button>
+    </div>
+</div>
+</body>
+</html>
