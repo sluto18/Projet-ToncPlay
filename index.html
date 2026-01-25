@@ -88,6 +88,40 @@
     <section id="jeux" class="hidden">
       <h1>Nos Jeux</h1>
       <div class="games-container">
+                <!-- Dead Zone Bastion -->
+        <div class="game-row">
+          <div class="jaquette-cell">
+            <img 
+              src="jaquette/deadzonebastion.jpg" 
+              alt="Dead Zone Bastion" 
+              class="jaquette"
+            />
+          </div>
+          <div class="description-cell">
+            <h2>Dead Zone Bastion</h2>
+            <p>
+            Dead Zone Bastion : c'est du pixel, c’est du stress, et c’est surtout beaucoup plus simple que d’expliquer à sa grand-mère comment vider le cache de son navigateur.</p>
+            </p>
+            <a href="jeux/deadzonebastion/index.html" class="btn-jouer">Jouer</a>
+          </div>
+        </div>
+        <!-- Neon Snake -->
+        <div class="game-row">
+          <div class="jaquette-cell">
+            <img 
+              src="jaquette/neonsnake.png" 
+              alt="Neon Snake" 
+              class="jaquette"
+            />
+          </div>
+          <div class="description-cell">
+            <h2>Neon Snake</h2>
+            <p>
+           Un serpent qui brille dans le futur. On a gardé le concept de base parce qu'on n'a toujours pas trouvé comment faire plus simple que 'manger et ne pas se rentrer dedans'.</p>
+            </p>
+            <a href="jeux/neonsnake/index.html" class="btn-jouer">Jouer</a>
+          </div>
+        </div>
         <!-- Le Blob -->
         <div class="game-row">
           <div class="jaquette-cell">
@@ -199,163 +233,173 @@
     </section>
 
     <!-- ----------- SECTION NEWS ----------- -->
-    <section id="news" class="hidden">
-      <h1>Actualit&eacute;s</h1>
+<section id="news" class="hidden">
+  <h1>Actualit&eacute;s</h1>
 
-      <!-- Conteneur des actualités -->
-      <div id="news-container">
-        <!-- Actualité 8 (Ajoutée pour "Le Blob") - Maintenant en haut -->
-        <div class="news-item" 
-             data-full-image="jaquette/leblob.png"
-             data-full-text="Dans un monde o&ugrave; les c&eacute;r&eacute;ales sont rares et gluantes, un &ecirc;tre mou s&rsquo;&eacute;l&egrave;ve.&#10;&#10;Et cet &ecirc;tre&hellip; c&rsquo;est toi.&#10;&#10;Oui, toi, le Blob.&#10;&#10;Pas tr&egrave;s rapide, pas tr&egrave;s net, mais driv&eacute; par une seule obsession : les flocons d&rsquo;avoine.&#10;🥣 C&rsquo;est un jeu de plateforme,&#10;&#10;👟 Tu sautes, tu glisses, tu bave un peu,&#10;&#10;🌾 Et tu r&eacute;cup&egrave;res des flocons comme si ta vie en d&eacute;pendait. (Spoiler : c&rsquo;est peut-&ecirc;tre le cas.)&#10;Chaque niveau est une ode au gluten lent, chaque obstacle un rappel que la gravit&eacute; n&rsquo;aime pas les blobs.&#10;&#10;Mais tu es tenace, et surtout, t&rsquo;as faim.&#10;🎮 Bref :&#10;C&rsquo;est du Blob, c&rsquo;est de la plateforme, c&rsquo;est de l&rsquo;avoine.&#10;&#10;Et c&rsquo;est probablement le seul jeu au monde o&ugrave; on peut tomber dans le vide en criant :&#10;&ldquo;Mais pourquoi j&rsquo;ai pas pris du quinoa ?!&rdquo;">
-          <div class="news-item-preview">
-            <img src="jaquette/leblob.png" alt="Jaquette Le Blob" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Sortie de Le Blob</h2>
-              <p>Date : 06/08/2025</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button>
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
+  <div id="news-container">
 
-        <div class="news-item" 
-             data-full-image="jaquette/cartongame.png"
-             data-full-text="Attention les mirettes, on a dépoussiéré le site avec une mise à jour visuelle qui claque, même si on n'avait qu'un rouleau de scotch et un feutre.&#10;On a tout regroupé toutes les fonctionnalités sur la page &#39;Jeu&#39; pour que vous ne vous perdiez plus comme un dahu dans la forêt du web.&#10;Et, cerise sur le carton, on a mis à jour les succès ! C&#39;est le moment de prouver que vous êtes un as du clic, ou du moins, un amateur éclairé du carton.">
-          <div class="news-item-preview">
-            <img src="jaquette/cartongame.png" alt="Jaquette Carton Game" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Mise a jour Carton Game</h2>
-              <p>Date : 02/08/2025</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
-        <!-- Actualité-->
-        <div class="news-item" 
-             data-full-image="jaquette/rastajump.png"
-             data-full-text="Petit jeu de saut avec un Rasta en mascote ! Pourquoi pas ?&#10;Cr&eacute;ations de toutes les images et de quelques lignes de code pour un r&eacute;sultat simple mais satisfaisant.">
-          <div class="news-item-preview">
-            <img src="jaquette/rastajump.png" alt="Jaquette Rasta Jump" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Sortie de Rasta Jump</h2>
-              <p>Date : 15/06/2025</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
+    <div class="news-item" 
+         data-full-image="jaquette/deadzonebastion.jpg" 
+         data-full-text="Le Projet ToncPlay vient de lâcher Dead Zone Bastion. Le concept ? On vous donne une tour, des diamants et beaucoup de problèmes qui grognent.
 
-        <!-- Actualité  -->
-        <div class="news-item" 
-             data-full-image="images/logo.png"
-             data-full-text="&ldquo;Un projet sans site, c&rsquo;est comme une pizza sans fromage : &ccedil;a existe, mais c&rsquo;est triste.&rdquo;&#10;Alors voil&agrave;, on a fait un site. Paf.&#10;&#10;📦 Tous nos jeux gratuits r&eacute;unis au m&ecirc;me endroit, parce que :&#10;&#10; &nbsp; &nbsp; C&rsquo;est plus propre.&#10;&#10; &nbsp; &nbsp; C&rsquo;est plus classe.&#10;&#10; &nbsp; &nbsp; Et surtout, on avait envie de cliquer sur notre propre logo.&#10;&#10;👉 Le Projet ToncPlay a maintenant un QG digital pour stocker des pixels, des id&eacute;es &eacute;tranges, et potentiellement un bug ou deux (offerts).&#10;&#10;Allez viens, c&rsquo;est gratuit, c&rsquo;est bizarre, c&rsquo;est ToncPlay.">
-          <div class="news-item-preview">
-            <img src="images/logo.png" alt="Logo ToncPlay" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Cr&eacute;ation du site Projet ToncPlay</h2>
-              <p>Date : 06/01/2025</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
+C'est simple : vous améliorez votre Bastion au labo, ou vous servez de buffet à volonté pour zombies en manque d'affection. À vous de voir.
 
-        <!-- Actualité  -->
-        <div class="news-item" 
-             data-full-image="jaquette/survivhordes.jpg"
-             data-full-text="Mise &agrave; jour 1.1 &ndash; Attention o&ugrave; tu mets les pieds&hellip; les ruines arrivent.&#10;&#10;On a revu la difficult&eacute; &agrave; la baisse, histoire que ton clavier ne parte pas en gr&egrave;ve au bout de cinq minutes. Mais ne te d&eacute;tends pas trop vite : de nouvelles m&eacute;caniques viennent mettre du piment dans ta survie.&#10;&#10;🥁 Les Boss d&eacute;barquent. Et comme tout boss qui se respecte, ils ne repartent pas sans laisser un petit cadeau :&#10;💥 &Agrave; leur mort, une ruine appara&icirc;t.&#10;🎁 Ces ruines, c&rsquo;est pas de la d&eacute;co fa&ccedil;on &ldquo;ambiance ch&acirc;teau hant&eacute;&rdquo; : elles g&eacute;n&egrave;rent des vagues de zombies pr&ecirc;tes &agrave; te mordre les chaussettes. Et &ccedil;a, c&rsquo;est moins feng shui.&#10;✨ Nouveaux sorts passifs au menu :&#10;&#10; &nbsp; &nbsp; 🧰 Kit du Bricoleur : un petit gadget bien pens&eacute; qui balance un projectile rebondissant.&#10; &nbsp; &nbsp; Id&eacute;al pour les couloirs &eacute;troits, les combats rapproch&eacute;s, ou impressionner ta belle-famille.&#10;&#10; &nbsp; &nbsp; 🐶 Bichon Maltais &agrave; trois pattes : il te suit partout, il mord les zombies, il boite un peu, mais il t&rsquo;aime d&rsquo;un amour pur et f&eacute;roce.&#10; &nbsp; &nbsp; Et franchement, t&rsquo;as besoin de &ccedil;a dans ta vie.">
-          <div class="news-item-preview">
-            <img src="jaquette/survivhordes.jpg" alt="Jaquette Surviv`Hordes" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Mise a jour Surviv`Hordes</h2>
-              <p>Date : 02/01/2025</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
+Dead Zone Bastion : c’est du pixel, c’est du stress, et c’est surtout beaucoup plus simple que d’expliquer à sa grand-mère comment vider le cache de son navigateur. Jouez maintenant !">
+      <div class="news-item-preview">
+        <img src="jaquette/deadzonebastion.jpg" alt="Jaquette Dead Zone Bastion" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Dead Zone Bastion</h2>
+          <p>Date : 25/01/2026</p>
         </div>
-
-        <!-- Actualité  -->
-        <div class="news-item" 
-             data-full-image="jaquette/survivhordes.jpg"
-             data-full-text="Hommage pas tr&egrave;s propre &agrave; Hordes.fr &mdash; avec du sang, du sable et du pixel&#10;Tu te souviens de Hordes.fr ?&#10;&#10;Ce bon vieux jeu o&ugrave; tu crevais de soif, de faim, ou d&rsquo;un coup de pelle d&rsquo;un voisin un peu trop motiv&eacute; ?&#10;&#10;Ben voil&agrave;. On lui a rendu hommage.&#10;&#10;Mais fa&ccedil;on roguelike-survivor, version 2025, avec des zombies, du loot, des vagues, et beaucoup moins d&rsquo;organisation communautaire (on a vir&eacute; le forum, t&rsquo;inqui&egrave;te).&#10;⚔️ C&rsquo;est inspir&eacute; de Vampire Survivors,&#10;&#10;🧟‍♂️ Mais &ccedil;a sent le d&eacute;sert, la poussi&egrave;re et la parano&iuml;a.&#10;&#10;💀 Tu survis, tu claques, tu recommences &mdash; en esp&eacute;rant looter un truc utile avant de servir de repas.&#10;Ici, pas de tour de garde ni de plan de construction,&#10;&#10;juste toi, un flingue et quelques regrets.">
-          <div class="news-item-preview">
-            <img src="jaquette/survivhordes.jpg" alt="Jaquette Surviv`Hordes" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Sortie de Surviv`Hordes</h2>
-              <p>Date : 19/12/2024</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
-
-        <!-- Actualité  -->
-        <div class="news-item" 
-             data-full-image="jaquette/galacticdefender.png"
-             data-full-text="ToncPlay pr&eacute;sente : Le shoot&rsquo;em up qui fait transpirer les pixels&#10;&#10;Tu veux du calme ? Va jardiner.&#10;Ici, c&rsquo;est du shoot&rsquo;em up survitamin&eacute;, version ToncPlay.&#10;Pas de pause, pas de sieste, juste toi, des ennemis en sueur, et des m&eacute;t&eacute;orites qui te jugent.&#10;&#10;💥 D&eacute;zinguer des hordes d&rsquo;ennemis comme si t&rsquo;&eacute;tais dans une pub pour de la lessive (mais en plus explosive),&#10;☄️ Esquiver des m&eacute;t&eacute;orites comme Matrix version grotte spatiale,&#10;💣 Et affronter des boss aussi charismatiques qu&rsquo;un politicien en campagne&hellip; mais avec beaucoup plus de d&eacute;g&acirc;ts et moins de promesses.&#10;Ton objectif ? Survivre. Tirer. Hurler un peu. Et recommencer.&#10;&#10;Un jeu 100% arcade, 0% gluten, avec juste ce qu&rsquo;il faut de rage et de bruitages bizarres.&#10;Appuie sur start. Et serre les fesses.">
-          <div class="news-item-preview">
-            <img src="jaquette/galacticdefender.png" alt="Jaquette Galactic Defender" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Sortie de Galactic Defender</h2>
-              <p>Date : 21/11/2024</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
-
-        <!-- Actualité  -->
-        <div class="news-item" 
-             data-full-image="jaquette/cartongame.png"
-             data-full-text="Oublie les diamants, l&rsquo;or ou les NFT moches : l&rsquo;avenir, c&rsquo;est le carton.&#10;Dans ce jeu cliqueur hautement recyclable, tu incarnes un magnat du carton, pr&ecirc;t &agrave; transformer du pauvre papier en empire du packaging.&#10;&#10;🔨 Tu chopes du papier,&#10;🏭 Tu le presses, tu le plies, tu le cartonnes,&#10;💰 Et tu vends &ccedil;a &agrave; prix d&rsquo;or aux rois de la livraison express.&#10;&#10;Optimise tes machines, d&eacute;bloque des am&eacute;liorations d&eacute;biles (genre presse &agrave; hamster ou intelligence artificielle en carton), et grimpe jusqu&rsquo;au sommet de la cha&icirc;ne logistique mondiale.&#10;&#10;💥 Chaque clic, c&rsquo;est un pas de plus vers ta destin&eacute;e de tycoon en tongs, g&eacute;nie du kraft, roi du double cannel&eacute;.&#10;Bref, deviens l&rsquo;empereur de l&rsquo;emballage, sans jamais sortir de ton fauteuil.">
-          <div class="news-item-preview">
-            <img src="jaquette/cartongame.png" alt="Jaquette Carton Game" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Sortie de Carton Game</h2>
-              <p>Date : 29/10/2024</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
-
-        <!-- Actualité (La plus ancienne) -->
-        <div class="news-item" 
-             data-full-image="jaquette/luminescence.jpg"
-             data-full-text="ToncPlay : le premier jeu, le premier bug, la premi&egrave;re larme&#10;Tout a commenc&eacute; par une id&eacute;e g&eacute;n&eacute;r&eacute;e par une intelligence artificielle.&#10;&#10;Et au lieu de l&rsquo;ignorer poliment comme on fait avec les id&eacute;es cheloues de tonton Francis, on l&rsquo;a faite.&#10;&#10;&Agrave; la main.&#10;&#10;Avec du JavaScript, des caf&eacute;s froids, et Google ouvert en triple &eacute;cran.&#10;🧠 C&rsquo;est notre toute premi&egrave;re exp&eacute;rience.&#10;&#10;🎮 Notre premier jeu.&#10;&#10;🔥 Et potentiellement le premier projet &agrave; faire crasher ton navigateur avec le sourire.&#10;Un jeu modeste, un peu bancal, mais bourr&eacute; de curiosit&eacute;, d&rsquo;envie et d&rsquo;effets sonores douteux.&#10;&#10;Bref : un projet d&rsquo;apprentissage, de fun, et de pixels pas trop mal align&eacute;s.">
-          <div class="news-item-preview">
-            <img src="jaquette/luminescence.jpg" alt="Jaquette Luminescence" class="news-item-preview-image"/>
-            <div class="news-item-info">
-              <h2>Sortie de Luminescence</h2>
-              <p>Date : 28/09/2024</p>
-            </div>
-            <button class="toggle-news-btn">Lire plus</button> <!-- Bouton déplacé ici -->
-          </div>
-          <div class="news-item-detail">
-            <!-- Contenu détaillé injecté par JS -->
-          </div>
-        </div>
+        <button class="toggle-news-btn">Lire plus</button>
       </div>
-    </section>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/neonsnake.png" 
+         data-full-text="Pour les 1 an de Toncplay, on aurait pu vous offrir un voyage sur Mars ou un NFT d'art abstrait. On a préféré faire mieux : déterrer notre tout premier projet, le Snake, et lui offrir une cure de jouvence.
+
+C'est le jeu par lequel tout a commencé, l'ADN brut du Projet Toncplay, remis au goût du jour. Pas de chichis, juste un serpent, des pixels et ce plaisir nostalgique de ne surtout pas se mordre la queue.">
+      <div class="news-item-preview">
+        <img src="jaquette/neonsnake.png" alt="Neon Snake" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Neon Skane</h2>
+          <p>Date : 06/01/2026</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/leblob.png" 
+         data-full-text="Dans un monde o&ugrave; les c&eacute;r&eacute;ales sont rares et gluantes, un &ecirc;tre mou s&rsquo;&eacute;l&egrave;ve.&#10;&#10;Et cet &ecirc;tre&hellip; c&rsquo;est toi.&#10;&#10;Oui, toi, le Blob.&#10;&#10;Pas tr&egrave;s rapide, pas tr&egrave;s net, mais driv&eacute; par une seule obsession : les flocons d&rsquo;avoine.&#10;🥣 C&rsquo;est un jeu de plateforme,&#10;&#10;👟 Tu sautes, tu glisses, tu bave un peu,&#10;&#10;🌾 Et tu r&eacute;cup&egrave;res des flocons comme si ta vie en d&eacute;pendait. (Spoiler : c&rsquo;est peut-&ecirc;tre le cas.)&#10;Chaque niveau est une ode au gluten lent, chaque obstacle un rappel que la gravit&eacute; n&rsquo;aime pas les blobs.&#10;&#10;Mais tu es tenace, et surtout, t&rsquo;as faim.&#10;舉辦 Bref :&#10;C&rsquo;est du Blob, c&rsquo;est de la plateforme, c&rsquo;est de l&rsquo;avoine.&#10;&#10;Et c&rsquo;est probablement le seul jeu au monde o&ugrave; on peut tomber dans le vide en criant :&#10;&ldquo;Mais pourquoi j&rsquo;ai pas pris du quinoa ?!&rdquo;">
+      <div class="news-item-preview">
+        <img src="jaquette/leblob.png" alt="Jaquette Le Blob" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Le Blob</h2>
+          <p>Date : 06/08/2025</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/cartongame.png" 
+         data-full-text="Attention les mirettes, on a dépoussiéré le site avec une mise à jour visuelle qui claque, même si on n'avait qu'un rouleau de scotch et un feutre.&#10;On a tout regroupé toutes les fonctionnalités sur la page &#39;Jeu&#39; pour que vous ne vous perdiez plus comme un dahu dans la forêt du web.&#10;Et, cerise sur le carton, on a mis à jour les succès ! C&#39;est le moment de prouver que vous êtes un as du clic, ou du moins, un amateur éclairé du carton.">
+      <div class="news-item-preview">
+        <img src="jaquette/cartongame.png" alt="Jaquette Carton Game" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Mise a jour Carton Game</h2>
+          <p>Date : 02/08/2025</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/rastajump.png" 
+         data-full-text="Petit jeu de saut avec un Rasta en mascote ! Pourquoi pas ?&#10;Cr&eacute;ations de toutes les images et de quelques lignes de code pour un r&eacute;sultat simple mais satisfaisant.">
+      <div class="news-item-preview">
+        <img src="jaquette/rastajump.png" alt="Jaquette Rasta Jump" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Rasta Jump</h2>
+          <p>Date : 15/06/2025</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="images/logo.png" 
+         data-full-text="&ldquo;Un projet sans site, c&rsquo;est comme une pizza sans fromage : &ccedil;a existe, mais c&rsquo;est triste.&rdquo;&#10;Alors voil&agrave;, on a fait un site. Paf.&#10;&#10;📦 Tous nos jeux gratuits r&eacute;unis au m&ecirc;me endroit, parce que :&#10;&#10; &nbsp; &nbsp; C&rsquo;est plus propre.&#10;&#10; &nbsp; &nbsp; C&rsquo;est plus classe.&#10;&#10; &nbsp; &nbsp; Et surtout, on avait envie de cliquer sur notre propre logo.&#10;&#10;👉 Le Projet ToncPlay a maintenant un QG digital pour stocker des pixels, des id&eacute;es &eacute;tranges, et potentiellement un bug ou deux (offerts).&#10;&#10;Allez viens, c&rsquo;est gratuit, c&rsquo;est bizarre, c&rsquo;est ToncPlay.">
+      <div class="news-item-preview">
+        <img src="images/logo.png" alt="Logo ToncPlay" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Cr&eacute;ation du site Projet ToncPlay</h2>
+          <p>Date : 06/01/2025</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/survivhordes.jpg" 
+         data-full-text="Mise &agrave; jour 1.1 &ndash; Attention o&ugrave; tu mets les pieds&hellip; les ruines arrivent.&#10;&#10;On a revu la difficult&eacute; &agrave; la baisse, histoire que ton clavier ne parte pas en gr&egrave;ve au bout de cinq minutes. Mais ne te d&eacute;tends pas trop vite : de nouvelles m&eacute;caniques viennent mettre du piment dans ta survie.&#10;&#10;🥁 Les Boss d&eacute;barquent. Et comme tout boss qui se respecte, ils ne repartent pas sans laisser un petit cadeau :&#10;💥 &Agrave; leur mort, une ruine appara&icirc;t.&#10;🎁 Ces ruines, c&rsquo;est pas de la d&eacute;co fa&ccedil;on &ldquo;ambiance ch&acirc;teau hant&eacute;&rdquo; : elles g&eacute;n&egrave;rent des vagues de zombies pr&ecirc;tes &agrave; te mordre les chaussettes. Et &ccedil;a, c&rsquo;est moins feng shui.&#10;✨ Nouveaux sorts passifs au menu :&#10;&#10; &nbsp; &nbsp; 🧰 Kit du Bricoleur : un petit gadget bien pens&eacute; qui balance un projectile rebondissant.&#10; &nbsp; &nbsp; Id&eacute;al pour les couloirs &eacute;troits, les combats rapproch&eacute;s, ou impressionner ta belle-famille.&#10;&#10; &nbsp; &nbsp; 🐶 Bichon Maltais &agrave; trois pattes : il te suit partout, il mord les zombies, il boite un peu, mais il t&rsquo;aime d&rsquo;un amour pur et f&eacute;roce.&#10; &nbsp; &nbsp; Et franchement, t&rsquo;as besoin de &ccedil;a dans ta vie.">
+      <div class="news-item-preview">
+        <img src="jaquette/survivhordes.jpg" alt="Jaquette Surviv`Hordes" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Mise a jour Surviv`Hordes</h2>
+          <p>Date : 02/01/2025</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/survivhordes.jpg" 
+         data-full-text="Hommage pas tr&egrave;s propre &agrave; Hordes.fr &mdash; avec du sang, du sable et du pixel&#10;Tu te souviens de Hordes.fr ?&#10;&#10;Ce bon vieux jeu o&ugrave; tu crevais de soif, de faim, ou d&rsquo;un coup de pelle d&rsquo;un voisin un peu trop motiv&eacute; ?&#10;&#10;Ben voil&agrave;. On lui a rendu hommage.&#10;&#10;Mais fa&ccedil;on roguelike-survivor, version 2025, avec des zombies, du loot, des vagues, et beaucoup moins d&rsquo;organisation communautaire (on a vir&eacute; le forum, t&rsquo;inqui&egrave;te).&#10;⚔️ C&rsquo;est inspir&eacute; de Vampire Survivors,&#10;&#10;🧟‍♂️ Mais &ccedil;a sent le d&eacute;sert, la poussi&egrave;re et la parano&iuml;a.&#10;&#10;💀 Tu survis, tu claques, tu recommences &mdash; en esp&eacute;rant looter un truc utile avant de servir de repas.&#10;Ici, pas de tour de garde ni de plan de construction,&#10;&#10;juste toi, un flingue et quelques regrets.">
+      <div class="news-item-preview">
+        <img src="jaquette/survivhordes.jpg" alt="Jaquette Surviv`Hordes" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Surviv`Hordes</h2>
+          <p>Date : 19/12/2024</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/galacticdefender.png" 
+         data-full-text="ToncPlay pr&eacute;sente : Le shoot&rsquo;em up qui fait transpirer les pixels&#10;&#10;Tu veux du calme ? Va jardiner.&#10;Ici, c&rsquo;est du shoot&rsquo;em up survitamin&eacute;, version ToncPlay.&#10;Pas de pause, pas de sieste, juste toi, des ennemis en sueur, et des m&eacute;t&eacute;orites qui te jugent.&#10;&#10;💥 D&eacute;zinguer des hordes d&rsquo;ennemis comme si t&rsquo;&eacute;tais dans une pub pour de la lessive (mais en plus explosive),&#10;☄️ Esquiver des m&eacute;t&eacute;orites comme Matrix version grotte spatiale,&#10;💣 Et affronter des boss aussi charismatiques qu&rsquo;un politicien en campagne&hellip; mais avec beaucoup plus de d&eacute;g&acirc;ts et moins de promesses.&#10;Ton objectif ? Survivre. Tirer. Hurler un peu. Et recommencer.&#10;&#10;Un jeu 100% arcade, 0% gluten, avec juste ce qu&rsquo;il faut de rage et de bruitages bizarres.&#10;Appuie sur start. Et serre les fesses.">
+      <div class="news-item-preview">
+        <img src="jaquette/galacticdefender.png" alt="Jaquette Galactic Defender" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Galactic Defender</h2>
+          <p>Date : 21/11/2024</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/cartongame.png" 
+         data-full-text="Oublie les diamants, l&rsquo;or ou les NFT moches : l&rsquo;avenir, c&rsquo;est le carton.&#10;Dans ce jeu cliqueur hautement recyclable, tu incarnes un magnat du carton, pr&ecirc;t &agrave; transformer du pauvre papier en empire du packaging.&#10;&#10;🔨 Tu chopes du papier,&#10;🏭 Tu le presses, tu le plies, tu le cartonnes,&#10;💰 Et tu vends &ccedil;a &agrave; prix d&rsquo;or aux rois de la livraison express.&#10;&#10;Optimise tes machines, d&eacute;bloque des am&eacute;liorations d&eacute;biles (genre presse &agrave; hamster ou intelligence artificielle en carton), et grimpe jusqu&rsquo;au sommet de la cha&icirc;ne logistique mondiale.&#10;&#10;💥 Chaque clic, c&rsquo;est un pas de plus vers ta destin&eacute;e de tycoon en tongs, g&eacute;nie du kraft, roi du double cannel&eacute;.&#10;Bref, deviens l&rsquo;empereur de l&rsquo;emballage, sans jamais sortir de ton fauteuil.">
+      <div class="news-item-preview">
+        <img src="jaquette/cartongame.png" alt="Jaquette Carton Game" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Carton Game</h2>
+          <p>Date : 29/10/2024</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+    <div class="news-item" 
+         data-full-image="jaquette/luminescence.jpg" 
+         data-full-text="ToncPlay : le premier jeu, le premier bug, la premi&egrave;re larme&#10;Tout a commenc&eacute; par une id&eacute;e g&eacute;n&eacute;r&eacute;e par une intelligence artificielle.&#10;&#10;Et au lieu de l&rsquo;ignorer poliment comme on fait avec les id&eacute;es cheloues de tonton Francis, on l&rsquo;a faite.&#10;&#10;&Agrave; la main.&#10;&#10;Avec du JavaScript, des caf&eacute;s froids, et Google ouvert en triple &eacute;cran.&#10;🧠 C&rsquo;est notre toute premi&egrave;re exp&eacute;rience.&#10;&#10;🎮 Notre premier jeu.&#10;&#10;🔥 Et potentiellement le premier projet &agrave; faire crasher ton navigateur avec le sourire.&#10;Un jeu modeste, un peu bancal, mais bourr&eacute; de curiosit&eacute;, d&rsquo;envie et d&rsquo;effets sonores douteux.&#10;&#10;Bref : un projet d&rsquo;apprentissage, de fun, et de pixels pas trop mal align&eacute;s.">
+      <div class="news-item-preview">
+        <img src="jaquette/luminescence.jpg" alt="Jaquette Luminescence" class="news-item-preview-image" />
+        <div class="news-item-info">
+          <h2>Sortie de Luminescence</h2>
+          <p>Date : 28/09/2024</p>
+        </div>
+        <button class="toggle-news-btn">Lire plus</button>
+      </div>
+      <div class="news-item-detail"></div>
+    </div>
+
+  </div>
+</section>
 
 
     <!-- ----------- SECTION DISCORD ----------- -->
