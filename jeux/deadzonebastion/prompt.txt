@@ -1,0 +1,113 @@
+
+Objet : Création d'un Zombie Tower Defense (Canvas HTML5/JS) avec système de progression permanente.
+
+
+Agis comme un développeur sénior pour coder un jeu complet en HTML, CSS et JavaScript. Le code doit être propre, documenté et séparé en trois fichiers : index.html, style.css et script.js.
+
+
+1. Structure et Configuration (Priorité : Clarté du code) Je souhaite que toutes les variables d'équilibrage soient regroupées dans un objet de configuration unique (CONSTANTS ou CONFIG) au début du script. Cela doit me permettre de modifier facilement :
+
+
+    Le gain de pièces par zombie et le gain de diamants par le boss.
+
+
+    Les statistiques de base des zombies (PV, dégâts, vitesse).
+
+
+    Les multiplicateurs de difficulté par jour.
+
+
+    Les prix de base et les ratios d'augmentation des améliorations.
+
+
+2. Ressources graphiques (Dossier ./images/)
+
+
+    Zombies : zombie1.png à zombie7.png.
+
+
+    Boss : boss1.png à boss4.png.
+
+
+    Tour : planque.png (le tir part du coin haut-droite).
+
+
+    Monnaie : diamant.png et piece.png.
+
+
+    Économie : minediamant.png (placée à droite de la planque).
+
+    
+
+    Image de fond du canvas : fond.png
+
+
+    Note : Toutes les images de personnages sont orientées avec la tête en haut et les pieds en bas.
+
+
+3. Interface et Gameplay
+
+
+    Canvas : Le jeu utilise requestAnimationFrame. La planque est fixe au centre.
+
+
+    Système de Rayon : La tour a une portée de base de 200px. Un cercle de portée doit apparaître uniquement lorsque la souris survole la tour.
+
+
+    Progression : 10 vagues par jour (vague 10 = Boss). Progression infinie.
+
+
+    Économie : La mine génère des diamants toutes les 10s. Les zombies donnent des pièces.
+
+
+    Menus : Menu d'accueil (Jouer / Laboratoire) et HUD (Compteurs en haut, Jour/Vague en haut à droite).
+
+
+4. Système d'Améliorations (UI dans le Canvas sur la partie basse) L'interface comporte 3 onglets ("Planque", "PV", "Utilitaire").
+
+
+Structure de données : Utiliser un tableau d'objets unique (UPGRADES_DATA) contenant le prix de base, le ratio d'augmentation, et la valeur d'incrément pour chaque statistique.
+
+    Système Labo (Permanent) : Les améliorations achetées avec des diamants définissent le niveau_initial de la statistique au début de chaque nouvelle partie.
+
+    Système Partie (Temporaire) : Les améliorations achetées avec des pièces augmentent le niveau à partir du niveau_initial défini par le Laboratoire.
+
+    Exemple : Si "Dégâts" est niveau 5 dans le Laboratoire, le joueur commence la partie avec Dégâts niveau 5 et paie le prix correspondant au passage vers le niveau 6.
+
+5. Logique d'Équilibrage et Programmation des Vagues
+
+    Gestion des Vagues (Array-based) : Créer une constante WAVE_SCHEMA qui permet de définir manuellement la composition de chaque vague pour chaque jour.
+
+        Format souhaité : Day: 1, Wave: 1, Enemies: [{type: 'zombie1', count: 5, healthMult: 1}].
+
+    Courbes de Progression Fixes (Niveau Max 25) :
+
+        Vitesse d'attaque : Calculer une fonction d'interpolation pour que le delay atteigne exactement 0,2s au niveau 25.
+
+        Portée : Commencer à 125px (base 200px - 15 niveaux) pour atteindre exactement 250px au niveau 25 (incrément de +5px/niveau).
+
+        Argent Vague : Bonus forfaitaire ajouté au portefeuille du joueur au déclenchement de la vague suivante (Cap : 300 pièces au niv. 25).
+
+        Mine : Production de base de 1 diamant/10s, atteignant 26 diamants/10s au niveau 25.
+
+
+
+
+agit comme un développeur sénior pour appliquer mes demandes.
+j'ai incorporer 3 nouvelles images dans mon dossier images : barreau.png pluiefleche.jpg et prison.jpg
+
+je voudrais rajouter 2 sors actif cliquable quand on est en partie.
+je voudrais que les 2 sorts soient placé cote a cote en bas a droite du canvas du jeu, au même niveau que les onglets d'améliorations.
+Explications des sorts :
+
+Prison : Permet d'immobiliser un ennemi pendant 5 secondes. ( CD de 10 sec )
+Pluie de flèche : Des flèches tombes du ciel faisant des flèches dans une zone infligeant 200 de dégat( CD de 20 sec ).
+
+L'utilisation d'un sort coute 1 diamant.
+Ajoute un tooltip au dessus des 2 sorts actif pour expliquer ces dernieur avec leur cout.
+Quand on clique sur le sort prison, l'icone du sors suit la souris et emprisonne un ennemi quand on clique avec le bouton gauche de la souris ( le bouton droit annule le sort ).
+Quand un ennemi est immobilisé par prison, l'image barreau.png viens se mettre sur l'ennemi le temps de l'immobilisation puis s'enlève a la fin du sort.
+Quand on clique sur le sort Pluie de Flèche, l'icone du sort suis la souris avec une zone d'action de rayon 150 pixel : clique gauche lance le sort ( le bouton droit annule le sort ), quand le sort est lancé fait tomber des fléches du haut de l'écran jusqu'a la zone indiqué par le joueur ( utilise une 15ène de fois l'image fleche.png pour faire l'animation des flèches qui tombe dans le bon sens ).
+
+Ajoute ces fonctionnalités dans ce code de manière propre et consice.
+
