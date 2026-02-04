@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Snake - Ultimate Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner à la page d'accueil ToncPlay">
+    <img src="../../images/logo.png" alt="ToncPlay Logo">
+</a>
+    <div class="game-container" id="game-container">
+    <img src="images/neonsnaketitre.png" id="img-titre" alt="Neon Snake Titre">
+    <img src="images/snake1.png" class="deco-snake" id="snake-left" alt="Déco Serpent Gauche">
+    <img src="images/snake2.png" class="deco-snake" id="snake-right" alt="Déco Serpent Droite">
+        <div class="hud" id="hud" style="display: none;">
+            <div class="top-hud">
+                <div class="score-board">Score: <span id="score">0</span></div>
+                <button id="pause-btn" onclick="togglePause()">⏸</button>
+            </div>
+            <div class="mode-badge" id="mode-display">Mode: Classique</div>
+            <div id="powerup-container"></div> </div>
+
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+        <div id="home-screen" class="overlay active">
+            <h1 class="title">NEON SNAKE</h1>
+            <p class="welcome-text">Prêt à battre le record ? <img src="images/snake1.png" alt="snake"></p>
+            
+            <div class="main-actions">
+                <button class="btn primary big" onclick="showScreen('mode-selection')">JOUER</button>
+                <div class="sub-actions">
+                    <button class="btn secondary" onclick="showScreen('custom-screen')">🎨 Skins</button>
+                    <button class="btn secondary" onclick="showScreen('help-screen')">Aide</button>
+                </div>
+            </div>
+
+            <div class="leaderboard-container">
+                <div class="leaderboard-column">
+                    <h3>🏆 Classique</h3>
+                    <ul id="list-classic"></ul>
+                </div>
+                <div class="leaderboard-column">
+                    <h3>⚡ Vitesse</h3>
+                    <ul id="list-speed"></ul>
+                </div>
+                <div class="leaderboard-column">
+                    <h3>🚧 Challenge</h3>
+                    <ul id="list-challenge"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="mode-selection" class="overlay">
+            <h2 class="title">CHOISIS TON DÉFI</h2>
+            <div class="button-group">
+                <button class="btn" onclick="startGame('classic')">
+                    <span class="icon">🟢</span> Classique
+                    <span class="info">Vitesse progressive douce</span>
+                </button>
+                <button class="btn" onclick="startGame('speed')">
+                    <span class="icon">⚡</span> Vitesse Max
+                    <span class="info">Accélération frénétique</span>
+                </button>
+                <button class="btn" onclick="startGame('challenge')">
+                    <span class="icon">🚧</span> Challenge
+                    <span class="info">Obstacles & Power-ups</span>
+                </button>
+                <button class="btn secondary" onclick="showScreen('home-screen')">Retour</button>
+            </div>
+        </div>
+
+        <div id="custom-screen" class="overlay">
+            <h2 class="title">CUSTOMISATION</h2>
+            
+            <div class="custom-section">
+                <h3>Couleur du Serpent</h3>
+                <div class="color-picker" id="snake-colors">
+                    </div>
+            </div>
+
+            <div class="custom-section">
+                <h3>Thème du Plateau</h3>
+                <div class="theme-picker" id="grid-themes">
+                    </div>
+            </div>
+
+            <button class="btn secondary" onclick="saveCustomization()">Valider & Retour</button>
+        </div>
+
+        <div id="help-screen" class="overlay">
+            <h2 class="title">AIDE & INFOS</h2>
+            <div class="help-content">
+                <div class="help-item">
+                    <span class="key-icon">Z</span><span class="key-icon">Q</span><span class="key-icon">S</span><span class="key-icon">D</span>
+                    <span style="margin: 0 10px">ou</span>
+                    <span class="key-icon">↑</span><span class="key-icon">↓</span><span class="key-icon">←</span><span class="key-icon">→</span>
+                </div>
+                <div class="help-item">
+                    <span class="icon">🍎</span> Pomme (10pts) | <span class="icon">🍇</span> Raisin (30pts) | <span class="icon">🍍</span> Ananas (50pts)
+                </div>
+                <div class="help-item">
+                    <strong>Power-ups :</strong>
+                </div>
+                <div class="powerup-legend">
+                    <div><strong>⏱ Slow Motion</strong> : Ralentit la vitesse du serpent pendant 5s.</div>
+                    <div><strong>🧲 Aimant</strong> : Attire les fruits proches vers votre tête pendant 8s.</div>
+                    <div><strong>🛡 Bouclier</strong> : Vous protège d'une collision (mur ou corps).</div>
+                    <div><strong>✂️ Coupe-Queue</strong> : Réduit instantanément la longueur du serpent.</div>
+                </div>
+            </div>
+            <div class="sub-actions">
+                <button class="btn secondary" onclick="showScreen('home-screen')">Retour</button>
+                <button class="btn danger" onclick="resetAllScores()">Reset Scores</button>
+            </div>
+        </div>
+
+        <div id="pause-screen" class="overlay">
+            <h2 class="title">PAUSE</h2>
+            <button class="btn primary" onclick="togglePause()">Reprendre</button>
+            <button class="btn danger" onclick="quitGame()">Quitter</button>
+        </div>
+
+        <div id="game-over" class="overlay">
+            <h2 class="title error">GAME OVER</h2>
+            <p class="final-score">Score Final : <span id="final-score">0</span></p>
+            <p class="message" id="game-over-msg">Bien joué !</p>
+            
+            <div class="input-group">
+                <input type="text" id="player-pseudo" placeholder="Ton Pseudo" maxlength="10">
+                <button class="btn primary" onclick="saveAndExit()">Enregistrer</button>
+            </div>
+            <button class="btn text-only" onclick="showScreen('home-screen')">Ne pas enregistrer</button>
+        </div>
+
+    </div>
+<div id="footerText">©Sluto - Ce jeu fait partie du<a href="../../index.html"> Projet ToncPlay</a>.</div>
+    <script src="script.js"></script>
+</body>
+</html>

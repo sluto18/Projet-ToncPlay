@@ -1,0 +1,276 @@
+:root {
+    --bg-color: #1a1a2e;
+    --canvas-bg: #16213e;
+    --white: #ffffff;
+    --neon-green: #00ff88;
+    --neon-pink: #ff0055;
+    --neon-blue: #00ccff;
+    --neon-yellow: #ffee00;
+    --font-main: 'Poppins', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--white);
+    font-family: var(--font-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.game-container {
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border-radius: 12px;
+    background: var(--canvas-bg);
+    width: 600px;
+    height: 600px;
+}
+.game-container.shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+
+canvas { display: block; width: 100%; height: 100%; border-radius: 12px; }
+
+/* --- HUD & PAUSE --- */
+.hud {
+    position: absolute;
+    top: 15px; left: 20px; right: 20px;
+    display: flex; flex-direction: column;
+    pointer-events: none; /* Les clics passent au travers sauf sur pointer-events:all */
+    z-index: 10;
+}
+.top-hud {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%;
+}
+.score-board { font-size: 1.2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+#pause-btn {
+    pointer-events: all;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: white; width: 35px; height: 35px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; transition: 0.2s;
+}
+#pause-btn:hover { background: var(--neon-blue); transform: scale(1.1); }
+.mode-badge { font-size: 0.8rem; opacity: 0.7; margin-top: 5px; text-transform: uppercase; }
+
+/* Indicateurs Power-ups */
+#powerup-container {
+    display: flex; flex-direction: column; gap: 5px; margin-top: 10px; align-items: flex-start;
+}
+.powerup-bar-wrap {
+    display: flex; align-items: center; gap: 8px; font-size: 0.8rem;
+    background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 15px;
+}
+.powerup-bar-bg { width: 60px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
+.powerup-bar-fill { height: 100%; background: var(--neon-yellow); width: 100%; transition: width 0.1s linear; }
+
+/* --- OVERLAYS --- */
+.overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(22, 33, 62, 0.98);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    border-radius: 12px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    padding: 20px; z-index: 20;
+}
+.overlay.active { opacity: 1; pointer-events: all; }
+
+/* Typo & Layout Accueil */
+.title {
+    font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem;
+    background: linear-gradient(to right, var(--neon-green), var(--neon-blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+    text-align: center;
+}
+.title.error { background: linear-gradient(to right, var(--neon-pink), #ff5e00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.welcome-text { font-size: 1.1rem; color: #aaa; margin-bottom: 20px; font-style: italic; }
+
+.main-actions { display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 25px; }
+.sub-actions { display: flex; gap: 15px; }
+
+/* Leaderboard en bas */
+.leaderboard-container {
+    display: flex; justify-content: space-between; width: 100%; gap: 10px; margin-top: 10px;
+}
+.leaderboard-column {
+    flex: 1; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.75rem;
+}
+h3 { color: var(--neon-blue); margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; text-align: center; }
+.leaderboard-column ul { list-style: none; }
+.leaderboard-column li { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.leaderboard-column li span.score { color: var(--neon-green); font-weight: bold; }
+
+/* Boutons */
+.btn {
+    background: linear-gradient(145deg, #1f2b4d, #16213e);
+    border: 1px solid rgba(255,255,255,0.1); color: var(--white);
+    padding: 12px 20px; border-radius: 8px; cursor: pointer;
+    font-family: var(--font-main); font-size: 1rem; transition: all 0.2s ease;
+    min-width: 140px; text-align: center;
+}
+.btn:hover { transform: translateY(-2px); border-color: var(--neon-green); box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
+.btn.primary { background: var(--neon-green); color: #000; font-weight: 700; border: none; }
+.btn.primary:hover { background: #00ff9d; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+.btn.danger { border-color: var(--neon-pink); color: var(--neon-pink); background: transparent; }
+.btn.danger:hover { background: var(--neon-pink); color: white; }
+.btn.text-only { background: none; border: none; text-decoration: underline; opacity: 0.7; font-size: 0.9rem; }
+.btn.big { font-size: 1.4rem; padding: 15px 50px; letter-spacing: 2px; font-weight: 800; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+
+.button-group { display: flex; flex-direction: column; gap: 15px; width: 280px; }
+.button-group .btn { text-align: left; display: flex; flex-direction: column; }
+.button-group .icon { margin-bottom: 5px; font-size: 1.2rem; }
+.button-group .info { font-size: 0.75rem; opacity: 0.6; }
+
+/* Customization */
+.custom-section { margin-bottom: 20px; width: 100%; }
+.color-picker, .theme-picker { display: flex; gap: 15px; justify-content: center; margin-top: 10px; }
+.color-option {
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: transform 0.2s;
+}
+.color-option.selected { border-color: white; transform: scale(1.2); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+
+.theme-option {
+    width: 60px; height: 60px; border-radius: 8px; cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.2); display: flex; justify-content: center; align-items: center;
+    font-size: 0.8rem; font-weight: bold; background: #222;
+}
+.theme-option.selected { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: inset 0 0 10px rgba(0, 204, 255, 0.2); }
+
+/* Aide & Input */
+.help-content { text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; margin-bottom: 20px; width: 100%; font-size: 0.9rem; }
+.help-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.key-icon { border: 1px solid rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9rem; }
+.powerup-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; font-size: 0.85rem; color: #ccc; }
+.input-group { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; }
+input[type="text"] { background: transparent; border: none; border-bottom: 2px solid var(--neon-green); color: white; font-family: var(--font-main); font-size: 1.2rem; text-align: center; padding: 5px; outline: none; }
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Positionnement du titre au-dessus du jeu */
+#img-titre {
+    position: absolute;
+    bottom: calc(100% + 20px); /* Place l'image au-dessus du container avec 20px d'écart */
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 400px;
+    z-index: 5;
+    border-radius: 15px; /* Ajoute les coins arrondis */
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); /* Optionnel : petit effet néon pour l'image */
+}
+
+/* Style commun pour les serpents sur les côtés */
+.deco-snake {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 150px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Positionnement à 50px de l'EXTÉRIEUR du canvas */
+#snake-left { 
+    right: calc(100% + 50px); 
+}
+
+#snake-right { 
+    left: calc(100% + 50px); 
+}
+
+/* Remplacer l'émoji serpent par l'image snake1 sur l'accueil */
+.welcome-text img {
+    height: 1.2rem;
+    vertical-align: middle;
+}
+
+/* Style du logo ToncPlay */
+#toncplay-logo {
+    position: absolute; /* Positionnement par rapport à la page */
+    top: 10px;          /* Distance du haut de la page */
+    left: 10px;         /* Distance du côté gauche */
+    z-index: 1000;      /* Place le logo au-dessus des autres éléments */
+    display: block;     /* Assure que le lien reste un bloc cliquable */
+    overflow: visible;
+}
+
+#toncplay-logo img {
+    width: 60px;       /* Ajustez la taille du logo */
+    height: auto;       /* Maintient les proportions */
+    cursor: pointer;    /* Change le curseur pour indiquer un lien */
+}
+
+/* Position et style du tooltip */
+#toncplay-logo[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+    position: absolute;
+    top: 110%; /* Ajuste la position sous l'image */
+    left: 50%; /* Centre horizontalement */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Marges internes */
+    border-radius: 5px; /* Coins arrondis */
+    white-space: nowrap; /* Empêche le texte de se couper */
+    font-size: 12px; /* Taille du texte */
+    z-index: 1000; /* Affiche au-dessus des autres éléments */
+    pointer-events: none; /* Empêche de cliquer sur le tooltip */
+    opacity: 1; /* Rend invisible par default */
+    transition: opacity 0.3s; /* Transition pour l'apparition */
+    max-width: 200px; /* limite la largeur si le texte est long */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: normal;
+}
+
+/* Style de base pour le tooltip */
+#tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
+    color: #fff; /* Texte blanc */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 12px; /* Taille de la police */
+    pointer-events: none; /* Empêche d'interagir avec le tooltip */
+    z-index: 1000; /* Affiche par-dessus les autres éléments */
+    white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+#footerText {
+  position: absolute;
+  bottom: 0;
+  /* Utilise fit-content pour que la largeur s'adapte au contenu */
+  width: fit-content;
+  /* Centre la div horizontalement */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.8);
+  color: #333;
+  font-size: 0.9rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+#footerText a {
+  color: #007bff;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+#footerText a:hover {
+  text-decoration: underline;
+}
