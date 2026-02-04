@@ -29,6 +29,7 @@
             align-items: center;
             height: 100vh;
             user-select: none;
+            cursor: url('./images/pointeur.PNG'), auto;
         }
 
         #game-container {
@@ -38,14 +39,16 @@
             max-width: 1280px;
             max-height: 720px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            background: #000;
+            background: url('./images/fondaccueil.jpg') no-repeat center center;
+            background-size: cover;
+            cursor: url('./images/pointeur.PNG'), auto;
         }
 
         canvas {
             display: block;
             width: 100%;
             height: 100%;
-            cursor: crosshair;
+            cursor: url('./images/pointeur.PNG'), auto;
         }
 
         /* Image Titre */
@@ -53,7 +56,7 @@
             width: 100%;
             max-width: 400px; /* Ajuste selon la taille souhaitée */
             height: auto;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             display: block;
             margin-left: auto;
             margin-right: auto;
@@ -79,7 +82,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 5px;
             width: 100%;
         }
 
@@ -120,7 +123,7 @@
             /* Position initiale : Caché DERRIÈRE le bord droit du bouton */
             /* Le bouton fait 150px de large (75px de chaque côté du centre).
             On place le centre du zombie à +75px, donc il est caché par le bouton. */
-            transform: translateX(75px) translateY(-50%);
+            transform: translateX(10px) translateY(-50%);
         }
 
         /* --- ZOMBIE DE GAUCHE --- */
@@ -161,7 +164,7 @@
         /* Mouvement du zombie du haut */
         .play-btn-wrapper:hover .z-top {
             /* Il sort de 30px vers le haut (-75 - 30) */
-            transform: translateX(-50%) translateY(-105px);
+            transform: translateX(-50%) translateY(-125px);
         }
 
         /* --- UI HUD --- */
@@ -262,7 +265,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: transparent;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -291,7 +294,7 @@
             padding: 15px 40px;
             font-size: 1.2rem;
             margin: 10px;
-            cursor: pointer;
+            cursor: url('./images/pointeur.png'), auto;
             border-radius: 5px;
             transition: all 0.2s;
             text-transform: uppercase;
@@ -400,6 +403,71 @@
             text-align: left;
         }
 
+        /* Style pour l'inspecteur d'ennemi */
+        #enemy-inspector {
+            position: absolute;
+            top: 60px; /* Positionné sous le bouton settings qui est en haut */
+            right: 20px; /* À droite de l'écran */
+            z-index: 15; /* Au-dessus du canvas mais sous les menus principaux */
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #e74c3c; /* Bordure rouge */
+            border-radius: 5px;
+            padding: 10px;
+            color: #ccc;
+            font-size: 0.9rem;
+            min-width: 140px;
+            pointer-events: none; /* Pour que les clics traversent le panneau */
+        }
+
+            /* --- GESTION DE LA VITESSE (Nouveau système) --- */
+    .speed-btn-group {
+        display: flex;
+        flex-direction: column; /* Affichage vertical des boutons */
+        gap: 5px; /* Petit espace entre chaque bouton */
+        position: absolute;
+        /* Position : Sur le bord gauche du canvas (au centre verticalement) */
+        left: 10px; 
+        top: 50%; 
+        transform: translateY(-50%); /* Pour centrer verticalement */
+        z-index: 6; /* Au-dessus du canvas mais sous les autres UI (HUD) */
+        pointer-events: auto;
+    }
+
+    .speed-btn {
+        width: 35px; /* Plus petit que le bouton précédent (50x) */
+        height: 30px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.5); /* Fond légèrement transparent */
+        border: 1px solid #444;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, border-color 0.2s;
+        pointer-events: auto;
+    }
+
+    /* Classe pour le bouton sélectionné */
+    .speed-btn.active {
+        background: #27ae60; /* Bleu (Diamond color) pour le bouton actif */
+        border-color: '#3498db';
+        font-size: 1.2rem; /* Texte un peu plus grand quand actif */
+    }
+
+    /* Classe pour les boutons inactifs */
+    .speed-btn.inactive {
+        background: 'rgba(0,0,0,0.3)';
+        border-color: '#444';
+        font-size: 1rem;
+    }
+
+    /* Force le curseur personnalisé sur tous les éléments interactifs */
+    button, a, .btn, .lab-tab, input[type=range] {
+        cursor: url('./images/pointeur.png'), auto !important;
+    }
+
         /* Style du logo ToncPlay */
         #toncplay-logo {
             position: absolute; /* Positionnement par rapport à la page */
@@ -418,25 +486,36 @@
 
         /* Position et style du tooltip */
         #toncplay-logo[data-tooltip]:hover::after {
-            content: attr(data-tooltip); /* Utilise l'attribut data-tooltip comme contenu */
+            content: attr(data-tooltip);
             position: absolute;
-            top: 110%; /* Ajuste la position sous l'image */
-            left: 50%; /* Centre horizontalement */
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8); /* Fond noir avec opacité */
-            color: #fff; /* Texte blanc */
-            padding: 5px 10px; /* Marges internes */
-            border-radius: 5px; /* Coins arrondis */
-            white-space: nowrap; /* Empêche le texte de se couper */
-            font-size: 12px; /* Taille du texte */
-            z-index: 1000; /* Affiche au-dessus des autres éléments */
-            pointer-events: none; /* Empêche de cliquer sur le tooltip */
-            opacity: 1; /* Rend invisible par default */
-            transition: opacity 0.3s; /* Transition pour l'apparition */
-            max-width: 200px; /* limite la largeur si le texte est long */
+            top: 110%; 
             left: 50%;
             transform: translateX(-50%);
-            white-space: normal;
+            
+            /* --- NOUVEAU STYLE --- */
+            background-color: rgba(20, 20, 20, 0.98); /* Fond noir très sombre */
+            color: var(--accent-gold); /* Texte Doré (comme les pièces) */
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--accent-gold); /* Bordure fine dorée */
+            
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            white-space: nowrap;
+            
+            /* Effet de texte */
+            text-shadow: 1px 1px 0px #000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Petite animation d'apparition */
+        #toncplay-logo[data-tooltip]:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px); /* Monte légèrement */
         }
 
         /* Style de base pour le tooltip */
@@ -453,35 +532,34 @@
         }
 
         #footerText {
-        position: absolute;
-        bottom: 0;
-        /* Utilise fit-content pour que la largeur s'adapte au contenu */
-        width: fit-content;
-        /* Centre la div horizontalement */
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 8px 16px;
-        background: rgba(255,255,255,0.8);
-        color: #333;
-        font-size: 0.9rem;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            position: absolute;
+            bottom: 0;
+            width: fit-content;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px; 
+            background: rgba(26, 26, 26, 0.95);
+            color: #ecf0f1;
+            border: 2px solid var(--accent-gold); 
+            border-radius: 15px;             
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
         }
 
         #footerText a {
-        color: #007bff;
-        text-decoration: none;
-        margin-left: 5px;
+            color: var(--accent-gold);
+            text-decoration: none;
+            margin-left: 5px;
+            font-weight: bold;
+            transition: color 0.2s;
         }
 
         #footerText a:hover {
-        text-decoration: underline;
+            color: #fff;
+            text-shadow: 0 0 5px var(--accent-gold);
         }
-
     </style>
 </head>
 <body>
@@ -491,6 +569,20 @@
 </a>   
 
 <div id="game-container">
+    <div id="enemy-inspector" class="hidden">
+        <div style="font-weight:bold; color:#e74c3c; border-bottom:1px solid #555; margin-bottom:5px;">
+            <span id="insp-name">Ennemi</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+            <span>PV:</span> <span id="insp-hp" style="color:#fff">0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+            <span>Dégâts:</span> <span id="insp-dmg">0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+            <span>Type:</span> <span id="insp-type">-</span>
+        </div>
+    </div>
     <div id="hud-bar" class="hidden">
         <div class="hud-info-group">
             <div class="hud-stat">
@@ -521,6 +613,11 @@
              <button id="btn-settings" class="hidden" style="position: static; margin:0;">⚙️</button>
         </div>
     </div>
+    <div class="speed-btn-group hidden">
+        <button id="btn-speed-1" class="speed-btn" onclick="setSpeed(1)">x1</button>
+        <button id="btn-speed-2" class="speed-btn" onclick="setSpeed(2)">x2</button>
+        <button id="btn-speed-3" class="speed-btn" onclick="setSpeed(3)">x3</button>
+    </div>
 
     <canvas id="gameCanvas"></canvas>
 
@@ -528,7 +625,6 @@
         <div class="menu-panel">
             <!-- 1. Image Titre -->
             <img src="./images/titre.png" id="menu-title-img" alt="Titre">
-            
             <!-- 2. Conteneur des boutons -->
             <div class="menu-buttons-wrapper">
                 
@@ -540,17 +636,20 @@
                     <button class="btn btn-play-big" id="btn-play">JOUER</button>
                 </div>
 
+                <!-- 3. DIAMANTS  -->
+                <div id="menu-diamonds-box">
+                    <span id="menu-diamonds">0</span>
+                    <img src="./images/diamant.png" style="width:24px; vertical-align:middle;">
+                </div>
+
                 <!-- Boutons Secondaires -->
                 <div class="secondary-buttons">
                     <button class="btn" id="btn-lab">Laboratoire</button>
                     <button class="btn" id="btn-menu-settings">Paramètres</button>
                 </div>
 
-                <!-- 3. DIAMANTS DÉPLACÉS ICI -->
-                <div id="menu-diamonds-box">
-                    <span id="menu-diamonds">0</span>
-                    <img src="./images/diamant.png" style="width:24px; vertical-align:middle;">
-                </div>
+                <!-- bouton Statistiques -->
+                <button class="btn" id="btn-stats" style="padding: 10px 30px; font-size: 1rem;">Statistiques</button>
 
             </div>
         </div>
@@ -573,7 +672,7 @@
     <div id="lab-overlay" class="overlay hidden">
         <div class="lab-panel">
             <h1 style="font-size:2rem; margin-top:0;">Laboratoire</h1>
-            <div style="color: var(--accent-diamond); margin-bottom: 10px;">💎 Réserve : <span id="lab-diamonds">0</span></div>
+            <div style="color: var(--accent-diamond); margin-bottom: 10px;">Réserve : <span id="lab-diamonds">0</span> <img src="./images/diamant.png" style="width:24px; vertical-align:middle;"></div>
             
             <div class="lab-tabs">
                 <div class="lab-tab active" data-tab="Bastion">Bastion</div>
@@ -623,6 +722,55 @@
             </div>
         </div>
     </div>
+    <!-- Page Statistiques -->
+    <div id="stats-overlay" class="overlay hidden">
+        <div class="menu-panel" style="width: 800px; max-height: 90vh; overflow-y: auto;">
+            <h1 style="font-size: 2.5rem; color: #3498db;">Statistiques</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left;">
+                
+                <!-- Carte : Meilleure Run -->
+                <div class="lab-card" style="background: #2c3e50; border: 1px solid var(--accent-gold);">
+                    <h3 style="color: var(--accent-gold); text-align: center;">🏆 Meilleure Run</h3>
+                    <div style="margin-top: 15px;">
+                        <p><strong>Date :</strong> <span id="stat-best-date">-</span></p>
+                        <p><strong>Jour :</strong> <span id="stat-best-day">0</span></p>
+                        <p><strong>Vague :</strong> <span id="stat-best-wave">0</span></p>
+                        <p><strong>Diamants :</strong> <span id="stat-best-diamonds" style="color: var(--accent-diamond)">0</span> 💎</p>
+                    </div>
+                </div>
+
+                <!-- Carte : Général -->
+                <div class="lab-card" style="background: #2c3e50;">
+                    <h3 style="color: #fff; text-align: center;">📊 Général</h3>
+                    <div style="margin-top: 15px;">
+                        <p><strong>Run effectuées :</strong> <span id="stat-total-runs">0</span></p>
+                        <p><strong>Diamants Totaux Gagnés :</strong> <span id="stat-total-diamonds" style="color: var(--accent-diamond)">0</span> 💎</p>
+                        <p><strong>Temps de jeu :</strong> <span id="stat-playtime">0 min</span></p>
+                    </div>
+                </div>
+
+                <!-- Carte : Combat (Prend toute la largeur) -->
+                <div class="lab-card" style="background: #2c3e50; grid-column: span 2;">
+                    <h3 style="color: #e74c3c; text-align: center;">⚔️ Combat</h3>
+                    <div style="display: flex; justify-content: space-around; margin-top: 15px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; font-weight: bold; color: #e74c3c;" id="stat-total-kills">0</div>
+                            <div>Zombies Tués</div>
+                        </div>
+                        <div style="width: 1px; background: #555;"></div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; font-weight: bold; color: #c0392b;" id="stat-total-bosses">0</div>
+                            <div>Boss Tués</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="btn" id="btn-close-stats" style="margin-top: 30px; padding: 10px 40px;">Fermer</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -633,9 +781,7 @@
 /* =========================================================
    1. CONFIGURATION & CONSTANTES
    ========================================================= */
-
-// Liste des ennemis dont le sprite est orienté vers la Gauche par défaut (contrairement aux autres qui sont vers la Droite)
-// Cela permet d'inverser la logique de flip dans le rendu.
+const speedBtnGroup = document.querySelector('.speed-btn-group');
 const INVERTED_SPRITES = ['zombie2', 'zombie3', 'boss1'];
 
 const ZOMBIE_METADATA = { 
@@ -645,21 +791,50 @@ const ZOMBIE_METADATA = {
     'zombie4': { frames: 8, animDelay: 10 }, 
     'zombie5': { frames: 8, animDelay: 10 }, 
     'zombie6': { frames: 4, animDelay: 20 }, 
-    'zombie7': { frames: 4, animDelay: 20 }, 
+    'zombie7': { frames: 18, animDelay: 8 }, 
+    'zombie8': { frames: 4, animDelay: 20 }, 
     'boss1': { frames: 15, animDelay: 10 },
     'boss2': { frames: 12, animDelay: 12 },
     'boss3': { frames: 14, animDelay: 10 },
     'boss4': { frames: 13, animDelay: 11 }
 };
 
+/* =========================================================
+   LISTE DES NOMS ET TYPES
+   ========================================================= */
+
+const ZOMBIE_NAMES = {
+    'zombie1': "Gégé la veste",
+    'zombie2': "La veuve Brise-Crane",
+    'zombie3': "Bob le chantier",
+    'zombie4': "Blanche-Nuit",
+    'zombie5': "Patient Zero",
+    'zombie6': "L'Officier Morsure",
+    'zombie7': "Boomer",
+    'zombie8': "Jean L'éclair",
+    'boss1': "Sylas le Sanglant",
+    'boss2': "L'Œil du Chaos",
+    'boss3': "Hexa-Mort",
+    'boss4': "Le général de la Horde"
+};
+
+function getZombieTypeName(variant) {
+    switch(variant) {
+        case 'sprinter': return 'Rapide';
+        case 'tank': return 'Tank';
+        case 'kamikaze': return 'Kamikaze';
+        case 'boss': return 'Boss';
+        default: return 'Normal';
+    }
+}
+
 const CONFIG = {
     coinDropMin: 5,
     coinDropMax: 15,
-    // MODIF : Augmentation drastique du drop de base des Boss (5 -> 50)
     bossDiamondDropBase: 50, 
     mineBaseInterval: 10000,
-    spawnInterval: 1000,
-    difficultyMultiplierDay: 0.15,
+    spawnInterval: 600,
+    difficultyMultiplierDay: 0.25, // augmenter difficulter
     
     // Animation Sprite Sheet
     spriteAnimSpeed: 40,
@@ -676,8 +851,8 @@ const CONFIG = {
     
     // Enemy Types (Mapping indices)
     enemies: {
-        normal: [0, 1, 2, 5, 6], 
-        sprinter: 3, 
+        normal: [0, 1, 4, 5], 
+        sprinter: [3, 7], 
         tank: 2, 
         kamikaze: 6 
     },
@@ -686,9 +861,9 @@ const CONFIG = {
     spells: {
         prison: {
             id: 'prison',
-            name: 'Prison',
+            name: 'Prison (1)',
             cost: 10,
-            cooldown: 10000,
+            cooldown: 30000,
             duration: 5000,
             icon: './images/prison.jpg',
             desc: "Immobilise un ennemi.",
@@ -696,7 +871,7 @@ const CONFIG = {
         },
         rain: {
             id: 'rain',
-            name: 'Pluie de Flèches',
+            name: 'Pluie de Flèches (2)',
             cost: 20,
             cooldown: 20000,
             damage: 200,
@@ -705,39 +880,49 @@ const CONFIG = {
             icon: './images/pluiefleche.jpg',
             desc: "Zone de dégâts.",
             color: '#f39c12'
-        }
+        },
+        circle: {
+            id: 'circle',
+            name: 'Cercle de Flèches (3)',
+            baseCost: 20, // Coût de base
+            cooldown: 10000,
+            icon: './images/cerclefleche.png',
+            desc: "Tire en cercle autour du bastion.",
+            color: '#9b59b6' // Couleur violette
+        },
     },
     
     images: {
         bg: './images/fond.png',
+        bg_menu: './images/fondaccueil.jpg',
         tower: './images/bastion.png', 
         mine: './images/minediamant.png',
         coin: './images/piece.png',
         diamond: './images/diamant.png',
-        zombies: Array.from({length: 7}, (_, i) => `./images/zombie${i+1}.png`),
+        zombies: Array.from({length: 8}, (_, i) => `./images/zombie${i+1}.png`),
         bosses: Array.from({length: 4}, (_, i) => `./images/boss${i+1}.png`),
         arrow: './images/fleche.png',
         blood: './images/sang.png',
         barreau: './images/barreau.png',
         prison_icon: './images/prison.jpg',
-        rain_icon: './images/pluiefleche.jpg'
+        rain_icon: './images/pluiefleche.jpg',
+        cercle_icon: './images/cerclefleche.png'
     }
 };
 
 // Formules Tour/Jeu
 const FORMULAS = {
     getRange: (lvl) => 200 + ((lvl - 1) * ((500 - 200) / 24)),
-    getAttackDelay: (lvl) => Math.max(50, 1000 + ((lvl - 1) * ((200 - 1000) / 24))),
+    getAttackDelay: (lvl) => Math.max(150, 1000 + ((lvl - 1) * ((500 - 1000) / 24))),
     getMineProduction: (lvl) => Math.floor(1 + ((lvl - 1) * ((26 - 1) / 24))),
     getWaveBonus: (lvl) => Math.floor(((lvl - 1) / 24) * 300),
     getDamage: (lvl) => 10 + ((lvl - 1) * ((100 - 10) / 24)),
     getCritChance: (lvl) => 5 + ((lvl - 1) * ((50 - 5) / 24)),
     getMultiShotChance: (lvl) => ((lvl - 1) / 24) * 25,
     getMaxHp: (lvl) => 100 + ((lvl - 1) * ((1000 - 100) / 24)),
-    getRegen: (lvl) => ((lvl - 1) / 24) * 10,
+    getRegen: (lvl) => (lvl - 1) * 1,
     getLifesteal: (lvl) => ((lvl - 1) / 24) * 20,
-    // MODIF : Augmentation du scaling du bonus diamant boss (10 -> 25 par niveau)
-    getBossDiamondBonus: (lvl) => Math.floor(((lvl - 1) / 24) * 25),
+    getBossDiamondBonus: (lvl) => (lvl - 1) * 2,
     getKillBonus: (lvl) => lvl,
 };
 
@@ -745,40 +930,205 @@ const SPELL_FORMULAS = {
     getPrisonCost: (lvl) => Math.max(1, 10 - (lvl - 1)),
     getPrisonDuration: (lvl) => 5000 + ((lvl - 1) * ((15000 - 5000) / 9)),
     getRainCost: (lvl) => Math.max(10, 20 - (lvl - 1)),
-    getRainDamage: (lvl) => 200 + ((lvl - 1) * ((400 - 200) / 9))
+    getRainDamage: (lvl) => 200 + ((lvl - 1) * ((400 - 200) / 9)),
+    getCircleCost: (lvl) => Math.max(10, 20 - (lvl - 1)), // Baisse de 1 par niveau, min 10
+    getCircleCount: (lvl) => 10 + ((lvl - 1) * 2) // +2 flèches par niveau, commence à 10
 };
 
 const UPGRADES_DATA = [
     { id: 'damage', name: "Dégâts", tab: "Bastion", basePrice: 50, labBasePrice:5, ratio: 1.5, maxLevel: 25, description: "Puissance de tir.", formula: FORMULAS.getDamage },
     { id: 'speed', name: "Vitesse Tir", tab: "Bastion", basePrice: 80, labBasePrice: 8, ratio: 1.6, maxLevel: 25, description: "Délai de recharge.", formula: FORMULAS.getAttackDelay },
     { id: 'crit', name: "Coup Critique", tab: "Bastion", basePrice: 120, labBasePrice: 12, ratio: 1.7, maxLevel: 25, description: "Chance de dégâts x2.", formula: FORMULAS.getCritChance },
-    { id: 'multishot', name: "Tir Multiple", tab: "Bastion", basePrice: 300, labBasePrice: 30, ratio: 2.0, maxLevel: 25, description: "Chance de tirer 2 flèches.", formula: FORMULAS.getMultiShotChance },
+    { id: 'multishot', name: "Tir Multiple", tab: "Bastion", basePrice: 80, labBasePrice: 8, ratio: 1.6, maxLevel: 25, description: "Chance de tirer 2 flèches.", formula: FORMULAS.getMultiShotChance },
     { id: 'range', name: "Portée Tour", tab: "Bastion", basePrice: 40, labBasePrice: 4, ratio: 1.3, maxLevel: 25, description: "Distance de tir.", formula: FORMULAS.getRange },
     { id: 'hp', name: "PV Max", tab: "PV", basePrice: 30, labBasePrice: 3, ratio: 1.4, maxLevel: 25, description: "Point de vie du Bastion.", formula: FORMULAS.getMaxHp },
     { id: 'regen', name: "Régénération", tab: "PV", basePrice: 150, labBasePrice: 15, ratio: 1.6, maxLevel: 25, description: "Soigne automatiquement.", formula: FORMULAS.getRegen },
     { id: 'lifesteal', name: "Vol de vie", tab: "PV", basePrice: 200, labBasePrice: 20, ratio: 1.8, maxLevel: 25, description: "Vole des PV aux ennemis.", formula: FORMULAS.getLifesteal },
     { id: 'wave_bonus', name: "Argent Vague", tab: "Économie", basePrice: 60, labBasePrice: 6, ratio: 1.4, maxLevel: 25, description: "Gain de pièces par vague.", formula: FORMULAS.getWaveBonus },
-    { id: 'mine_rate', name: "Production Mine", tab: "Économie", basePrice: 100, labBasePrice: 10, ratio: 1.5, maxLevel: 25, description: "Diamants par minute.", formula: FORMULAS.getMineProduction },
-    { id: 'boss_diamond', name: "Diamant Boss", tab: "Économie", basePrice: 150, labBasePrice: 15, ratio: 1.5, maxLevel: 25, description: "Diamants en plus par Boss.", formula: FORMULAS.getBossDiamondBonus },
+    { id: 'mine_rate', name: "Production Mine", tab: "Économie", basePrice: 100, labBasePrice: 10, ratio: 1.5, maxLevel: 25, description: "Diamants toute les 10s", formula: FORMULAS.getMineProduction },
+    { id: 'boss_diamond', name: "Diamant Boss", tab: "Économie", basePrice: 20, labBasePrice: 2, ratio: 1.5, maxLevel: 25, description: "Diamants en plus par Boss.", formula: FORMULAS.getBossDiamondBonus },
     { id: 'kill_bonus', name: "Argent par kill", tab: "Économie", basePrice: 20, labBasePrice: 2, ratio: 1.5, maxLevel: 25, description: "+1 Pièce par ennemi tué.", formula: FORMULAS.getKillBonus },
     { id: 'prison_cost', name: "Coût Prison", tab: "Sorts", basePrice: 100, labBasePrice: 10, ratio: 1.5, maxLevel: 10, description: "Réduit le coût du sort Prison.", formula: SPELL_FORMULAS.getPrisonCost },
     { id: 'prison_duration', name: "Durée Prison", tab: "Sorts", basePrice: 150, labBasePrice: 15, ratio: 1.5, maxLevel: 10, description: "Augmente la durée d'immobilisation.", formula: SPELL_FORMULAS.getPrisonDuration },
     { id: 'rain_cost', name: "Coût Pluie", tab: "Sorts", basePrice: 100, labBasePrice: 10, ratio: 1.5, maxLevel: 10, description: "Réduit le coût de la Pluie.", formula: SPELL_FORMULAS.getRainCost },
-    { id: 'rain_damage', name: "Dégâts Pluie", tab: "Sorts", basePrice: 150, labBasePrice: 15, ratio: 1.5, maxLevel: 10, description: "Augmente les dégâts de la Pluie.", formula: SPELL_FORMULAS.getRainDamage }
+    { id: 'rain_damage', name: "Dégâts Pluie", tab: "Sorts", basePrice: 150, labBasePrice: 15, ratio: 1.5, maxLevel: 10, description: "Augmente les dégâts de la Pluie.", formula: SPELL_FORMULAS.getRainDamage },
+    { id: 'circle_cost', name: "Coût Cercle", tab: "Sorts", basePrice: 100, labBasePrice: 10, ratio: 1.5, maxLevel: 10, description: "Réduit le coût du sort Cercle.", formula: SPELL_FORMULAS.getCircleCost },
+    { id: 'circle_count', name: "Flèches Plus", tab: "Sorts", basePrice: 150, labBasePrice: 15, ratio: 1.5, maxLevel: 10, description: "+2 Flèches pour le Cercle.", formula: SPELL_FORMULAS.getCircleCount }
 ];
+
+/* =========================================================
+    FORMATIONS & SCHEMAS DE JOURS
+   ========================================================= */
+
+// Types de formations disponibles
+const FORMATION_TYPES = {
+    SINGLE: 'single',    // 1 ennemi
+    CLUSTER: 'cluster',  // 3 ennemis très proches
+    SQUARE: 'square',    // 4 ennemis en carré
+    LINE: 'line',        // 5 ennemis en ligne
+    HORDE: 'horde'       // 10 ennemis en grappe lâche
+    // a ajouter sur une vague pour changer le délai de spawn : "spawnInterval: 100"
+};
+
+// Définition précise des vagues pour chaque jour
+const DAY_SCHEMAS = {
+    // ==========================================
+    // JOUR 1 : Tutoriel (Faible)
+    // ==========================================
+    1: [
+        { wave: 1, enemies: [{type: 'normal', count: 5, hpMult: 1.0}] },
+        { wave: 2, enemies: [{type: 'normal', count: 6, formation: 'cluster', hpMult: 1.1}] }, // Intro Cluster
+        { wave: 3, enemies: [{type: 'sprinter', count: 4, formation: 'single', hpMult: 0.9}, {type: 'normal', count: 4, formation: 'single', hpMult: 1.1}] },
+        { wave: 4, enemies: [{type: 'kamikaze', count: 4, formation: 'line', hpMult: 1.0}] }, // Intro Line + Kamikaze
+        { wave: 5, enemies: [{type: 'tank', count: 2, formation: 'single', hpMult: 1.8}, {type: 'normal', count: 5, formation: 'single', hpMult: 1.2}] },
+        { wave: 6, enemies: [{type: 'sprinter', count: 8, formation: 'line', hpMult: 1.0}] },
+        { wave: 7, enemies: [{type: 'normal', count: 10, formation: 'single', hpMult: 1.3}] },
+        { wave: 8, enemies: [{type: 'normal', count: 8, formation: 'horde', hpMult: 1.2}] }, // Intro Horde
+        { wave: 9, enemies: [{type: 'tank', count: 3, formation: 'line', hpMult: 1.5}] },
+        { wave: 10, enemies: [{type: 'boss', count: 1, formation: 'single', hpMult: 5}] }
+    ],
+
+    // ==========================================
+    // JOUR 2 : Vitesse (Sprinters)
+    // ==========================================
+    2: [
+        { wave: 1, enemies: [{type: 'normal', count: 6, formation: 'single', hpMult: 1.3}] },
+        { wave: 2, enemies: [{type: 'sprinter', count: 8, formation: 'square', hpMult: 1.2}] }, // Carré de sprinters
+        { wave: 3, enemies: [{type: 'kamikaze', count: 5, formation: 'single', hpMult: 1.2}, {type: 'normal', count: 5, formation: 'single', hpMult: 1.3}] },
+        { wave: 4, enemies: [{type: 'normal', count: 10, formation: 'cluster', hpMult: 1.4}] },
+        { wave: 5, enemies: [{type: 'tank', count: 2, formation: 'single', hpMult: 2.2}, {type: 'sprinter', count: 8, formation: 'single', hpMult: 1.1}] },
+        { wave: 6, enemies: [{type: 'kamikaze', count: 6, formation: 'line', hpMult: 1.1}] },
+        { wave: 7, enemies: [{type: 'sprinter', count: 12, formation: 'single', hpMult: 1.2}] },
+        { wave: 8, enemies: [{type: 'sprinter', count: 10, formation: 'horde', hpMult: 1.3}] }, // Horde rapide
+        { wave: 9, enemies: [{type: 'tank', count: 4, formation: 'square', hpMult: 2.0}] }, // Carré de tanks
+        { wave: 10, enemies: [{type: 'boss', count: 1, formation: 'single', hpMult: 10}] }
+    ],
+
+    // ==========================================
+    // JOUR 3 : Puissance (Tanks)
+    // ==========================================
+    3: [
+        { wave: 1, enemies: [{type: 'normal', count: 8, formation: 'single', hpMult: 1.5}] },
+        { wave: 2, enemies: [{type: 'tank', count: 4, formation: 'line', hpMult: 2.0}] }, // Ligne de tanks
+        { wave: 3, enemies: [{type: 'normal', count: 5, formation: 'single', hpMult: 1.6}, {type: 'tank', count: 2, formation: 'single', hpMult: 2.2}] },
+        { wave: 4, enemies: [{type: 'kamikaze', count: 8, formation: 'square', hpMult: 1.3}] },
+        { wave: 5, enemies: [{type: 'tank', count: 3, formation: 'single', hpMult: 2.5}, {type: 'normal', count: 10, formation: 'single', hpMult: 1.6}] },
+        { wave: 6, enemies: [{type: 'sprinter', count: 10, formation: 'line', hpMult: 1.4}] },
+        { wave: 7, enemies: [{type: 'tank', count: 5, formation: 'single', hpMult: 2.1}] },
+        { wave: 8, enemies: [{type: 'tank', count: 6, formation: 'cluster', hpMult: 2.3}] }, // Grappe de tanks
+        { wave: 9, enemies: [{type: 'normal', count: 15, formation: 'horde', hpMult: 1.8}] },
+        { wave: 10, enemies: [{type: 'boss', count: 1, formation: 'single', hpMult: 15}] }
+    ],
+
+    // ==========================================
+    // JOUR 4 : Kamikazes (Explosions)
+    // ==========================================
+    4: [
+        { wave: 1, enemies: [{type: 'normal', count: 10, formation: 'single', hpMult: 1.8}] },
+        { wave: 2, enemies: [{type: 'kamikaze', count: 8, formation: 'horde', hpMult: 1.2}] }, // Horde de bombs
+        { wave: 3, enemies: [{type: 'kamikaze', count: 5, formation: 'single', hpMult: 1.3}, {type: 'sprinter', count: 5, formation: 'single', hpMult: 1.5}] },
+        { wave: 4, enemies: [{type: 'tank', count: 4, formation: 'square', hpMult: 2.5}] },
+        { wave: 5, enemies: [{type: 'normal', count: 12, formation: 'single', hpMult: 2.0}] },
+        { wave: 6, enemies: [{type: 'kamikaze', count: 10, formation: 'line', hpMult: 1.4}] }, // Ligne mortelle
+        { wave: 7, enemies: [{type: 'tank', count: 3, formation: 'single', hpMult: 2.6}, {type: 'kamikaze', count: 6, formation: 'single', hpMult: 1.3}] },
+        { wave: 8, enemies: [{type: 'normal', count: 15, formation: 'cluster', hpMult: 2.0}] },
+        { wave: 9, enemies: [{type: 'kamikaze', count: 10, formation: 'square', hpMult: 1.5}] },
+        { wave: 10, enemies: [{type: 'boss', count: 1, formation: 'single', hpMult: 22}] }
+    ],
+
+    // ==========================================
+    // JOUR 5 : Le Chaos (Mixte intense)
+    // ==========================================
+    5: [
+        { wave: 1, enemies: [{type: 'normal', count: 12, formation: 'single', hpMult: 2.2}] },
+        { wave: 2, enemies: [{type: 'sprinter', count: 6, formation: 'square', hpMult: 1.6}, {type: 'tank', count: 2, formation: 'square', hpMult: 2.8}] }, // Double formation
+        { wave: 3, enemies: [{type: 'kamikaze', count: 6, formation: 'single', hpMult: 1.5}, {type: 'normal', count: 8, formation: 'single', hpMult: 2.2}] },
+        { wave: 4, enemies: [{type: 'tank', count: 5, formation: 'line', hpMult: 2.8}] },
+        { wave: 5, enemies: [{type: 'sprinter', count: 15, formation: 'single', hpMult: 1.6}] },
+        { wave: 6, enemies: [{type: 'kamikaze', count: 12, formation: 'horde', hpMult: 1.5}] },
+        { wave: 7, enemies: [{type: 'tank', count: 6, formation: 'single', hpMult: 2.8}, {type: 'sprinter', count: 8, formation: 'single', hpMult: 1.7}] },
+        { wave: 8, enemies: [{type: 'normal', count: 20, formation: 'line', hpMult: 2.4}] }, // Ligne géante
+        { wave: 9, enemies: [{type: 'tank', count: 4, formation: 'square', hpMult: 3.0}, {type: 'kamikaze', count: 4, formation: 'square', hpMult: 1.6}] },
+        { wave: 10, enemies: [{type: 'boss', count: 1, formation: 'single', hpMult: 30}] }
+    ],
+
+    // ==========================================
+    // JOUR 6 : Vitesse Pure
+    // ==========================================
+    6: [
+        { wave: 1, enemies: [{type: 'sprinter', count: 15, formation: 'single', hpMult: 1.8}] },
+        { wave: 2, enemies: [{type: 'sprinter', count: 12, formation: 'cluster', hpMult: 1.9}] },
+        { wave: 3, enemies: [{type: 'kamikaze', count: 8, formation: 'single', hpMult: 1.6}, {type: 'tank', count: 4, formation: 'single', hpMult: 3.0}] },
+        { wave: 4, enemies: [{type: 'sprinter', count: 10, formation: 'line', hpMult: 2.0}] }, // Mur de sprinters
+        { wave: 5, enemies: [{type: 'normal', count: 15, formation: 'single', hpMult: 2.6}] },
+        { wave: 6, enemies: [{type: 'sprinter', count: 15, formation: 'horde', hpMult: 1.8}] },
+        { wave: 7, enemies: [{type: 'kamikaze', count: 10, formation: 'single', hpMult: 1.7}, {type: 'sprinter', count: 10, formation: 'single', hpMult: 1.9}] },
+        { wave: 8, enemies: [{type: 'tank', count: 6, formation: 'cluster', hpMult: 3.2}] },
+        { wave: 9, enemies: [{type: 'sprinter', count: 20, formation: 'line', hpMult: 2.0}] },
+        { wave: 10, enemies: [{type: 'boss', count: 1, formation: 'single', hpMult: 40}] }
+    ],
+
+    // ==========================================
+    // JOUR 7 : Mur de Chair (Nombreux)
+    // ==========================================
+    7: [
+        { wave: 1, enemies: [{type: 'normal', count: 20, formation: 'single', hpMult: 2.8}] },
+        { wave: 2, enemies: [{type: 'normal', count: 15, formation: 'horde', hpMult: 2.6}] }, // Horde massive
+        { wave: 3, enemies: [{type: 'tank', count: 5, formation: 'single', hpMult: 3.2}, {type: 'normal', count: 15, formation: 'single', hpMult: 2.8}] },
+        { wave: 4, enemies: [{type: 'kamikaze', count: 15, formation: 'square', hpMult: 1.8}] },
+        { wave: 5, enemies: [{type: 'sprinter', count: 15, formation: 'single', hpMult: 2.1}] },
+        { wave: 6, enemies: [{type: 'tank', count: 8, formation: 'line', hpMult: 3.3}] }, // Ligne de tanks
+        { wave: 7, enemies: [{type: 'normal', count: 25, formation: 'single', hpMult: 2.8}] },
+        { wave: 8, enemies: [{type: 'normal', count: 20, formation: 'cluster', hpMult: 2.8}] },
+        { wave: 9, enemies: [{type: 'kamikaze', count: 15, formation: 'line', hpMult: 1.8}] },
+        { wave: 10, enemies: [{type: 'boss', count: 2, formation: 'single', hpMult: 40}] }
+    ],
+
+    // ==========================================
+    // JOUR 8 : High Level (Tout est fort)
+    // ==========================================
+    8: [
+        { wave: 1, enemies: [{type: 'normal', count: 15, formation: 'single', hpMult: 3.2}, {type: 'tank', count: 3, formation: 'single', hpMult: 3.5}] },
+        { wave: 2, enemies: [{type: 'tank', count: 8, formation: 'square', hpMult: 3.4}] }, // Carré de tanks (Dangereux)
+        { wave: 3, enemies: [{type: 'sprinter', count: 15, formation: 'single', hpMult: 2.3}, {type: 'kamikaze', count: 10, formation: 'single', hpMult: 1.9}] },
+        { wave: 4, enemies: [{type: 'normal', count: 25, formation: 'horde', hpMult: 3.0}] },
+        { wave: 5, enemies: [{type: 'tank', count: 6, formation: 'single', hpMult: 3.5}, {type: 'sprinter', count: 10, formation: 'single', hpMult: 2.3}] },
+        { wave: 6, enemies: [{type: 'kamikaze', count: 15, formation: 'cluster', hpMult: 2.0}] },
+        { wave: 7, enemies: [{type: 'tank', count: 10, formation: 'line', hpMult: 3.5}] },
+        { wave: 8, enemies: [{type: 'sprinter', count: 20, formation: 'horde', hpMult: 2.3}] },
+        { wave: 9, enemies: [{type: 'normal', count: 10, formation: 'square', hpMult: 3.4}, {type: 'kamikaze', count: 6, formation: 'square', hpMult: 2.0}] },
+        { wave: 10, enemies: [{type: 'boss', count: 2, formation: 'single', hpMult: 50}] }
+    ],
+
+    // ==========================================
+    // JOUR 9 : L'Apocalypse (Avant infini)
+    // ==========================================
+    9: [
+        { wave: 1, enemies: [{type: 'sprinter', count: 20, formation: 'single', hpMult: 2.5}, {type: 'normal', count: 15, formation: 'single', hpMult: 3.5}] },
+        { wave: 2, enemies: [{type: 'tank', count: 10, formation: 'line', hpMult: 3.8}, {type: 'kamikaze', count: 10, formation: 'line', hpMult: 2.1}] }, // Double ligne
+        { wave: 3, enemies: [{type: 'tank', count: 5, formation: 'single', hpMult: 3.8}, {type: 'sprinter', count: 10, formation: 'single', hpMult: 2.5}, {type: 'normal', count: 10, formation: 'single', hpMult: 3.5}] },
+        { wave: 4, enemies: [{type: 'kamikaze', count: 20, formation: 'horde', hpMult: 2.2}] }, // Horde de bombes
+        { wave: 5, enemies: [{type: 'normal', count: 30, formation: 'single', hpMult: 3.5}] },
+        { wave: 6, enemies: [{type: 'tank', count: 8, formation: 'square', hpMult: 3.8}] }, // Carré de tanks costauds
+        { wave: 7, enemies: [{type: 'sprinter', count: 25, formation: 'single', hpMult: 2.5}, {type: 'tank', count: 5, formation: 'single', hpMult: 3.8}] },
+        { wave: 8, enemies: [{type: 'normal', count: 25, formation: 'cluster', hpMult: 3.6}] },
+        { wave: 9, enemies: [{type: 'tank', count: 10, formation: 'line', hpMult: 4.0}, {type: 'kamikaze', count: 15, formation: 'line', hpMult: 2.2}] }, // Assaut final
+        { wave: 10, enemies: [{type: 'boss', count: 2, formation: 'single', hpMult: 60}] } // Boss énorme
+    ]
+};
 
 // Vagues avec Variantes
 const WAVE_SCHEMA = [
-    { wave: 1, enemies: [{type: 'normal', count: 5, hpMult: 1}] },
-    { wave: 2, enemies: [{type: 'sprinter', count: 5, hpMult: 0.8}, {type: 'normal', count: 3, hpMult: 1.0}] },
-    { wave: 3, enemies: [{type: 'tank', count: 2, hpMult: 2.0}, {type: 'normal', count: 8, hpMult: 1.0}] },
-    { wave: 4, enemies: [{type: 'normal', count: 10, hpMult: 1.2}, {type: 'kamikaze', count: 2, hpMult: 1.0}] },
-    { wave: 5, enemies: [{type: 'sprinter', count: 8, hpMult: 1.0}, {type: 'tank', count: 2, hpMult: 1.5}] },
-    { wave: 6, enemies: [{type: 'normal', count: 15, hpMult: 1.4}, {type: 'kamikaze', count: 5, hpMult: 1.0}] },
-    { wave: 7, enemies: [{type: 'tank', count: 5, hpMult: 2.0}, {type: 'sprinter', count: 10, hpMult: 0.9}] },
-    { wave: 8, enemies: [{type: 'normal', count: 20, hpMult: 1.6}, {type: 'kamikaze', count: 5, hpMult: 1.0}] },
-    { wave: 9, enemies: [{type: 'sprinter', count: 10, hpMult: 1.2}, {type: 'tank', count: 5, hpMult: 2.0}, {type: 'kamikaze', count: 5, hpMult: 1.0}] },
-    { wave: 10, enemies: [{type: 'boss', count: 1, hpMult: 5}] }
+    { wave: 1, enemies: [{type: 'normal', count: 30, formation: 'single', spawnInterval: 300, hpMult: 4}] },
+    { wave: 2, enemies: [{type: 'sprinter', formation: 'horde', count: 20, spawnInterval: 300, hpMult: 3}, {type: 'normal', count: 20, formation: 'single', spawnInterval: 300, hpMult: 4}] },
+    { wave: 3, enemies: [{type: 'tank', count: 10, formation: 'single', spawnInterval: 400, hpMult: 4}, {type: 'normal', count: 8, formation: 'line', spawnInterval: 400, hpMult: 4}] },
+    { wave: 4, enemies: [{type: 'kamikaze', count: 10, spawnInterval: 300, hpMult: 3}, {type: 'kamikaze', spawnInterval: 300, count: 10, hpMult: 3}] },
+    { wave: 5, enemies: [{type: 'tank', formation: 'cluster', count: 8, hpMult: 4}, {type: 'boss', count: 1, hpMult: 70}] },
+    { wave: 6, enemies: [{type: 'normal', count: 40, formation: 'single', spawnInterval: 300, hpMult: 5}, {type: 'kamikaze', formation: 'single', spawnInterval: 300, count: 15, hpMult: 3.2}] },
+    { wave: 7, enemies: [{type: 'tank', count: 10, formation: 'horde', spawnInterval: 200, hpMult: 5}, {type: 'sprinter', formation: 'horde', spawnInterval: 200, count: 10, hpMult: 3.5}] },
+    { wave: 8, enemies: [{type: 'sprinter', count: 40, formation: 'single', spawnInterval: 200, hpMult: 1.6}, {type: 'normal', count: 5, formation: 'single', spawnInterval: 200, hpMult: 5}] },
+    { wave: 9, enemies: [{type: 'kamikaze', count: 20, formation: 'horde', spawnInterval: 100, hpMult: 3.5}, {type: 'tank', count: 10, formation: 'line', spawnInterval: 100, hpMult: 6}, {type: 'normal', formation: 'single', spawnInterval: 100, count: 50, hpMult: 5}] },
+    { wave: 10, enemies: [{type: 'boss', count: 2, hpMult: 70}] }
 ];
 
 /* =========================================================
@@ -788,7 +1138,14 @@ const WAVE_SCHEMA = [
 let playerData = {
     diamonds: 0,
     upgrades: {},
-    settings: { music: 50, sfx: 80 }
+    settings: { music: 50, sfx: 80 },
+    stats: {
+        totalRuns: 0,
+        totalKills: 0,
+        totalBossKills: 0,
+        totalDiamondsEarned: 0,
+        bestRun: { day: 0, wave: 0, diamonds: 0, date: '' }
+    }
 };
 
 // Initialisation basique des upgrades
@@ -814,10 +1171,12 @@ let game = {
     particles: [],
     floatingTexts: [],
     bloodSplats: [],
+    droppedDiamonds: [],
     
     spells: {
         prison: { lastCast: 0 },
-        rain: { lastCast: 0 }
+        rain: { lastCast: 0 },
+        circle: { lastCast: 0 }
     },
     targetingSpell: null,
     fallingArrows: [],
@@ -829,7 +1188,7 @@ let game = {
     spawnTimer: 0,
     
     runDiamonds: 0,
-    
+    selectedEnemy: null,
     mouseX: 0,
     mouseY: 0
 };
@@ -855,19 +1214,13 @@ function playSound(id, volumeType = 'sfx') {
     if (volumeType === 'sfx') vol = playerData.settings.sfx / 100;
     if (volumeType === 'music') vol = playerData.settings.music / 100;
 
-    // Si le volume est à 0, on signale juste qu'on ne joue pas (pour info)
     if (vol <= 0) {
-        console.log("Son '" + id + "' ignoré car volume à 0.");
         return;
     }
 
     try {
         const snd = sounds[id];
         snd.volume = vol;
-        
-        // Petite astuce : on clone le nœud pour permettre de jouer le son 
-        // plusieurs fois très vite (spam click) sans couper le précédent
-        // Sauf pour la musique qui doit être unique
         if (id !== 'musique') {
              const clone = snd.cloneNode();
              clone.volume = vol;
@@ -894,6 +1247,7 @@ function loadAssets() {
         assets[key] = img;
     };
     loader('bg', CONFIG.images.bg);
+    loader('bg_menu', CONFIG.images.bg_menu);
     loader('tower', CONFIG.images.tower);
     loader('mine', CONFIG.images.mine);
     loader('coin', CONFIG.images.coin);
@@ -903,6 +1257,7 @@ function loadAssets() {
     loader('barreau', CONFIG.images.barreau);
     loader('prison_icon', CONFIG.images.prison_icon);
     loader('rain_icon', CONFIG.images.rain_icon);
+    loader('circle_icon', CONFIG.images.cercle_icon);
     
     CONFIG.images.zombies.forEach((src, i) => loader(`zombie${i+1}`, src));
     CONFIG.images.bosses.forEach((src, i) => loader(`boss${i+1}`, src));
@@ -931,7 +1286,9 @@ function loadAssets() {
 
     sndLoader('onglet', './son/onglet.mp3');
     sndLoader('pluiefleche', './son/pluiefleche.mp3');
+    sndLoader('cerclefleche', './son/cerclefleche.mp3');
     sndLoader('prison', './son/prison.mp3');
+    sndLoader('explosion', './son/explosion.mp3');
     sndLoader('transitionjour', './son/transitionjour.mp3');
     sndLoader('fin', './son/fin.mp3');
 }
@@ -957,9 +1314,6 @@ musicSlider.addEventListener('input', (e) => {
 
 // 2. Quand on bouge la barre d'Effets Sonores (SFX)
 sfxSlider.addEventListener('input', (e) => {
-    // Pour les SFX, on ne peut pas changer le volume en cours de lecture car ce sont des sons courts 
-    // (clonés au moment du jeu). On met juste à jour la variable globale qui sera utilisée 
-    // au prochain son joué.
     playerData.settings.sfx = e.target.value;
     localStorage.setItem('zombieTD_save_v7', JSON.stringify(playerData));
 });
@@ -970,10 +1324,6 @@ function loadData() {
         try {
             const parsed = JSON.parse(saved);
             playerData = { ...playerData, ...parsed };
-
-            // CORRECTION BUG LABO : 
-            // Si la sauvegarde existe mais ne contient pas les nouvelles améliorations (Sorts),
-            // on force leur initialisation ici.
             UPGRADES_DATA.forEach(u => {
                 if (playerData.upgrades[u.id] === undefined) {
                     playerData.upgrades[u.id] = 1;
@@ -1001,6 +1351,11 @@ function getTotalLevel(id) {
 }
 
 function initGame() {
+    game.runStats = {
+        kills: 0,
+        bosses: 0,
+        startTime: Date.now()
+    };
     game.day = 1;
     game.wave = 1;
     game.coins = 100;
@@ -1018,15 +1373,18 @@ function initGame() {
     game.projectiles = [];
     game.particles = [];
     game.floatingTexts = [];
+    game.droppedDiamonds = [];
     
     applyUpgradeStats();
     game.hp = game.maxHp; 
     
     game.state = 'PLAYING';
     
+    document.getElementById('game-container').style.backgroundImage = "url('./images/fond.png')";
     document.getElementById('menu-overlay').classList.add('hidden');
     document.getElementById('gameover-overlay').classList.add('hidden');
     document.getElementById('hud-bar').classList.remove('hidden');
+    speedBtnGroup.classList.remove('hidden');
     document.getElementById('btn-settings').classList.remove('hidden');
     
     updateHUD();
@@ -1038,6 +1396,46 @@ function initGame() {
     game.lastTime = performance.now();
     requestAnimationFrame(gameLoop);
 }
+
+// Gestion du clic pour sélectionner un ennemi
+canvas.addEventListener('mousedown', (e) => {
+    if (game.state !== 'PLAYING') {
+        return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    // Calcul de la position
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clickX = (e.clientX - rect.left) * scaleX;
+    const clickY = (e.clientY - rect.top) * scaleY;
+    
+    let clickedEnemy = null;
+    
+    // Vérifier si on touche un ennemi
+    for (let enemy of game.enemies) {
+        const dist = Math.hypot(clickX - enemy.x, clickY - enemy.y);
+        
+        if (dist < enemy.size / 2 + 10) {
+            clickedEnemy = enemy;
+            break;
+        }
+    }
+    for (let i = game.droppedDiamonds.length - 1; i >= 0; i--) {
+        const d = game.droppedDiamonds[i];
+        // Rayon de clic de 20 pixels autour du diamant
+        const dist = Math.hypot(clickX - d.x, clickY - d.y);
+        if (dist < 20) {
+            d.isAnimating = true; // Déclenche l'animation
+            playSound('amelioration'); // Petit son de succès
+            clickedEnemy = null; // On annule la sélection d'ennemi si on clique un diamant
+            break; // Un seul diamant à la fois
+        }
+    }
+    
+    game.selectedEnemy = clickedEnemy;
+    updateInspectorUI();
+});
 
 /* =========================================================
    4. LOGIQUE DE JEU
@@ -1055,6 +1453,18 @@ function startWave() {
     game.spawnTimer = 0;
     game.waveKilledEnemies = 0;
     game.waveTotalEnemies = game.waveQueue.length;
+    const daySchemas = DAY_SCHEMAS[game.day];
+    let customInterval = null;
+    
+    if (daySchemas) {
+        const currentWaveSchema = daySchemas.find(w => w.wave === game.wave);
+        if (currentWaveSchema && currentWaveSchema.spawnInterval) {
+            customInterval = currentWaveSchema.spawnInterval;
+        }
+    }
+    
+    // On définit l'intervalle pour cette vague (ou celui par défaut si rien n'est défini)
+    game.currentSpawnInterval = customInterval || CONFIG.spawnInterval;
     
     const bonus = FORMULAS.getWaveBonus(getTotalLevel('wave_bonus'));
     if (bonus > 0) {
@@ -1065,25 +1475,139 @@ function startWave() {
 }
 
 function generateWave(day, waveNum) {
-    let enemies = [];
-    const dayMult = 1 + (day - 1) * CONFIG.difficultyMultiplierDay;
-    const schema = WAVE_SCHEMA.find(w => w.wave === waveNum);
+    let enemiesToQueue = [];
     
-    if (schema) {
-        schema.enemies.forEach(e => {
-            const count = Math.ceil(e.count * dayMult);
-            const hpMult = e.hpMult * dayMult;
-            for(let i=0; i<count; i++) {
-                let type = e.type; 
-                enemies.push({ type: type, hpMult: hpMult });
+    // 1. On cherche si le jour a un schéma personnalisé dans DAY_SCHEMAS
+    const customDay = DAY_SCHEMAS[day];
+    
+    if (customDay) {
+        // Si le jour est défini (ex: Jour 1), on suit son plan exact
+        const schema = customDay.find(w => w.wave === waveNum);
+        if (schema) {
+            enemiesToQueue = JSON.parse(JSON.stringify(schema.enemies));
+        } else {
+            console.warn("Schéma de vague introuvable pour ce jour/vague");
+        }
+    } else {
+        // ==========================================
+        // JOURS 10+ : STRUCTURE FIXE + STATS PROCÉDURALES
+        // ==========================================
+        
+        // 1. On récupère le modèle de base dans WAVE_SCHEMA
+        // (waveNum 1 correspond à l'index 0, waveNum 2 à l'index 1, etc.)
+        const schemaIndex = (waveNum - 1) % WAVE_SCHEMA.length; 
+        const baseWaveData = WAVE_SCHEMA[schemaIndex];
+
+        // 2. On calcule le facteur de difficulté pour ce jour précis
+        // Exemple: Jour 10 = x1.0, Jour 11 = x1.2, Jour 12 = x1.4...
+        // On commence le scaling à partir du Jour 10.
+        const difficultyScale = 1 + ((day - 10) * 0.2); 
+
+        // 3. On copie les données pour ne pas modifier l'original
+        let waveData = JSON.parse(JSON.stringify(baseWaveData));
+
+        // 4. On applique le "boost procédural" sur chaque groupe d'ennemis
+        waveData.enemies.forEach(group => {
+            // A. On augmente le nombre d'ennemis
+            if (group.count) {
+                group.count = Math.ceil(group.count * difficultyScale);
+                // On garde un minimum de 1 ennemi
+                if (group.count < 1) group.count = 1; 
+            }
+
+            // B. On augmente la résistance (PV)
+            if (group.hpMult) {
+                group.hpMult = group.hpMult * difficultyScale;
             }
         });
+
+        // 5. On envoie les données modifiées à la file d'attente
+        enemiesToQueue = waveData.enemies;
     }
-    return enemies;
+
+    // 3. TRANSFORMATION EN FILE D'ATTENTE (QUEUE)
+    let finalQueue = [];
+
+    enemiesToQueue.forEach(group => {
+        const count = group.count || 1;
+        const formation = group.formation || 'single';
+        
+        // Calcul des offsets pour les formes géométriques (Carré, Ligne...)
+        let offsets = [];
+        const spread = 60; 
+
+        if (formation === 'single') {
+            offsets = [{x:0, y:0}];
+        } else if (formation === 'cluster') {
+            for(let i=0; i<3; i++) offsets.push({x: (Math.random()-0.5)*40, y: (Math.random()-0.5)*40});
+        } else if (formation === 'square') {
+            offsets = [
+                {x: -spread, y: -spread}, {x: spread, y: -spread},
+                {x: -spread, y: spread},  {x: spread, y: spread}
+            ];
+        } else if (formation === 'line') {
+            for(let i=0; i<Math.min(count, 5); i++) {
+                offsets.push({x: (i - 2) * spread, y: 0});
+            }
+        } else if (formation === 'horde') {
+            for(let i=0; i<Math.min(count, 10); i++) {
+                offsets.push({x: (Math.random()-0.5)*spread*3, y: (Math.random()-0.5)*spread*3});
+            }
+        }
+
+        // Préparation du point d'ancrage pour les GROUPES (pour que Carré/Ligne reste groupé)
+        let groupSide, groupBaseX, groupBaseY;
+        
+        if (formation !== 'single') {
+            // Pour les groupes, on choisit UN seul côté pour tout le monde
+            const side = Math.floor(Math.random() * 4);
+            const spawnMargin = 50;
+            
+            if (side === 0) { groupBaseX = Math.random() * canvas.width; groupBaseY = -spawnMargin; }
+            else if (side === 1) { groupBaseX = canvas.width + spawnMargin; groupBaseY = Math.random() * canvas.height; }
+            else if (side === 2) { groupBaseX = Math.random() * canvas.width; groupBaseY = canvas.height + spawnMargin; }
+            else { groupBaseX = -spawnMargin; groupBaseY = Math.random() * canvas.height; }
+        }
+
+        // On remplit la file d'attente
+        for(let i=0; i<count; i++) {
+            let finalX, finalY;
+            
+            if (formation === 'single') {
+                // --- MODIFICATION ICI : RANDOM SIDE POUR CHAQUE ENNEMI ---
+                // Pour le mode 'single', on ne veut pas de groupe, on veut du chaos aléatoire
+                const side = Math.floor(Math.random() * 4);
+                const spawnMargin = 50;
+                
+                if (side === 0) { finalX = Math.random() * canvas.width; finalY = -spawnMargin; } // Haut
+                else if (side === 1) { finalX = canvas.width + spawnMargin; finalY = Math.random() * canvas.height; } // Droite
+                else if (side === 2) { finalX = Math.random() * canvas.width; finalY = canvas.height + spawnMargin; } // Bas
+                else { finalX = -spawnMargin; finalY = Math.random() * canvas.height; } // Gauche
+            } else {
+                // Pour les groupes, on utilise les coordonnées du groupe calculées plus haut
+                const offset = offsets[i % offsets.length] || {x:0, y:0};
+                finalX = groupBaseX + offset.x;
+                finalY = groupBaseY + offset.y;
+            }
+            
+            finalQueue.push({
+                type: group.type,
+                hpMult: group.hpMult,
+                spawnX: finalX,
+                spawnY: finalY
+            });
+        }
+    });
+
+    return finalQueue;
 }
 
 function update(dt) {
     if (game.state !== 'PLAYING') return;
+    // Mise à jour en continu de l'ennemi sélectionné (car ses PV changent)
+    if (game.selectedEnemy) {
+        updateInspectorUI();
+    }
 
     const effectiveDt = dt * game.speedMultiplier;
     const now = Date.now();
@@ -1096,7 +1620,7 @@ function update(dt) {
         playerData.diamonds += mineProd;
         game.runDiamonds += mineProd;
         saveData();
-        createFloatingText(`+${mineProd}`, canvas.width - 100, canvas.height - 150, '#3498db');
+        createFloatingText(`+${mineProd}`, canvas.width - 100, canvas.height - 150, '#3498db', {icon: 'diamond'});
         updateHUD();
     }
 
@@ -1110,7 +1634,7 @@ function update(dt) {
     // Spawning
     if (game.waveQueue.length > 0) {
         game.spawnTimer += effectiveDt;
-        if (game.spawnTimer >= CONFIG.spawnInterval) {
+        if (game.spawnTimer >= game.currentSpawnInterval) {
             spawnEnemy(game.waveQueue.shift());
             game.spawnTimer = 0;
         }
@@ -1133,6 +1657,7 @@ function update(dt) {
     updateEntities(effectiveDt);
     updateSpells(effectiveDt);
     updateHUDProgress();
+    updateDroppedDiamonds(effectiveDt);
 }
 
 /* =========================================================
@@ -1227,21 +1752,73 @@ function castRain(x, y) {
     game.targetingSpell = null;
 }
 
+function castCircleArrows() {
+    const now = Date.now();
+    const spell = CONFIG.spells.circle;
+    
+    const cost = SPELL_FORMULAS.getCircleCost(getTotalLevel('circle_cost'));
+    const count = SPELL_FORMULAS.getCircleCount(getTotalLevel('circle_count'));
+    const damage = FORMULAS.getDamage(getTotalLevel('damage'));
+
+    if (now - game.spells.circle.lastCast < spell.cooldown) return;
+    if (playerData.diamonds < cost) {
+        createFloatingText("Pas assez de diamants !", game.mouseX, game.mouseY, '#e74c3c');
+        playSound('erreur');
+        return;
+    }
+    
+    playerData.diamonds -= cost;
+    game.spells.circle.lastCast = now;
+    saveData();
+    updateHUD();
+    
+    // Tir en cercle
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    
+    for(let i=0; i<count; i++) {
+        const angle = (Math.PI * 2 / count) * i; 
+        const vx = Math.cos(angle) * 400; 
+        const vy = Math.sin(angle) * 400; 
+        
+        game.projectiles.push({
+            x: cx,
+            y: cy,
+            vx: vx,
+            vy: vy,
+            damage: damage,
+            isCrit: false,
+            color: '#9b59b6',
+            life: 2000
+        });
+    }
+    playSound('cerclefleche');
+    
+    game.targetingSpell = null;
+}
+
 /* =========================================================
    6. ENTITÉS
    ========================================================= */
 
 function spawnEnemy(data) {
     let x, y;
-    const side = Math.floor(Math.random() * 4);
-    if (side === 0) { x = Math.random() * canvas.width; y = -50; }
-    else if (side === 1) { x = canvas.width + 50; y = Math.random() * canvas.height; }
-    else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 50; }
-    else { x = -50; y = Math.random() * canvas.height; }
+    
+    if (data.spawnX !== undefined && data.spawnY !== undefined) {
+        x = data.spawnX;
+        y = data.spawnY;
+    } else {
+        // Ancien code (random side)
+        const side = Math.floor(Math.random() * 4);
+        if (side === 0) { x = Math.random() * canvas.width; y = -50; }
+        else if (side === 1) { x = canvas.width + 50; y = Math.random() * canvas.height; }
+        else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 50; }
+        else { x = -50; y = Math.random() * canvas.height; }
+    }
 
-    let maxHp = 20 * data.hpMult;
-    let speed = 50; 
-    let dmg = 10;
+    let maxHp = 30 * data.hpMult;
+    let speed = 65; 
+    let dmg = 10 + (data.hpMult * 5); 
     let size = CONFIG.zombieSize;
     let color = '#2ecc71';
     let reward = CONFIG.coinDropMin + Math.random() * (CONFIG.coinDropMax - CONFIG.coinDropMin);
@@ -1250,19 +1827,19 @@ function spawnEnemy(data) {
     let typeStr = '';
 
     if (variant === 'sprinter') {
-        speed = 80;
+        speed = 115;
         maxHp *= 0.8;
-        imgIndex = CONFIG.enemies.sprinter;
+        imgIndex = CONFIG.enemies.sprinter[Math.floor(Math.random() * CONFIG.enemies.sprinter.length)];
     } else if (variant === 'tank') {
-        speed = 30;
+        speed = 40;
         maxHp *= 2.0;
         imgIndex = CONFIG.enemies.tank;
     } else if (variant === 'kamikaze') {
-        speed = 60;
+        speed = 90;
         dmg *= 1.5;
         imgIndex = CONFIG.enemies.kamikaze;
     } else if (variant === 'boss') {
-        maxHp = 500 * data.hpMult;
+        maxHp = 100 * data.hpMult;
         speed = 30;
         dmg = 50;
         size = CONFIG.bossSize;
@@ -1346,27 +1923,68 @@ function updateEntities(dt) {
 
     for (let i = game.projectiles.length - 1; i >= 0; i--) {
         const p = game.projectiles[i];
-        if (!game.enemies.includes(p.target)) { game.projectiles.splice(i, 1); continue; }
-        
-        const dx = p.target.x - p.x;
-        const dy = p.target.y - p.y;
-        const dist = Math.hypot(dx, dy);
-        
-        if (dist < 10) {
-            p.target.hp -= p.damage;
-            createParticles(p.x, p.y, p.isCrit ? '#ff00ff' : '#fff');
-            
-            const ls = FORMULAS.getLifesteal(getTotalLevel('lifesteal'));
-            if (ls > 0) {
-                game.hp += p.damage * (ls / 100);
-                if(game.hp > game.maxHp) game.hp = game.maxHp;
+
+        // CAS 1 : Flèche téléguidée (Tour) - Elle a une cible (p.target)
+        if (p.target) {
+            // Si la cible est morte, on supprime la flèche
+            if (!game.enemies.includes(p.target)) { 
+                game.projectiles.splice(i, 1); 
+                continue; 
             }
             
-            if (p.target.hp <= 0) killEnemy(p.target);
-            game.projectiles.splice(i, 1);
-        } else {
-            p.x += (dx/dist) * p.speed * (dt/1000);
-            p.y += (dy/dist) * p.speed * (dt/1000);
+            const dx = p.target.x - p.x;
+            const dy = p.target.y - p.y;
+            const dist = Math.hypot(dx, dy);
+            
+            if (dist < 10) {
+                // Impact sur la cible
+                p.target.hp -= p.damage;
+                createParticles(p.x, p.y, p.isCrit ? '#ff00ff' : '#fff');
+                
+                const ls = FORMULAS.getLifesteal(getTotalLevel('lifesteal'));
+                if (ls > 0) {
+                    game.hp += p.damage * (ls / 100);
+                    if(game.hp > game.maxHp) game.hp = game.maxHp;
+                }
+                
+                if (p.target.hp <= 0) killEnemy(p.target);
+                game.projectiles.splice(i, 1);
+            } else {
+                // Mouvement vers la cible
+                p.x += (dx/dist) * p.speed * (dt/1000);
+                p.y += (dy/dist) * p.speed * (dt/1000);
+            }
+        } 
+        // CAS 2 : Flèche directionnelle (Sort Cercle) - Elle a une vélocité (p.vx, p.vy)
+        else {
+            // Mouvement rectiligne
+            p.x += p.vx * (dt/1000);
+            p.y += p.vy * (dt/1000);
+            
+            // Durée de vie (pour ne pas qu'elles volent à l'infini)
+            p.life -= dt;
+            if (p.life <= 0 || p.x < -100 || p.x > canvas.width + 100 || p.y < -100 || p.y > canvas.height + 100) {
+                game.projectiles.splice(i, 1);
+                continue;
+            }
+
+            // Vérification de collision avec TOUS les ennemis
+            let hit = false;
+            for (let e of game.enemies) {
+                const dist = Math.hypot(p.x - e.x, p.y - e.y);
+                // Hitbox un peu plus large (taille ennemi / 2 + marge)
+                if (dist < e.size / 2 + 10) {
+                    e.hp -= p.damage;
+                    createParticles(e.x, e.y, '#9b59b6'); // Particules violettes
+                    if (e.hp <= 0) killEnemy(e);
+                    hit = true;
+                    break; // Une flèche ne touche qu'un seul ennemi
+                }
+            }
+
+            if (hit) {
+                game.projectiles.splice(i, 1);
+            }
         }
     }
 
@@ -1393,12 +2011,14 @@ function updateEntities(dt) {
         if (dist < hitbox) {
             if (e.variant === 'kamikaze') {
                 game.hp -= e.dmg;
+                createParticles(e.x, e.y, '#e67e22'); // effet visuel
                 killEnemy(e);
                 continue;
-            } else {
+            } else if (!isFrozen) {
+                // Les autres ennemis ne font des dégâts que s'ils ne sont pas gelés
                 game.hp -= e.dmg * (dt / 1000);
+                if (game.hp <= 0) gameOver();
             }
-            if (game.hp <= 0) gameOver();
         } else {
             if (!isFrozen) {
                 e.x += (dx/dist) * e.speed * (dt/1000);
@@ -1411,10 +2031,34 @@ function updateEntities(dt) {
     updateFloatingTexts(dt);
 }
 
+function updateInspectorUI() {
+    const inspector = document.getElementById('enemy-inspector');
+    
+    // Si un ennemi est sélectionné et qu'il est encore en vie
+    if (game.selectedEnemy && game.enemies.includes(game.selectedEnemy)) {
+        const e = game.selectedEnemy;
+        inspector.classList.remove('hidden'); // Afficher le panneau
+        // Récupération du nom spécifique ou du type par défaut
+        const displayName = ZOMBIE_NAMES[e.type] || e.type;
+        const displayType = getZombieTypeName(e.variant);
+        
+        // Remplir les données
+        document.getElementById('insp-name').innerText = displayName;
+        document.getElementById('insp-hp').innerText = Math.ceil(e.hp) + ' / ' + Math.ceil(e.maxHp);
+        document.getElementById('insp-dmg').innerText = e.dmg;
+        document.getElementById('insp-type').innerText = displayType;
+    } else {
+        inspector.classList.add('hidden'); // Masquer le panneau
+        game.selectedEnemy = null; // Réinitialiser
+    }
+}
+
 function killEnemy(enemy) {
     if (enemy.variant === 'boss') {
         // Si c'est un boss, on joue le son spécial
         playSound('mortboss');
+    } else if (enemy.variant === 'kamikaze') {
+        playSound('explosion');
     } else {
         // Si c'est un zombie normal, on choisit un son au hasard dans la liste
         const deathSounds = ['mort', 'mort2', 'mort3', 'mort4', 'mort5', 'mort6'];
@@ -1424,9 +2068,29 @@ function killEnemy(enemy) {
     const idx = game.enemies.indexOf(enemy);
     if (idx > -1) {
         game.enemies.splice(idx, 1);
+        // Tracker statistiques
+        game.runStats.kills++;
+        if (enemy.variant === 'boss') {
+            game.runStats.bosses++;
+        }
         game.waveKilledEnemies++;
         
         game.bloodSplats.push({x: enemy.x, y: enemy.y});
+        // --- DROP DIAMANT ---
+        if (Math.random() < 0.1) {
+            const diamondValue = game.day * 10;
+            
+            game.droppedDiamonds.push({
+                x: enemy.x,
+                y: enemy.y,
+                value: diamondValue,
+                spawnTime: Date.now(),
+                duration: 5000, // 5 secondes
+                isAnimating: false,
+                targetX: 0,
+                targetY: 0
+            });
+        }
         
         const killBonus = FORMULAS.getKillBonus(getTotalLevel('kill_bonus'));
         game.coins += enemy.reward + killBonus;
@@ -1470,6 +2134,71 @@ function updateFloatingTexts(dt) {
     }
 }
 
+function updateDroppedDiamonds(dt) {
+    const hudElement = document.getElementById('hud-diamonds');
+    const canvasRect = canvas.getBoundingClientRect();
+    
+    // On récupère la position précise de l'élément HTML par rapport au Canvas
+    // C'est nécessaire pour que l'animation atpile exactement sur le compteur
+    const hudRect = hudElement.getBoundingClientRect();
+    const scaleX = canvas.width / canvasRect.width;
+    const scaleY = canvas.height / canvasRect.height;
+    
+    const targetHudX = (hudRect.left - canvasRect.left + hudRect.width/2) * scaleX;
+    const targetHudY = (hudRect.top - canvasRect.top + hudRect.height/2) * scaleY;
+
+    for (let i = game.droppedDiamonds.length - 1; i >= 0; i--) {
+        const d = game.droppedDiamonds[i];
+
+        // CAS 1 : Le joueur a cliqué, on anime vers le HUD
+        if (d.isAnimating) {
+            // Calcul de la direction
+            const dx = targetHudX - d.x;
+            const dy = targetHudY - d.y;
+            
+            // Déplacement fluide (Lerp) : on se rapproche de 15% de la distance restante à chaque frame
+            d.x += dx * 0.15;
+            d.y += dy * 0.15;
+
+            // Si on est assez proche du HUD, on considère le diamant récupéré
+            if (Math.hypot(dx, dy) < 10) {
+                playerData.diamonds += d.value;
+                game.runDiamonds += d.value;
+                createFloatingText(`+${d.value}`, targetHudX, targetHudY, '#3498db', 20);
+                saveData();
+                updateHUD();
+                game.droppedDiamonds.splice(i, 1); // On retire le diamant
+            }
+        } 
+        // CAS 2 : Le diamant attend par terre
+        else {
+            // Vérification du timer (5 secondes)
+            if (Date.now() - d.spawnTime > d.duration) {
+                game.droppedDiamonds.splice(i, 1); // Temps écoulé, on supprime
+            }
+        }
+    }
+}
+
+function drawDroppedDiamonds() {
+    const now = Date.now();
+    
+    game.droppedDiamonds.forEach(d => {
+        
+        ctx.drawImage(assets.diamond, d.x - 12, d.y - 12, 24, 24); // 24x24 pixels
+
+        // Petit effet visuel : cercle qui rétrécit pour indiquer le temps restant
+        if (!d.isAnimating) {
+            const timeLeftPct = 1 - (now - d.spawnTime) / d.duration;
+            ctx.strokeStyle = `rgba(52, 152, 219, ${timeLeftPct})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, 18, 0, Math.PI * 2 * timeLeftPct);
+            ctx.stroke();
+        }
+    });
+}
+
 /* =========================================================
    7. RENDU
    ========================================================= */
@@ -1477,8 +2206,16 @@ function updateFloatingTexts(dt) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (assets.bg && assets.bg.complete) ctx.drawImage(assets.bg, 0, 0, canvas.width, canvas.height);
-    else { ctx.fillStyle = '#222'; ctx.fillRect(0,0,canvas.width, canvas.height); }
+    if (game.state === 'PLAYING') {
+        let bgToDraw = assets.bg;
+        
+        if (bgToDraw && bgToDraw.complete) {
+            ctx.drawImage(bgToDraw, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = '#222'; 
+            ctx.fillRect(0,0,canvas.width, canvas.height); 
+        }
+    }
     
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
@@ -1539,7 +2276,14 @@ function draw() {
         game.projectiles.forEach(p => {
             ctx.save();
             ctx.translate(p.x, p.y);
-            const angle = Math.atan2(p.target.y - p.y, p.target.x - p.x);
+            let angle = 0;
+            if (p.target) {
+                 // Angle vers la cible (Tour)
+                angle = Math.atan2(p.target.y - p.y, p.target.x - p.x);
+            } else {
+                 // Angle selon le mouvement (Cercle)
+                angle = Math.atan2(p.vy, p.vx);
+            }
             ctx.rotate(angle + Math.PI / 2);
             ctx.drawImage(assets.arrow, -arrowW/2, -arrowH/2, arrowW, arrowH);
             ctx.restore();
@@ -1621,12 +2365,17 @@ function draw() {
             ctx.drawImage(assets.coin, t.x - 16, t.y - 10, 16, 16);
             currentX += 18;
         }
+        else if (t.icon === 'diamond' && assets.diamond) {
+        ctx.drawImage(assets.diamond, t.x - 16, t.y - 10, 16, 16);
+        currentX += 18;
+        }
         ctx.fillStyle = t.color;
         ctx.font = `bold ${t.size}px Arial`;
         ctx.globalAlpha = t.life/t.maxLife;
         ctx.fillText(t.text, currentX, t.y);
         ctx.globalAlpha = 1;
     });
+    drawDroppedDiamonds();
 
     if (game.state === 'PLAYING') drawGameUI();
 }
@@ -1651,28 +2400,24 @@ function drawGameUI() {
     }
 }
 
+// Fonction globale pour changer la vitesse
+function setSpeed(val) {
+    game.speedMultiplier = val;
+    
+    // Mise à jour l'état "actif" sur les boutons
+    for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`btn-speed-${i}`);
+        if (val === i) btn.classList.add('active');
+        else btn.classList.remove('active');
+    }
+    
+    // Forcer le redessin immédiat pour éviter de sauter à travers les autres éléments
+    // (Optionnel mais recommandé pour la fluidité visuelle)
+    draw(); 
+}
+
 function drawSpeedButton() {
-    const btnW = 50; 
-    const btnH = 50;
-    const x = 10; 
-    const y = (canvas.height - btnH) / 2; 
-
-    game.speedBtnArea = { x, y, w: btnW, h: btnH };
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.strokeStyle = '#f1c40f';
-    ctx.lineWidth = 2;
-    ctx.fillRect(x, y, btnW, btnH);
-    ctx.strokeRect(x, y, btnW, btnH);
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 20px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(game.speedMultiplier === 1 ? "x1" : "x2", x + btnW/2, y + btnH/2);
-    ctx.font = '12px Arial';
-    ctx.fillStyle = '#aaa';
-    ctx.fillText("Vitesse", x + btnW/2, y + btnH/2 + 15);
+    // annuler
 }
 
 function drawUpgradeUI(bottomY) {
@@ -1717,6 +2462,7 @@ function drawUpgradeUI(bottomY) {
         if(u.id === 'multishot') valTxt = valTxt.toFixed(1) + "%";
         else if(u.id === 'crit') valTxt += "%";
         else if(u.id === 'damage') valTxt = Math.floor(valTxt) + " dégâts";
+        else if(u.id === 'speed') valTxt = Math.floor(valTxt) + " ms";
         else if(u.id === 'hp') valTxt = Math.floor(valTxt) + " PV";
         else if(u.id === 'regen') valTxt = valTxt.toFixed(1) + " HP/s";
         else if(u.id === 'lifesteal') valTxt = valTxt.toFixed(1) + "%";
@@ -1729,6 +2475,8 @@ function drawUpgradeUI(bottomY) {
         else if(u.id === 'prison_duration') valTxt = (valTxt/1000).toFixed(1) + "s";
         else if(u.id === 'rain_cost') valTxt = Math.floor(valTxt) + " 💎";
         else if(u.id === 'rain_damage') valTxt = Math.floor(valTxt) + " dégâts";
+        else if(u.id === 'circle_cost') valTxt = Math.floor(valTxt) + " 💎"; 
+        else if(u.id === 'circle_count') valTxt = valTxt + " flèches"; 
         else valTxt += "px";
         
         ctx.fillText(valTxt, bx+10, by+50);
@@ -1763,6 +2511,7 @@ function drawSpellUI(bottomY) {
     const spellKeys = Object.keys(CONFIG.spells);
     const iconSize = 50;
     const margin = 10;
+    // Ajustement de la position X pour centrer ou aligner à droite selon le nombre de sorts
     const startX = canvas.width - (spellKeys.length * (iconSize + margin)) - 20;
     
     const spellY = bottomY - 90;
@@ -1776,14 +2525,22 @@ function drawSpellUI(bottomY) {
         const x = startX + index * (iconSize + margin);
         const y = spellY; 
 
-        const prisonCost = (key === 'prison') ? SPELL_FORMULAS.getPrisonCost(getTotalLevel('prison_cost')) : spell.cost;
-        const rainCost = (key === 'rain') ? SPELL_FORMULAS.getRainCost(getTotalLevel('rain_cost')) : spell.cost;
+        // --- CORRECTION ICI : Calcul dynamique du coût pour TOUS les sorts ---
+        let currentCost = spell.cost; // Valeur par défaut
+        
+        if (key === 'prison') {
+            currentCost = SPELL_FORMULAS.getPrisonCost(getTotalLevel('prison_cost'));
+        } else if (key === 'rain') {
+            currentCost = SPELL_FORMULAS.getRainCost(getTotalLevel('rain_cost'));
+        } else if (key === 'circle') {
+            currentCost = SPELL_FORMULAS.getCircleCost(getTotalLevel('circle_cost'));
+        }
 
         const isReady = (now - game.spells[key].lastCast) >= spell.cooldown;
-        const currentCost = (key === 'prison') ? prisonCost : rainCost;
         const canAfford = playerData.diamonds >= currentCost;
         const isActive = game.targetingSpell === key;
 
+        // Fond du bouton
         ctx.fillStyle = isActive ? '#f1c40f' : '#444';
         if (!isReady) ctx.fillStyle = '#222';
         
@@ -1792,25 +2549,37 @@ function drawSpellUI(bottomY) {
         ctx.lineWidth = isActive ? 3 : 1;
         ctx.strokeRect(x, y, iconSize, iconSize);
 
-        const imgKey = key === 'prison' ? 'prison_icon' : 'rain_icon';
+        // --- CORRECTION ICI : Sélection de la bonne image ---
+        let imgKey = '';
+        if (key === 'prison') imgKey = 'prison_icon';
+        else if (key === 'rain') imgKey = 'rain_icon';
+        else if (key === 'circle') imgKey = 'circle_icon'; // Ajout du cercle
+
         if (assets[imgKey] && assets[imgKey].complete) {
             ctx.drawImage(assets[imgKey], x, y, iconSize, iconSize);
         } else {
+            // Fallback si l'image n'est pas chargée
             ctx.fillStyle = '#fff';
-            ctx.fillText('?', x + 20, y + 30);
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(key.charAt(0).toUpperCase(), x + iconSize/2, y + iconSize/1.5);
         }
 
+        // Overlay de rechargement (Cooldown)
         if (!isReady) {
             const elapsed = now - game.spells[key].lastCast;
             const pct = Math.min(1, elapsed / spell.cooldown);
             ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            // On dessine le rectangle de haut en bas pour l'effet cooldown
             ctx.fillRect(x, y, iconSize, iconSize * (1 - pct));
         }
 
+        // Tooltip au survol
         if (cursor >= x && cursor <= x + iconSize && cursorY >= y && cursorY <= y + iconSize) {
             drawTooltip(spell, x, y, isReady, canAfford, currentCost);
         }
         
+        // Zone de clic pour la souris
         spell.clickArea = { x, y, w: iconSize, h: iconSize };
     });
 }
@@ -1862,6 +2631,31 @@ function drawTargetingCursor() {
         ctx.strokeStyle = '#e74c3c';
         ctx.lineWidth = 2;
         ctx.stroke();
+    } else if (game.targetingSpell === 'circle') {
+        // --- AJOUT POUR LE CERCLE DE FLÈCHES ---
+        const text = "Tirer";
+        ctx.font = 'bold 14px Arial';
+        const textWidth = ctx.measureText(text).width;
+        const padding = 8;
+        const boxW = textWidth + padding * 2;
+        const boxH = 24;
+        const boxX = game.mouseX - boxW / 2;
+        const boxY = game.mouseY + 25; // Positionné sous le curseur
+
+        // Fond du texte pour qu'il soit lisible
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        
+        // Bordure dorée
+        ctx.strokeStyle = '#f1c40f';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+        // Le texte lui-même
+        ctx.fillStyle = '#f1c40f';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, game.mouseX, boxY + boxH / 2);
     }
 }
 
@@ -1881,13 +2675,49 @@ window.addEventListener('resize', resizeCanvas);
 /* =========================================================
    10. EVENTS & LOOP
    ========================================================= */
+function saveRunStats() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+    // 1. Mise à jour des totaux globaux
+    playerData.stats.totalRuns++;
+    playerData.stats.totalKills += game.runStats.kills;
+    playerData.stats.totalBossKills += game.runStats.bosses;
+    playerData.stats.totalDiamondsEarned += game.runDiamonds;
+
+    // 2. Vérification Meilleure Run
+    const current = { day: game.day, wave: game.wave, diamonds: game.runDiamonds, date: dateStr };
+    const best = playerData.stats.bestRun;
+
+    let isNewBest = false;
+    if (current.day > best.day) {
+        isNewBest = true;
+    } else if (current.day === best.day) {
+        if (current.wave > best.wave) {
+            isNewBest = true;
+        } else if (current.wave === best.wave) {
+            if (current.diamonds > best.diamonds) {
+                isNewBest = true;
+            }
+        }
+    }
+
+    if (isNewBest) {
+        playerData.stats.bestRun = current;
+    }
+
+    saveData(); // Sauvegarde dans localStorage
+}
 
 function gameOver() {
     if(sounds['musique']) sounds['musique'].pause();
     playSound('fin');
+    saveRunStats(); 
+
     game.state = 'GAMEOVER';
     document.getElementById('gameover-overlay').classList.remove('hidden');
     document.getElementById('hud-bar').classList.add('hidden');
+    speedBtnGroup.classList.add('hidden');
     document.getElementById('btn-settings').classList.add('hidden');
     document.getElementById('go-day').innerText = game.day;
     document.getElementById('go-wave').innerText = game.wave;
@@ -1917,11 +2747,25 @@ canvas.addEventListener('mousedown', (e) => {
     
     const bottomY = canvas.height - 120;
 
+    // GESTION (Boutons x1, x2, x3) ---
     if (game.speedBtnArea && x >= game.speedBtnArea.x && x <= game.speedBtnArea.x + game.speedBtnArea.w &&
         y >= game.speedBtnArea.y && y <= game.speedBtnArea.y + game.speedBtnArea.h) {
-        game.speedMultiplier = game.speedMultiplier === 1 ? 2 : 1;
-        playSound('amelioration');
-        return;
+        
+        // On vérifie sur quel bouton on a cliqué via l'ID (btn-speed-1, btn-speed-2, btn-speed-3)
+        if (e.target.id.includes('btn-speed-')) {
+            const speed = parseInt(e.target.id.replace('btn-speed-', ''));
+            if(speed !== game.speedMultiplier) {
+                setSpeed(speed);
+                // return; // On sort de la fonction pour ne pas traiter le clic comme clic sur le canvas
+            } else {
+                playSound('amelioration');
+            }
+            // NOTE : Si on clique sur btn-settings, ce code ne sera pas exécuté à cause du `return` plus bas. Le code existant de gestion du bouton settings se trouve dans la partie "EVENTS" plus bas.
+            // Si vous souhaitez que x3 réinitialise à x1, décommentez la ligne `game.speedMultiplier = 1;` ici.
+            return; 
+        } else {
+            playSound('amelioration'); // Son générique de clic pour les boutons de vitesse
+        }
     }
 
     let clickedSpell = false;
@@ -1951,6 +2795,11 @@ canvas.addEventListener('mousedown', (e) => {
                 }
             } else if (game.targetingSpell === 'rain') {
                 castRain(x, y);
+            }
+            else if (game.targetingSpell === 'circle') {
+                castCircleArrows();
+                game.targetingSpell = null;
+                return;
             }
         } else if (e.button === 2) { 
             game.targetingSpell = null;
@@ -2125,6 +2974,60 @@ function openSettings(context) {
     document.getElementById('settings-overlay').classList.remove('hidden');
 }
 
+// fonction utilitaire
+
+function getSpellTooltipText(spellId) {
+    if (spellId === 'prison') {
+        const cost = SPELL_FORMULAS.getPrisonCost(getTotalLevel('prison_cost'));
+        const duration = (SPELL_FORMULAS.getPrisonDuration(getTotalLevel('prison_duration')) / 1000).toFixed(1);
+        return `Coût: ${cost} 💎<br>CD: 30s<br>Durée: ${duration}s`;
+    } 
+    else if (spellId === 'rain') {
+        const cost = SPELL_FORMULAS.getRainCost(getTotalLevel('rain_cost'));
+        const dmg = SPELL_FORMULAS.getRainDamage(getTotalLevel('rain_damage'));
+        return `Coût: ${cost} 💎<br>CD: 20s<br>Dégâts: ${dmg}`;
+    }
+    else if (spellId === 'circle') {
+        const cost = SPELL_FORMULAS.getCircleCost(getTotalLevel('circle_cost'));
+        const count = SPELL_FORMULAS.getCircleCount(getTotalLevel('circle_count'));
+        return `Coût: ${cost} 💎<br>CD: 10s<br>Flèches: ${count}`;
+    }
+    return "";
+}
+
+/* --- GESTION DES STATISTIQUES --- */
+
+function openStats() {
+    const s = playerData.stats;
+    
+    // Remplir les champs
+    document.getElementById('stat-total-runs').innerText = s.totalRuns;
+    document.getElementById('stat-total-kills').innerText = s.totalKills;
+    document.getElementById('stat-total-bosses').innerText = s.totalBossKills;
+    document.getElementById('stat-total-diamonds').innerText = s.totalDiamondsEarned;
+    
+    // Meilleure run
+    document.getElementById('stat-best-date').innerText = s.bestRun.date || '-';
+    document.getElementById('stat-best-day').innerText = s.bestRun.day;
+    document.getElementById('stat-best-wave').innerText = s.bestRun.wave;
+    document.getElementById('stat-best-diamonds').innerText = s.bestRun.diamonds;
+
+    // Calcul temps approximatif (si vous voulez le faire, sinon juste statique pour l'instant)
+    // Ici on met 0 min par défaut car le temps de jeu total n'est pas sauvegardé spécifiquement dans cette version simple.
+    document.getElementById('stat-playtime').innerText = "Données non disponibles"; 
+
+    // Afficher l'overlay
+    document.getElementById('menu-overlay').classList.add('hidden');
+    document.getElementById('stats-overlay').classList.remove('hidden');
+    playSound('amelioration');
+}
+
+function closeStats() {
+    document.getElementById('stats-overlay').classList.add('hidden');
+    document.getElementById('menu-overlay').classList.remove('hidden');
+    playSound('fermeture');
+}
+
 // DOM Events
 document.getElementById('btn-play').addEventListener('click', () => {
     playSound('amelioration'); // Ajoute le son ici
@@ -2146,6 +3049,7 @@ document.getElementById('btn-menu').addEventListener('click', () => {
     playSound('fermeture');
     document.getElementById('gameover-overlay').classList.add('hidden');
     document.getElementById('menu-overlay').classList.remove('hidden');
+    document.getElementById('game-container').style.backgroundImage = '';
     updateMenuUI();
 });
 
@@ -2173,14 +3077,17 @@ document.getElementById('btn-resume').addEventListener('click', () => {
 });
 document.getElementById('btn-quit').addEventListener('click', () => {
     playSound('fermeture');
+    saveRunStats();
     if(sounds['musique']) {
         sounds['musique'].pause();
     }
     document.getElementById('settings-overlay').classList.add('hidden');
     document.getElementById('hud-bar').classList.add('hidden');
+    speedBtnGroup.classList.add('hidden');
     document.getElementById('btn-settings').classList.add('hidden');
     game.state = 'MENU';
     document.getElementById('menu-overlay').classList.remove('hidden');
+    document.getElementById('game-container').style.backgroundImage = '';
     updateMenuUI();
 });
 
@@ -2202,10 +3109,71 @@ document.getElementById('btn-toggle-credits').addEventListener('click', () => {
     document.getElementById('credits-section').classList.toggle('hidden');
     playSound('amelioration');
 });
-
+// Ouverture Statistiques
+document.getElementById('btn-stats').addEventListener('click', openStats);
+// Fermeture Statistiques
+document.getElementById('btn-close-stats').addEventListener('click', closeStats);
 loadAssets();
 loadData();
 resizeCanvas();
+
+/* =========================================================
+   12. GESTION DES RACCOURCIS CLAVIER
+   ========================================================= */
+
+window.addEventListener('keydown', (e) => {
+    // On vérifie que le jeu est bien en cours pour ne pas interférer avec les menus
+    if (game.state !== 'PLAYING') return;
+
+    // --- 1. SÉLECTION DES SORTS (Pavé Numérique) ---
+    // On utilise e.code pour détecter la touche physique du pavé numérique
+    
+    // Touche 1 (Prison)
+    if (e.code === 'Numpad1') {
+        if (game.targetingSpell === 'prison') {
+            game.targetingSpell = null; // Désélectionner si déjà actif
+        } else {
+            game.targetingSpell = 'prison'; // Sélectionner
+        }
+    }
+    // Touche 2 (Pluie de Flèches)
+    else if (e.code === 'Numpad2') {
+        if (game.targetingSpell === 'rain') {
+            game.targetingSpell = null;
+        } else {
+            game.targetingSpell = 'rain';
+        }
+    }
+    // Touche 3 (Cercle de Flèches)
+    else if (e.code === 'Numpad3') {
+        if (game.targetingSpell === 'circle') {
+            game.targetingSpell = null;
+        } else {
+            game.targetingSpell = 'circle';
+        }
+    }
+
+    // --- 2. CONTRÔLE DE LA VITESSE (+ et - du Pavé Numérique) ---
+    
+    // Touche + (Augmenter vitesse)
+    else if (e.code === 'NumpadAdd') { 
+        // On vérifie qu'on ne dépasse pas 3
+        if (game.speedMultiplier < 3) {
+            // On appelle ta fonction existante setSpeed qui gère l'interface (boutons actifs)
+            setSpeed(game.speedMultiplier + 1);
+            e.preventDefault(); // Empêche le scroll ou autre comportement par défaut
+        }
+    }
+    // Touche - (Diminuer vitesse)
+    else if (e.code === 'NumpadSubtract') { 
+        // On vérifie qu'on ne descend pas sous 1
+        if (game.speedMultiplier > 1) {
+            setSpeed(game.speedMultiplier - 1);
+            e.preventDefault();
+        }
+    }
+});
+
 </script>
 <div id="footerText">©Sluto - Ce jeu fait partie du<a href="../../index.html"> Projet ToncPlay</a>.</div>
 </body>
