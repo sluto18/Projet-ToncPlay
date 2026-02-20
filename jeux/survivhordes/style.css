@@ -25,6 +25,19 @@ body {
     align-items: center;
 }
 
+#gameTitle {
+    position: absolute; /* Le titre flotte par-dessus tout le contenu */
+    top: 20px;         /* Espace par rapport au haut du jeu */
+    left: 0;           /* Collé à gauche */
+    width: 100%;       /* Prend toute la largeur */
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+    z-index: 30;       /* S'assure qu'il est au-dessus du canvas et des menus */
+    text-shadow: 2px 2px 0 #000; /* Petite ombre pour mieux le lire sur le fond */
+}
+
 /* Le cadre du jeu (Canvas + UI) */
 #game-container {
     position: relative;
