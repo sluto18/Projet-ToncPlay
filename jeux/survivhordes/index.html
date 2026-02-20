@@ -3,26 +3,410 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Surviv`Hordes</title>
+<title>Surviv'Hordes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner à la page d'accueil ToncPlay">
+
+<a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner à ToncPlay">
     <img src="../../images/logo.png" alt="ToncPlay Logo">
 </a>
 
-<!-- Titre du jeu -->
-<div id="gameTitle">Surviv`Hordes</div>
+<div id="game-container">
+    
+    <div id="hud" class="hidden">
+        <div class="stat-box" style="top: 10px; left: 20px;">
+            <div class="bar-label">VIE</div>
+            <div class="bar-border">
+                <div id="hp-bar" class="bar-fill hp-fill"></div>
+            </div>
+            <div id="hp-text" class="bar-text">80/80</div>
+        </div>
 
-<!-- Canvas du jeu -->
-<canvas id="gameCanvas" width="1200" height="800"></canvas>
+        <div id="coin-hud" class="stat-box" style="top: 50px; left: 20px;">
+            <span id="coin-count-hud" style="color: #00ff00; font-weight: bold;">0</span>
+            <img src="images/piece.png" style="width: 20px; height: 20px; margin-left: 5px;">
+        </div>
 
-<!-- Copyright -->
-<div id="footerText">©Sluto - Ce jeu fait partie du projet <a href="../../index.html">ToncPlay</a>. Certaines images sont la propriété de Motion Twin.</div>
-<div id="level-up-container"><span id="level-up-text">Level UP!</span></div>
+        <div id="game-timer">00:00</div>
+
+        <div class="stat-box" style="top: 10px; right: 20px;">
+            <div class="bar-label">EXP</div>
+            <div class="bar-border">
+                <div id="xp-bar" class="bar-fill xp-fill"></div>
+            </div>
+            <div id="lvl-text" class="bar-text">Niv. 1</div>
+        </div>
+
+        <div id="kill-counter">Zombies Eliminés : <span id="kill-count">0</span></div>
+
+        <div id="spell-dock"></div>
+    </div>
+
+    <div id="loading-screen" class="overlay">
+        <h1 class="hordes-title">Chargement...</h1>
+    </div>
+
+    <!-- Menu Accueil -->
+    <div id="home-menu" class="overlay">
+        <div class="menu-panel">
+            <h1 class="hordes-title">Surviv'Hordes</h1>
+            <p class="hordes-text">Bienvenue citoyen. Prêt à affronter l'outre-monde ?</p>
+            <div class="home-buttons">
+                <!-- Bouton Jouer avec image -->
+                <div id="btn-play" class="hordes-btn big-btn">
+                    <div class="btn-content">
+                        <img src="images/hero.gif">
+                        <span>JOUER</span>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <!-- Bouton Options avec image -->
+                    <div id="btn-options" class="hordes-btn">
+                        <div class="btn-content">
+                            <img src="images/tournevis.gif">
+                            <span>Options</span>
+                        </div>
+                    </div>
+                    <!-- Bouton Boutique avec image -->
+                    <div id="btn-shop" class="hordes-btn">
+                        <div class="btn-content">
+                            <img src="images/cas.gif">
+                            <span>Boutique</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Nouveau Bouton Votre Ame -->
+                <div id="btn-soul" class="hordes-btn" style="width: 220px; margin-top: 0;">
+                    <div class="btn-content">
+                        <img src="images/ame.gif">
+                        <span>VOTRE AME</span>
+                    </div>
+                </div>
+                <a href="#" id="btn-changelog" class="changelog-link">Version 1.2</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Votre Ame -->
+    <div id="soul-menu" class="overlay hidden">
+        <div class="menu-panel">
+            <h2 class="hordes-title">VOTRE AME</h2>
+            
+            <!-- Résumé Global -->
+            <div class="stats-summary">
+                <div class="summary-item">
+                    <h4>Parties</h4>
+                    <p id="total-games">0</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Zombies Tués</h4>
+                    <p id="total-zombies">0</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Boss Tués</h4>
+                    <p id="total-boss">0</p>
+                </div>
+            </div>
+
+            <h3 class="hordes-subtitle" style="margin-top: 20px;">Historique</h3>
+            <div id="history-container" class="history-container">
+                <!-- Les entrées seront générées par JS -->
+            </div>
+
+            <div id="btn-soul-back" class="hordes-btn" onclick="Sounds.play('clicretour')"><span>Retour</span></div>
+        </div>
+    </div>
+
+    <!-- NOUVEAU : Menu Options -->
+    <div id="options-menu" class="overlay hidden">
+        <div class="menu-panel">
+            <h2 class="hordes-title">OPTIONS</h2>
+            <div class="option-row">
+                <label>Musique</label>
+                <input type="range" id="music-volume" min="0" max="100" value="50">
+            </div>
+            <div class="option-row">
+                <label>Effets Sonores</label>
+                <input type="range" id="sfx-volume" min="0" max="100" value="50">
+            </div>
+            <div class="option-separator"></div>
+            <h3 class="hordes-subtitle">Contrôles</h3>
+            <div class="controls-info">
+                <p><strong>ZQSD / Flèches :</strong> Déplacement</p>
+                <p><strong>Souris :</strong> Viser</p>
+                <p><strong>Clic Gauche :</strong> Attaque 1</p>
+                <p><strong>Clic Droit :</strong> Attaque 2</p>
+            </div>
+            <div class="option-separator"></div>
+            <div id="btn-reset-data" class="hordes-btn" style="background: #442222; margin-top: 10px;">
+                <span>Réinitialiser</span>
+            </div>
+            <div id="btn-options-back" class="hordes-btn" onclick="Sounds.play('clicretour')"><span>Retour</span></div>
+        </div>
+    </div>
+
+    <!-- Menu Boutique -->
+    <div id="shop-menu" class="overlay hidden">
+        <div class="menu-panel">
+            <h2 class="hordes-title">BOUTIQUE</h2>
+            <div class="shop-coins-display">
+                <img src="images/piece.png" style="width: 24px; height: 24px; vertical-align: middle;">
+                <span id="coin-count-shop" style="font-size: 20px; font-weight: bold; margin-left: 10px;">0</span>
+            </div>
+            
+            <div class="shop-items">
+                <!-- Amélioration PV -->
+                <div class="shop-item" id="shop-item-hp">
+                    <div class="shop-icon"><img src="images/coeur.gif" style="width:24px; height:24px; pointer-events:none;"></div>
+                    <div class="shop-info">
+                        <h4>Points de Vie</h4>
+                        <p>+25 PV Max par niveau</p>
+                        <small id="shop-hp-level">Niveau actuel : 0/9</small>
+                    </div>
+                    <div class="shop-action">
+                        <span id="shop-hp-cost">50</span>
+                        <img src="images/piece.png" style="width:16px; height:16px; vertical-align:middle;">
+                    </div>
+                </div>
+
+                <!-- Amélioration Vitesse -->
+                <div class="shop-item" id="shop-item-speed">
+                    <div class="shop-icon" ><img src="images/chaussure.gif" style="width:24px; height:24px; pointer-events:none;"></div>
+                    <div class="shop-info">
+                        <h4>Vitesse de Déplacement</h4>
+                        <p>+0.12 Vitesse par niveau</p>
+                        <small id="shop-speed-level">Niveau actuel : 0/10</small>
+                    </div>
+                    <div class="shop-action">
+                        <span id="shop-speed-cost">100</span>
+                        <img src="images/piece.png" style="width:16px; height:16px; vertical-align:middle;">
+                    </div>
+                </div>
+
+                <!-- Amélioration Potion (MODIF: Emoji remplacé par Image) -->
+                <div class="shop-item" id="shop-item-potion">
+                    <!-- On met une image avec la classe shop-icon-img pour la styliser -->
+                    <div class="shop-icon"><img src="images/potion.gif" style="width:24px; height:24px; pointer-events:none;"></div>
+                    <div class="shop-info">
+                        <h4>Potions Améliorées</h4>
+                        <p>+20 PV soin par niveau</p>
+                        <small id="shop-potion-level">Niveau actuel : 0/9</small>
+                    </div>
+                    <div class="shop-action">
+                        <span id="shop-potion-cost">50</span>
+                        <img src="images/piece.png" style="width:16px; height:16px; vertical-align:middle;">
+                    </div>
+                </div>
+
+                <!-- Amélioration Magnétisme -->
+                <div class="shop-item" id="shop-item-magnet">
+                    <div class="shop-icon"><img src="images/magne.gif" style="width:24px; height:24px; pointer-events:none;"></div>
+                    <div class="shop-info">
+                        <h4>Magnétisme</h4>
+                        <p>Attire les pièces proches.</p>
+                        <small id="shop-magnet-level">Niveau actuel : 0/10</small>
+                    </div>
+                    <div class="shop-action">
+                        <span id="shop-magnet-cost">100</span>
+                        <img src="images/piece.png" style="width:16px; height:16px; vertical-align:middle;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="btn-shop-back" class="hordes-btn" onclick="Sounds.play('clicretour')"><span>Retour</span></div>
+        </div>
+    </div>
+
+    <!-- Menu de sélection d'arme (Caché par défaut maintenant) -->
+    <div id="start-menu" class="overlay hidden">
+        <div class="menu-panel">
+            <h1 class="hordes-title">Surviv'Hordes</h1>
+            <p class="hordes-text">Citoyen, choisissez votre arme de prédilection.</p>
+            <div id="start-choices" class="choices-container"></div>
+            <div id="btn-back-to-home" class="hordes-btn" onclick="Sounds.play('clicretour')" style="margin-top: 20px;"><span>Retour</span></div>
+        </div>
+    </div>
+
+    <div id="levelup-menu" class="overlay hidden">
+        <div class="menu-panel">
+            <h2 class="hordes-title">AMÉLIORATION</h2>
+            <p class="hordes-text">Choisissez un avantage pour survivre à l'outre-monde.</p>
+            <div id="levelup-choices" class="choices-container vertical"></div>
+        </div>
+    </div>
+
+    <div id="gameover-menu" class="overlay hidden">
+        <div class="menu-panel gameover-panel">
+            <h1 class="hordes-title" style="color: #a00;">Vous êtes mort !</h1>
+            <p id="gameover-subtitle" class="hordes-text" style="font-style: italic; min-height: 20px;">...</p>
+            
+            <div class="gameover-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Temps de survie</span>
+                    <span class="stat-value" id="go-time">00:00</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Niveau atteint</span>
+                    <span class="stat-value" id="go-level">1</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Zombies éliminés</span>
+                    <span class="stat-value" id="go-kills">0</span>
+                </div>
+            </div>
+
+            <div class="btn-row" style="margin-top: 30px; gap: 15px;">
+                <div id="btn-restart" class="hordes-btn">
+                    <span>Réessayer</span>
+                </div>
+                <div id="btn-gameover-home" class="hordes-btn" style="background: #552222;">
+                    <span>Retour</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!--Bouton Option en jeu -->
+    <div id="btn-options-ingame" class="hordes-btn options-btn hidden">
+        <img src="images/option.png">
+    </div>
+
+    <!--Menu Pause (Options en jeu) -->
+    <div id="pause-menu" class="overlay hidden">
+        <div class="menu-panel">
+            <h2 class="hordes-title">Options</h2>
+            <div class="option-row">
+                <label>Musique</label>
+                <input type="range" id="pause-music-volume" min="0" max="100" value="50">
+            </div>
+            <div class="option-row">
+                <label>Effets Sonores</label>
+                <input type="range" id="pause-sfx-volume" min="0" max="100" value="50">
+            </div>
+            <div class="option-separator"></div>
+            <h3 class="hordes-subtitle">Contrôles</h3>
+            <div class="controls-info">
+                <p><strong>ZQSD / Flèches :</strong> Déplacement</p>
+                <p><strong>Souris :</strong> Viser</p>
+                <p><strong>Clic Gauche :</strong> Attaque 1</p>
+                <p><strong>Clic Droit :</strong> Attaque 2</p>
+            </div>
+            
+            <div class="btn-row" style="margin-top: 20px;">
+                <div id="btn-resume-game" class="hordes-btn"><span>Retour au jeu</span></div>
+                <div id="btn-quit-game" class="hordes-btn" style="background: #552222;"><span>Quitter</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fenêtre de Confirmation -->
+    <div id="confirm-reset-modal" class="overlay hidden">
+        <div class="menu-panel" style="width: 400px;">
+            <h2 class="hordes-title" style="color: #a00;">ATTENTION</h2>
+            <p class="hordes-text">
+                Êtes-vous sûr de vouloir tout réinitialiser ?<br>
+                <strong style="color:#fff;">Pièces, améliorations et historique seront supprimés définitivement.</strong>
+            </p>
+            <div class="btn-row" style="margin-top: 20px;">
+                <div id="btn-confirm-reset-yes" class="hordes-btn" style="background: #552222; width: 100px;"><span>OUI</span></div>
+                <div id="btn-confirm-reset-no" class="hordes-btn" style="width: 100px;"><span>NON</span></div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Menu des Mises à Jour -->
+    <div id="changelog-menu" class="overlay hidden">
+        <div class="menu-panel" style="max-height: 80vh; overflow-y: auto;">
+            <h2 class="hordes-title">Notes de Mise à Jour</h2>
+            
+            <div class="changelog-entry">
+                <h3 class="changelog-version">Version 1.2 : Améliorations Visuelles, Fonctionnalités Économiques et Équilibrage  (21/02/2026)</h3>
+                <p class="changelog-desc">Cette mise à jour se concentre sur l'amélioration de la qualité de vie (QoL), la refonte graphique des ennemis, et l'introduction d'un système économique persistant.</p>
+                
+                <div class="changelog-section">
+                    <h4>Contenu et Fonctionnalités</h4>
+                    <ul>
+                        <li><strong>Système Économique :</strong> Implémentation d'une boutique en jeu et d'une logique de gestion des pièces.</li>
+                        <li><strong>Audio :</strong> Ajout d'une musique d'ambiance et d'effets sonores immersifs.</li>
+                        <li><strong>Le Bestiaire des Damnés :</strong> Arrivée de nouvelles variétés de zombies et d'un nouveau boss.</li>
+                        <li><strong>Page d'Âme :</strong> Ajout d'une interface de statistiques globales permettant de consulter l'historique détaillé des parties.</li>
+                        <li><strong>Refonte de l'Interface :</strong> La page "Game Over" a été entièrement redessinée pour une meilleure lisibilité des résultats.</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-section">
+                    <h4>Nouveaux Sorts Passifs</h4>
+                    <ul>
+                        <li><strong>Couteaut a dent : Skinner, Buck, Bowie... Dans tout les cas ça coupe.</strong> </li>
+                        <li><strong>Tondeuse à Gazon:</strong> Vous aimez quand c’est propre, droit, et que ça sent le frais ? En l’occurrence, oubliez tout ça ! Avec ce sort, ça ne sera pas le cas.</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-section">
+                    <h4>Graphismes et Animations</h4>
+                    <ul>
+                        <li><strong>Optimisation visuelle :</strong> Intégration de sprite sheets dédiées pour l'ensemble des ennemis afin d'améliorer la fluidité.</li>
+                        <li><strong>Animations :</strong> Ajout de divers animations, notamment pour les sorts actifs "Coupe-coupe" et "Super Lance Pile" et divers effet de particules.</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-section">
+                    <h4>Équilibrage et Corrections</h4>
+                    <ul>
+                        <li><strong>Progression :</strong> Modification de la courbe de progression d'expérience et équilibrage global de la difficulté.</li>
+                        <li><strong>Sort "Bichon" :</strong> Ajustement de l'animation de déplacement pour une apparence plus naturelle.</li>
+                        <li><strong>Nouveaux sort passif :</strong> Ajout du "Couteau à dent" et de la "Tondeuse à Gazon".</li>
+                        <li><strong>Correction de bug :</strong> Résolution d'un problème empêchant le sort "Bombe à eau" de générer de l'expérience.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="changelog-entry">
+                <h3 class="changelog-version">Version 1.1 : Introduction des Boss, des Ruines et Rééquilibrage (02/01/2025)</h3>
+                <p class="changelog-desc">Mise à jour majeure axée sur la courbe de progression et l'introduction de nouvelles mécaniques de combat tactique.</p>
+                
+                <div class="changelog-section">
+                    <h4>Rééquilibrage</h4>
+                    <ul>
+                        <li>Ajustement de la difficulté générale pour offrir une courbe d'apprentissage plus progressive.</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-section">
+                    <h4>Nouvelles Mécaniques de Jeu</h4>
+                    <ul>
+                        <li><strong>Boss :</strong> Introduction d'ennemis puissants.</li>
+                        <li><strong>Mécanique de Ruine :</strong> À la mort d'un boss, une "Ruine" apparaît, agissant comme un générateur d'ennemis. Elles déclenchent des vagues de zombies successives, augmentant la pression sur le joueur.</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-section">
+                    <h4>Nouveaux Sorts Passifs</h4>
+                    <ul>
+                        <li><strong>Kit du Bricoleur :</strong> Déploiement d'un dispositif projetant un projectile rebondissant, idéal pour le contrôle de zone.</li>
+                        <li><strong>Bichon Maltais :</strong> Introduction d'un compagnon passif attaquant les ennemis proches.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="changelog-entry">
+                <h3 class="changelog-version">Version 1.0 : Lancement Officiel (19/12/2024)</h3>
+                <p class="changelog-desc">Sortie initiale du jeu.</p>
+            </div>
+
+            <div id="btn-changelog-back" class="hordes-btn"><span>Retour</span></div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="1200" height="800"></canvas>
+    
+    <div id="footerText">©Sluto - Ce jeu fait partie du projet <a href="../../index.html" style="color:#aaa;">ToncPlay</a>. Certaines images sont la propriété de Motion Twin.</div>
+</div>
+
 <script src="game.js"></script>
 </body>
 </html>

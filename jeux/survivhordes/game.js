@@ -1,2415 +1,3129 @@
+/* =========================================
+   SETUP & CONSTANTS
+   ========================================= */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const W = canvas.width;
 const H = canvas.height;
 
-let gameOver = false;
+// --- DOM Elements ---
+const loadingScreen = document.getElementById('loading-screen');
+const startMenu = document.getElementById('start-menu');
+const startChoicesDiv = document.getElementById('start-choices');
+const levelupMenu = document.getElementById('levelup-menu');
+const levelupChoicesDiv = document.getElementById('levelup-choices');
+const gameoverMenu = document.getElementById('gameover-menu');
+const hud = document.getElementById('hud');
+const hpBar = document.getElementById('hp-bar');
+const hpText = document.getElementById('hp-text');
+const xpBar = document.getElementById('xp-bar');
+const lvlText = document.getElementById('lvl-text');
+const timerDiv = document.getElementById('game-timer');
+const killCountDiv = document.getElementById('kill-count');
+const spellDock = document.getElementById('spell-dock');
+const homeMenu = document.getElementById('home-menu');
+const optionsMenu = document.getElementById('options-menu');
+const shopMenu = document.getElementById('shop-menu');
+const btnPlay = document.getElementById('btn-play');
+const btnOptions = document.getElementById('btn-options');
+const btnShop = document.getElementById('btn-shop');
+const btnOptionsBack = document.getElementById('btn-options-back');
+const btnShopBack = document.getElementById('btn-shop-back');
+const btnBackToHome = document.getElementById('btn-back-to-home');
+const btnOptionsIngame = document.getElementById('btn-options-ingame');
+const pauseMenu = document.getElementById('pause-menu');
+const btnResumeGame = document.getElementById('btn-resume-game');
+const btnQuitGame = document.getElementById('btn-quit-game');
+const soulMenu = document.getElementById('soul-menu');
+const btnSoul = document.getElementById('btn-soul');
+const btnSoulBack = document.getElementById('btn-soul-back');
+const historyContainer = document.getElementById('history-container');
+const totalGamesEl = document.getElementById('total-games');
+const totalZombiesEl = document.getElementById('total-zombies');
+const totalBossEl = document.getElementById('total-boss');
+const changelogMenu = document.getElementById('changelog-menu');
+const btnChangelog = document.getElementById('btn-changelog');
+const btnChangelogBack = document.getElementById('btn-changelog-back');
 
-let player;
-let enemies;
-let projectiles;
-let aoes;
-let hermitBooks;
-let keys;
-let mousePos;
-let mouseLeftDown;
-let mouseRightDown;
-
-let enemySpawnInterval;
-let lastEnemySpawn;
-let enemySpeed;
-let enemyHpBase;
-
-let lastLancePileShot;
-let lastBombeEauShot;
-let lastBombeEauExplosif;
-let lastPistoletEau;
-let lastCoupeCoupeShot;
-
-let killCount = 0;
+// --- Game State ---
+let gameState = 'LOADING'; 
+let lastTime = 0;
 let startTime = 0;
+let killCount = 0;
+let playerDamageAccumulator = 0; 
+let lastDamageUpdateTime = 0;
+let elapsedSec = 0;
+let pauseStartTime = 0; 
+let totalPausedTime = 0;
+let gcemSpawnTimer = 0; 
+let levelUpFlashTimer = 0;
+let bossKillCount = 0;
 
-let levelUpPending = false;
-let inLevelUpMenu = false;
-let inGameOverMenu = false;
-let hoveredChoice = null;
-let levelUpChoicesRects = [];
-let inStartMenu = true; 
-let startMenuChoicesRects = [];
-let currentLevelUpChoices = null;
-let bloodStains = [];
-let coupeCoupeSlash = null;
-// On place le bouton rejouer plus bas
-let gameOverRect = {x:W/2-75,y:H/2+35,width:150,height:40}; // 80
-let ruines = [];
+// --- Entities ---
+let player;
+let enemies = [];
+let projectiles = [];
+let aoes = [];
+let particles = [];     
+let damageNumbers = []; 
+let mines = []; 
+let hermitBooks = [];
 let bichons = [];
-let lastBricolShot = 0;
-let specialEventsDone = {4:false,8:false};
-// Par exemple, juste après vos const W, H, etc.
-let inIntroMessage = true; // On commence sur la page d’accueil
-let introRect = { x: 0, y: 0, width: 400, height: 200 }; // On ajustera dans drawIntroMessage
-let playButtonRect = { x: 0, y: 0, width: 150, height: 40 };
+let ruines = [];
+let bloodStains = [];
+let potions = [];
+let magnets = [];
+let pieces = []; 
+let totalCoins = 0; 
+let gcems = [];
+let tondeuses = [];
 
-const introText = 
-"Bienvenue dans Surviv'Hordes !\n\n" +
-"Affrontez des hordes de zombies et survivez aussi longtemps que possible.\n\n" +
-"Déplacez-vous avec ZQSD ou les flèches. Vous disposez de 2 sorts actifs cliquables \n" +
-"avec la souris et de 3 sorts passifs maximum pour optimiser vos chances de survie.\n\n" +
-"Un défi intense mêlant action frénétique et stratégie vous attend.\n\n" +
-"Bonne chance !";
-
-const paoImg = new Image(); paoImg.src = 'images/pao.gif';
-const baoImg = new Image(); baoImg.src = 'images/bao.gif';
-const baoeImg = new Image(); baoeImg.src = 'images/baoe.gif';
-const livreImg = new Image(); livreImg.src = 'images/livre.gif';
-const pileImg = new Image(); pileImg.src = 'images/pile.gif';
-const playerImg = new Image(); playerImg.src = 'images/player.gif';
-const enemyImg = new Image(); enemyImg.src = 'images/zombie.gif';
-const enemy2Img = new Image(); enemy2Img.src = 'images/zombie2.png';
-const enemy3Img = new Image(); enemy3Img.src = 'images/zombie3.png';
-const enemy4Img = new Image(); enemy4Img.src = 'images/zombie4.png';
-const armaImg = new Image(); armaImg.src = 'images/arma.gif';
-const lpImg = new Image(); lpImg.src = 'images/lp.gif';
-const ballepaoImg = new Image(); ballepaoImg.src = 'images/ballepao.gif';
-const fondAmelioImg = new Image(); fondAmelioImg.src = 'images/fondamelio.jpg';
-const boutonImg = new Image(); boutonImg.src = 'images/bouton.gif';
-const coupecoupeImg = new Image(); coupecoupeImg.src = 'images/coupecoupe.gif';
-const bouclierImg = new Image(); bouclierImg.src = 'images/bouclier.gif';
-const sangImg = new Image(); sangImg.src = 'images/sang.png';
-const bossImg = new Image(); bossImg.src = 'images/boss.png';
-const ruineImg1 = new Image(); ruineImg1.src = 'images/ruine.gif'; 
-const ruineImg2 = new Image(); ruineImg2.src = 'images/ruine2.gif';
-const ruineImg3 = new Image(); ruineImg3.src = 'images/ruine3.png';
-const bichonImg = new Image(); bichonImg.src = 'images/bichon.gif';
-const cleImg = new Image(); cleImg.src = 'images/cle.gif';
-const rpImg = new Image(); rpImg.src = "images/rp.gif";
-const petitZombieImg = new Image(); petitZombieImg.src = "images/petitzombie.gif";
-const mortImg = new Image(); mortImg.src = "images/mort.gif";
-const heroImg = new Image(); heroImg.src = "images/hero.gif";
-
-const playerFrames = [];
-for (let i=0; i<6; i++) {
-  let img = new Image();
-  img.src = `images/gif/frame_${i}.gif`;
-  playerFrames.push(img);
-}
-let playerFrameIndex = 0;   // index de la frame actuelle (0..5)
-let playerFrameTime = 0;    // temps accumulé depuis le dernier changement de frame
-let playerFrameDelay = 100; // délai (en millisecondes) entre 2 frames
-
-const activeSpells = ['lancePile','bombeEau','coupeCoupe'];
-const passiveSpells = ['livreErmite','bombeEauExplosif','pistoletEau','armageddon','bouclier','bichonMalt3Pattes','bricolKit' ];
-const HIT_FLASH_DURATION = 100;
-const spellDescriptions = {
-    lancePile: "Tire un projectile droit devant. Améliorer augmente la cadence.",
-    bombeEau: "Lance une bombe à eau AoE sur la position de la souris.",
-    livreErmite: "Un livre tourne autour du joueur, infligeant des dégâts aux ennemis proches.",
-    bombeEauExplosif: "Pose régulièrement une bombe à eau explosive près du joueur (passif).",
-    pistoletEau: "Tire automatiquement sur les ennemis les plus proches. Plus de niveaux = plus de projectiles et moins d'interval.",
-    armageddon: "Une zone de dégâts entoure le joueur en permanence (passif).",
-    bouclier: "Réduit les dégâts subis par le joueur (passif).",
-    coupeCoupe: "Attaque en arc autour du joueur. Améliorer réduit le cooldown et augmente la longueur."
+// --- Events Logic (Bosses) ---
+let specialEventsDone = {
+    4:false, 5:false, 8:false, 10:false, 
+    12:false, 15:false, 16:false, 18:false, 
+    20:false, 22:false, 25:false, 27:false
 };
 
-function initGame() {
-    player = {
-        x: W/2,
-        y: H/2,
-        speed: 0.5,
-        vx:0,
-        vy:0,
-        size:20,
-        hp:80,
-        maxHp:80,
-        xp:0,
-        xpForNextLevel: xpNeededForLevel(1),
-        level:1,
-        directionAngle:0,
-        spells: {
-            lancePile:0,
-            bombeEau:0,
-            livreErmite:0,
-            bombeEauExplosif:0,
-            pistoletEau:0,
-            armageddon:0,
-            bouclier:0,
-            coupeCoupe:0,
-            bichonMalt3Pattes: 0,
-            bricolKit: 0         
-        },
-        activeSlots:[null,null]
-    };
+// --- Assets ---
+const images = {};
+const imageSources = {
+    // --- SPRITES SHEETS (NEW) ---
+    player: 'images/player.png',
+    zombie1: 'images/zombie1.png',
+    zombie2: 'images/zombie2.png',
+    zombie3: 'images/zombie3.png',
+    zombie4: 'images/zombie4.png',
+    zombie5: 'images/zombie5.png',
+    boss1: 'images/boss1.png',
+    boss2: 'images/boss2.png',
+    
+    // --- OTHER ASSETS ---
+    pao: 'images/pao.gif',
+    bao: 'images/bao.gif',
+    baoe: 'images/baoe.gif',
+    livre: 'images/livre.gif',
+    pile: 'images/pile.gif',
+    arma: 'images/arma.gif',
+    slp: 'images/slp.gif',
+    ballepao: 'images/ballepao.gif',
+    bouton: 'images/bouton.gif',
+    coupecoupe: 'images/coupecoupe.gif',
+    bouclier: 'images/bouclier.gif',
+    sang: 'images/sang.png',
+    ruine1: 'images/ruine.gif',
+    ruine2: 'images/ruine2.gif',
+    ruine3: 'images/ruine3.png',
+    bichon: 'images/bichon.gif',
+    cle: 'images/cle.gif',
+    potion: 'images/potion.gif',
+    piece: 'images/piece.png',
+    gcem: 'images/gcem.gif',
+    magne: 'images/magne.gif',
+    knife: 'images/knife.gif',
+    tondeuse: 'images/tondeuse.gif'
+};
 
-    enemies=[];
-    projectiles=[];
-    aoes=[];
-    hermitBooks=[]; 
-    bloodStains = [];
+// Configuration des animations (Frames et vitesse)
+const spriteConfig = {
+    player: { frames: 6, speed: 100 },
+    zombie1: { frames: 7, speed: 300 },
+    zombie2: { frames: 16, speed: 150 },
+    zombie3: { frames: 16, speed: 150 },
+    zombie4: { frames: 16, speed: 300 },
+    zombie5: { frames: 10, speed: 200 },
+    boss1: { frames: 16, speed: 150 },
+    boss2: { frames: 16, speed: 150 }
+};
 
-    keys={Z:false,Q:false,S:false,D:false};
-    mousePos={x:W/2,y:H/2};
-    mouseLeftDown=false;
-    mouseRightDown=false;
+// --- Spells Config ---
+const activeSpells = ['lancePile','bombeEau','coupeCoupe'];
+const passiveSpells = ['livreErmite','bombeEauExplosif','pistoletEau','armageddon','bouclier','bichonMalt3Pattes','bricolKit', 'couteauADents', 'tondeuse'];
 
-    enemySpawnInterval=5000; 
-    lastEnemySpawn=0;
-    enemySpeed=1;
-    enemyHpBase=20;
+const spellData = {
+    lancePile: { name: "Super Lance Pile", desc: "Tire un projectile droit devant.", img: 'slp' },
+    bombeEau: { name: "Bombe à Eau", desc: "Explosion de zone au curseur.", img: 'bao' },
+    coupeCoupe: { name: "Coupe-Coupe", desc: "Tranche devant vous.", img: 'coupecoupe' },
+    livreErmite: { name: "Livre Ermite", desc: "Bouclier rotatif offensif.", img: 'livre' },
+    bombeEauExplosif: { name: "Mine d'Eau", desc: "Pose des mines explosives.", img: 'baoe' },
+    pistoletEau: { name: "Pistolet à Eau", desc: "Tir automatique ciblé.", img: 'pao' },
+    armageddon: { name: "Armageddon", desc: "Zone de feu permanente.", img: 'arma' },
+    bouclier: { name: "Bouclier", desc: "Réduit les dégâts subis.", img: 'bouclier' },
+    bichonMalt3Pattes: { name: "Bichon", desc: "Un compagnon qui mord.", img: 'bichon' },
+    bricolKit: { name: "Kit du Bricoleur", desc: "Lance une clé qui rebondit.", img: 'cle' },
+    couteauADents: { name: "Couteau à dents", desc: "Lance des couteaux devant vous.", img: 'knife' },
+    tondeuse: { name: "Tondeuse à Gazon", desc: "Fauche les ennemis en spirale carrée.", img: 'tondeuse' }
+};
 
-    lastLancePileShot=0;
-    lastBombeEauShot=0;
-    lastBombeEauExplosif=0;
-    lastPistoletEau=0;
-    lastCoupeCoupeShot=0;
+// --- Inputs ---
+const keys = { Z:false, Q:false, S:false, D:false, Space: false };
+const mousePos = { x: W/2, y: H/2 };
+let mouseLeftDown = false;
+let mouseRightDown = false;
 
-    levelUpPending=false;
-    inLevelUpMenu=false;
-    inGameOverMenu=false;
-    hoveredChoice=null;
-    levelUpChoicesRects=[];
-    inStartMenu=true;
-    startMenuChoicesRects=[];
-    currentLevelUpChoices=null;
+// --- AUDIO MANAGER ---
+const Sounds = {
+    pool: {},
+    music: null, // Pour la musique
+    volumes: {
+        'clicmenu': 0.6, 'clicretour': 0.6, 'clicvalidation': 0.7,
+        'sonbao': 0.5, 'sonbichon': 0.4, 'soncoupecoupe': 0.6,
+        'soncouteauadent': 0.5, 'songameover': 0.8, 'sonlivreermite': 0.4,
+        'sonslp': 0.5, 'sonarma': 0.3, 'sonbaoe': 0.6, 
+        'soncle': 0.5, 'sonpao': 0.4
+    },
 
-    specialEventsDone={4:false,8:false};
+    init: function() {
+        const soundFiles = {
+            'clicmenu': 'son/clicmenu.mp3',
+            'clicretour': 'son/clicretour.mp3',
+            'clicvalidation': 'son/clicvalidation.mp3',
+            'sonbao1': 'son/sonbao1.mp3', 'sonbao2': 'son/sonbao2.mp3', 
+            'sonbao3': 'son/sonbao3.mp3', 'sonbao4': 'son/sonbao4.mp3',
+            'sonbichon1': 'son/sonbichon1.mp3', 'sonbichon2': 'son/sonbichon2.mp3', 
+            'sonbichon3': 'son/sonbichon3.mp3',
+            'soncoupecoupe1': 'son/soncoupecoupe1.mp3', 'soncoupecoupe2': 'son/soncoupecoupe2.mp3', 
+            'soncoupecoupe3': 'son/soncoupecoupe3.mp3', 'soncoupecoupe4': 'son/soncoupecoupe4.mp3',
+            'soncouteauadent': 'son/soncouteauadent.mp3',
+            'songameover': 'son/songameover.mp3',
+            'sonlivreermite': 'son/sonlivreermite.mp3',
+            'sonslp': 'son/sonslp.mp3',
+            'sonarma': 'son/sonarma.mp3',
+            'sonbaoe1': 'son/sonbaoe1.mp3', 'sonbaoe2': 'son/sonbaoe2.mp3',
+            'sonbaoe3': 'son/sonbaoe3.mp3', 'sonbaoe4': 'son/sonbaoe4.mp3',
+            'soncle1': 'son/soncle1.mp3', 'soncle2': 'son/soncle2.mp3',
+            'soncle3': 'son/soncle3.mp3', 'soncle4': 'son/soncle4.mp3',
+            'sonpao1': 'son/sonpao1.mp3', 'sonpao2': 'son/sonpao2.mp3',
+            'sonpao3': 'son/sonpao3.mp3'
+        };
 
-    killCount=0;
-    gameOver=false;
-    startTime=performance.now();
+        for (let key in soundFiles) {
+            const audio = new Audio(soundFiles[key]);
+            audio.volume = this.volumes[key.replace(/[0-9]/g, '')] || 0.5;
+            this.pool[key] = audio;
+        }
 
+         // --- Reference specifique pour Arma ---
+        this.armaSound = this.pool['sonarma'];
+        if (this.armaSound) {
+            this.armaSound.loop = true; 
+        }
+
+        // Initialisation de la musique
+        this.music = new Audio('son/musique.mp3');
+        this.music.loop = true;
+        this.music.volume = 0.3; // Volume de base
+    },
+
+    // Joue un son simple
+    play: function(id) {
+        const sound = this.pool[id];
+        if (sound) {
+            const clone = sound.cloneNode();
+            clone.volume = sound.volume; // Applique le volume configuré
+            clone.play().catch(e => {});
+        }
+    },
+
+    playRandom: function(baseId, count) {
+        const rand = Math.floor(Math.random() * count) + 1;
+        this.play(baseId + rand);
+    },
+
+    // --- NOUVELLES FONCTIONS MUSIQUE ---
+
+    playMusic: function() {
+        if (this.music) {
+            this.music.volume = 0.3; // Reset volume normal
+            this.music.play().catch(e => {});
+        }
+    },
+
+    stopMusic: function() {
+        if (this.music) {
+            this.music.pause();
+            this.music.currentTime = 0; // Rembobiner
+        }
+    },
+
+    lowerMusic: function() {
+        if (this.music) {
+            // Baisse de 60% (donc 40% du volume actuel, mais on va fixer un volume bas fixe pour la simplicité)
+            // Si volume base = 0.3, 60% de moins = 0.12
+            this.music.volume = 0.12; 
+        }
+    },
+
+    restoreMusic: function() {
+        if (this.music) {
+            this.music.volume = 0.3;
+        }
+    },
+
+    stopArma: function() {
+        if (this.armaSound) {
+            this.armaSound.pause();
+            this.armaSound.currentTime = 0; // On rembobine pour la prochaine fois
+        }
+    },
+
+    // --- CONTROLE DES VOLUMES ---
+    setMusicVolume: function(val) {
+        // val est entre 0 et 100
+        if (this.music) {
+            this.music.volume = val / 100;
+        }
+    },
+
+    setSfxVolume: function(val) {
+        // On applique à tous les sons du pool
+        for (let key in this.pool) {
+            // On garde les proportions (si un son est à 0.5 de base, il sera à 0.5 * (val/100))
+            // Pour simplifier, on écrase le volume relatif
+            const baseVol = this.volumes[key.replace(/[0-9]/g, '')] || 0.5;
+            this.pool[key].volume = baseVol * (val / 100);
+        }
+    }
+};
+
+Sounds.init();
+
+/* =========================================
+   INIT & ASSETS
+   ========================================= */
+
+function loadAssets() {
+    let loaded = 0;
+    const total = Object.keys(imageSources).length;
+    return new Promise((resolve) => {
+        for (let key in imageSources) {
+            const img = new Image();
+            img.src = imageSources[key];
+            img.onload = () => {
+                loaded++;
+                // Calcul automatique de la largeur d'une frame pour les sprites sheets
+                if (spriteConfig[key]) {
+                    img.frameWidth = img.width / spriteConfig[key].frames;
+                }
+                if (loaded >= total) resolve();
+            };
+            img.onerror = () => { loaded++; if(loaded>=total) resolve(); };
+            images[key] = img;
+        }
+    });
+}
+
+async function main() {
+    await loadAssets();
+    loadingScreen.classList.add('hidden');
+    showHomeMenu();
     requestAnimationFrame(gameLoop);
 }
 
-function xpNeededForLevel(lvl) {
-    let baseXP = 40;      // XP requis pour passer du lvl 1 au lvl 2
-    let increment = 25;   // incrément par niveau
-
-    // xpNeeded = baseXP + (lvl-1)*increment
-    // ex: lvl=1->2 = 40 XP, lvl=2->3 = 65 XP, lvl=3->4 = 90 XP, etc.
-    return baseXP + (lvl - 1) * increment;
+function showHomeMenu() {
+    Sounds.play('clicretour');
+    gameState = 'MENU';
+    homeMenu.classList.remove('hidden');
+    optionsMenu.classList.add('hidden');
+    shopMenu.classList.add('hidden');
+    startMenu.classList.add('hidden');
 }
 
-function distance(x1,y1,x2,y2) {
-    return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+function showOptionsMenu() {
+    isTimerPaused = true;
+    Sounds.play('clicmenu');
+    homeMenu.classList.add('hidden');
+    optionsMenu.classList.remove('hidden');
 }
 
-function angleBetween(x1,y1,x2,y2) {
-    return Math.atan2(y2-y1,x2 - x1);
+function showShopMenu() {
+    Sounds.play('clicmenu');
+    homeMenu.classList.add('hidden');
+    shopMenu.classList.remove('hidden');
+    updateShopUI(); // Ajout : rafraîchir les prix/niveaux à l'ouverture
 }
 
-function killEnemy(e) {
-    gainXp(10);
-    e.hp=0;
-    if (e.type === 'boss') {
-      spawnRuine();
+function showStartMenu() {
+    // --- NETTOYAGE DES TACHES DE SANG ---
+    const oldStains = document.querySelectorAll('.blood-stain');
+    oldStains.forEach(stain => stain.remove());
+    // Cette fonction existante doit maintenant cacher l'accueil aussi
+    Sounds.play('clicvalidation'); 
+    homeMenu.classList.add('hidden');
+    startMenu.classList.remove('hidden');
+    gameoverMenu.classList.add('hidden'); 
+    startChoicesDiv.innerHTML = '';
+
+    const starters = ['lancePile', 'bombeEau', 'coupeCoupe'];
+    starters.forEach(spellKey => {
+        const div = document.createElement('div');
+        div.className = 'card-choice';
+        div.innerHTML = `
+            <img src="${images[spellData[spellKey].img].src}" class="card-img">
+            <div class="card-info">
+                <h3>${spellData[spellKey].name}</h3>
+                <p>${spellData[spellKey].desc}</p>
+            </div>
+        `;
+        div.onclick = () => {
+            Sounds.play('clicvalidation'); // Son validation
+            startGame(spellKey);
+        };
+        startChoicesDiv.appendChild(div);
+    });
+}
+
+function startGame(startingSpell) {
+    startMenu.classList.add('hidden');
+    gameoverMenu.classList.add('hidden');
+    hud.classList.remove('hidden');
+    btnOptionsIngame.classList.remove('hidden');
+    let speedBonus = shopUpgrades.speed.currentLevel * shopUpgrades.speed.baseValue;
+    let finalSpeed = 1.5 + speedBonus; // 1.5 = base lente, + bonus boutique
+    let bonusHp = shopUpgrades.hp.currentLevel * shopUpgrades.hp.baseValue;
+    let baseHp = 50; // PV de base
+    let finalMaxHp = baseHp + bonusHp;
+    
+    player = {
+        x: W/2, y: H/2,
+        speed: finalSpeed,
+        vx: 0, vy: 0,
+        size: 32,
+        hp: finalMaxHp, 
+        maxHp: finalMaxHp,
+        xp: 0, level: 1, xpForNext: 40,
+        spells: {},
+        activeSlots: [startingSpell, null],
+        dashCooldown: 0,
+        dashTime: 0,
+        facing: 0
+    };
+    
+    [...activeSpells, ...passiveSpells].forEach(s => player.spells[s] = 0);
+    player.spells[startingSpell] = 1;
+
+    enemies = [];
+    projectiles = [];
+    aoes = [];
+    particles = [];
+    damageNumbers = [];
+    hermitBooks = [];
+    mines = [];
+    bichons = [];
+    ruines = [];
+    bloodStains = [];
+    potions = [];
+    magnets = [];
+    pieces = [];   
+    totalCoins = 0;   
+    updateCoinUI();
+    gcems = [];  
+    tondeuses = [];  
+    
+    // Reset Events
+    for(let k in specialEventsDone) specialEventsDone[k] = false;
+    
+    killCount = 0;
+    startTime = performance.now();
+    lastTime = startTime;
+    totalPausedTime = 0;
+    pauseStartTime = 0;
+    elapsedSec = 0;
+
+    Sounds.playMusic();
+    updateHUD();
+    updateSpellDock();
+    gameState = 'PLAYING';
+}
+
+function xpNeeded(lvl) {
+    return 40 + (lvl - 1) * 30;
+}
+
+/* =========================================
+   GAME LOOP
+   ========================================= */
+
+function gameLoop(timestamp) {
+    let dt = timestamp - lastTime;
+    lastTime = timestamp;
+
+    if (gameState === 'PLAYING') {
+        update(dt);
+        draw();
+    } else {
+        draw();
     }
-    e.lastHitTime = performance.now();
-    bloodStains.push({x: e.x, y: e.y});
-    killCount++;
+    requestAnimationFrame(gameLoop);
 }
 
-function spawnRuine() {
-  // Choix de l’image
-  let imgArray = [ruineImg1, ruineImg2, ruineImg3];
-  let randImg = imgArray[Math.floor(Math.random()*imgArray.length)];
-
-  // Choix de l’ennemi
-  let enemyTypes = ['zombie','zombie2','zombie3'];
-  let randEnemyType = enemyTypes[Math.floor(Math.random()*enemyTypes.length)];
-
-  // Position aléatoire avec marge
-  let margin = 25;
-  let x = margin + Math.random() * (W - 2*margin);
-  let y = margin + Math.random() * (H - 2*margin);
-  // (ou randomSpawnLocation() si vous préférez aux bords)
-
-  // On stocke la ruine dans un tableau
-  ruines.push({
-    x: x,
-    y: y,
-    radius: 35,
-    img: randImg,
-    spawnType: randEnemyType,
-    lastSpawnTime: performance.now()
-  });
-}
-
-function gainXp(amount) {
-    player.xp += amount;
-    if(player.xp>=player.xpForNextLevel) {
-        player.xp -= player.xpForNextLevel;
-        player.level++;
-        player.xpForNextLevel = xpNeededForLevel(player.level);
-        levelUpPending=true;
-        showLevelUpAnimation();
-        currentLevelUpChoices = generateLevelUpChoices();
-    }
-}
-
-function randomSpawnLocation() {
-    let side=Math.floor(Math.random()*4);
-    let x,y;
-    if(side===0){x=0;y=Math.random()*H;}
-    else if(side===1){x=W;y=Math.random()*H;}
-    else if(side===2){x=Math.random()*W;y=0;}
-    else {x=Math.random()*W;y=H;}
-    return {x:x,y:y};
-}
-
-function damageReduction(dmg) {
-    let shieldLevel = player.spells.bouclier;
-    if(shieldLevel>0) {
-        let reduction=0.1*shieldLevel; 
-        dmg = dmg*(1-reduction);
-    }
-    return dmg;
-}
-
-// Input
-
-document.addEventListener('keydown', (e) => {
-    const key = e.key.toLowerCase();
-
-    // Empêche le défilement de la page avec les flèches
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-    }
-
-    // Contrôles ZQSD
-    if (key === 'z') keys.Z = true;
-    if (key === 'q') keys.Q = true;
-    if (key === 's') keys.S = true;
-    if (key === 'd') keys.D = true;
-
-    // Contrôles flèches directionnelles
-    if (e.key === 'ArrowUp') keys.Z = true;     // Flèche Haut comme Z
-    if (e.key === 'ArrowLeft') keys.Q = true;   // Flèche Gauche comme Q
-    if (e.key === 'ArrowDown') keys.S = true;   // Flèche Bas comme S
-    if (e.key === 'ArrowRight') keys.D = true;  // Flèche Droite comme D
-});
-
-document.addEventListener('keyup', (e) => {
-    const key = e.key.toLowerCase();
-
-    // Empêche le défilement de la page avec les flèches
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-    }
-
-    // Contrôles ZQSD
-    if (key === 'z') keys.Z = false;
-    if (key === 'q') keys.Q = false;
-    if (key === 's') keys.S = false;
-    if (key === 'd') keys.D = false;
-
-    // Contrôles flèches directionnelles
-    if (e.key === 'ArrowUp') keys.Z = false;     // Flèche Haut comme Z
-    if (e.key === 'ArrowLeft') keys.Q = false;   // Flèche Gauche comme Q
-    if (e.key === 'ArrowDown') keys.S = false;   // Flèche Bas comme S
-    if (e.key === 'ArrowRight') keys.D = false;  // Flèche Droite comme D
-});
-
-canvas.addEventListener('mousemove', handleMouseMove);
-
-canvas.addEventListener('mousedown', (e) => {
-    if (e.button === 0) {
-        mouseLeftDown = true;
-        handleClick();
-    }
-    if (e.button === 2) {
-        mouseRightDown = true;
-        handleClick();
-    }
-});
-
-canvas.addEventListener('mouseup', (e) => {
-    if (e.button === 0) mouseLeftDown = false;
-    if (e.button === 2) mouseRightDown = false;
-});
-
-document.addEventListener('contextmenu', (e) => {
-    if (e.target === canvas) e.preventDefault();
-});
-
-function handleMouseMove(e) {
-    const rect=canvas.getBoundingClientRect();
-    let mx=e.clientX-rect.left;
-    let my=e.clientY-rect.top;
-    mousePos.x=mx;
-    mousePos.y=my;
-
-    if(inLevelUpMenu) {
-        hoveredChoice=null;
-        for(let c of levelUpChoicesRects) {
-            if(mx>=c.x && mx<=c.x+c.w && my>=c.y && my<=c.y+c.h) {
-                hoveredChoice=c;break;
-            }
+function update(dt) {
+    // --- GESTION DU TIMER LEVEL UP ---
+    if (levelUpFlashTimer > 0) {
+        levelUpFlashTimer -= dt;
+        if (levelUpFlashTimer <= 0) {
+            levelUpFlashTimer = 0;
+            levelUp(); // Une fois le flash fini, on ouvre le menu
         }
+        return; // IMPORTANT : On arrête ici la fonction. Le jeu est en "pause" pendant l'animation.
     }
-
-    if(inStartMenu) {
-        hoveredChoice=null;
-        for(let c of startMenuChoicesRects) {
-            if(mx>=c.x && mx<=c.x+c.w && my>=c.y && my<=c.y+c.h) {
-                hoveredChoice=c;break;
-            }
+    // --- AFFICHAGE GROUPÉ DES DÉGÂTS JOUEUR ---
+    const now = performance.now();
+    
+    // Toutes les 500ms (0.5 seconde), on affiche les dégâts accumulés
+    if (now - lastDamageUpdateTime > 500) {
+        if (playerDamageAccumulator >= 1) {
+            // On arrondit à l'entier le plus proche pour l'affichage
+            let damageToShow = Math.round(playerDamageAccumulator);
+            
+            // On affiche le nombre rouge au-dessus du joueur
+            spawnDamageNumber(player.x, player.y - 30, `-${damageToShow}`, "#ff0000");
+            
+            // On remet l'accumulateur à zéro
+            playerDamageAccumulator = 0;
         }
+        lastDamageUpdateTime = now;
     }
 
-    if(inGameOverMenu) {
-        // On ne fait rien pour hoveredChoice ici, pas besoin de tooltip.
-    }
+    // --- LOGIQUE NORMALE DU JEU ---
+    elapsedSec = Math.floor((performance.now() - startTime - totalPausedTime) / 1000);
+    let m = Math.floor(elapsedSec / 60);
+    let s = elapsedSec % 60;
+    timerDiv.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+
+    updatePlayer(dt);
+    updateEnemies(dt);
+    updateProjectiles(dt);
+    updateAoes(dt);
+    updateParticles(dt);
+    updateDamageNumbers(dt);
+    updateSpawns(dt); 
+    updateRuines(dt);
+    checkCollisions(dt);
+    updateMines(dt);
+    updatePotions(dt);
+    updateMagnets(dt);
+    updatePieces(dt);
+
+    if (player.hp <= 0) triggerGameOver();
 }
 
-function handleClick() {
-  // 1) Si on est dans le message d’accueil
-  if (inIntroMessage) {
-    if (
-      mousePos.x >= playButtonRect.x &&
-      mousePos.x <= playButtonRect.x + playButtonRect.width &&
-      mousePos.y >= playButtonRect.y &&
-      mousePos.y <= playButtonRect.y + playButtonRect.height
-    ) {
-      // On quitte l’intro pour aller au menu de sélection de sort actif, par ex.
-      inIntroMessage = false;
-      // Ex. si vous avez un inStartMenu = true, vous pouvez l’activer :
-      // drawStartMenu = true;
-
-      // ou vous appelez une fonction showSelectActiveSpellMenu() si elle existe
-      // showSelectActiveSpellMenu();
-
-      return; // On sort du handleClick
-    }
-    // Sinon, on ne fait rien (on reste dans l’intro).
-    return;
-  }
-    if (inLevelUpMenu && hoveredChoice) {
-        let spell = hoveredChoice.spell;
-        let oldLevel = player.spells[spell];
-
-        // On incrémente si < 5
-        if (oldLevel < 5) {
-            player.spells[spell] = oldLevel + 1;
-        }
-
-        // On ferme le menu
-        levelUpPending = false;
-        inLevelUpMenu = false;
-        currentLevelUpChoices = null;
-        hoveredChoice = null;
-
-        // Si c'est un sort actif qu'on n'avait pas (0)
-        if (activeSpells.includes(spell) && oldLevel === 0) {
-            let ownedActives = activeSpells.filter(sp => player.spells[sp] > 0);
-            if (ownedActives.length === 1) {
-                player.activeSlots[0] = spell;
-            } else if (ownedActives.length === 2) {
-                player.activeSlots[1] = spell;
-            }
-        }
-    }
-    // Si on est dans le menu de départ (inStartMenu)
-    if (inStartMenu && hoveredChoice) {
-        let spell = hoveredChoice.spell;
-        player.spells[spell] = 1; 
-        inStartMenu = false;
-        hoveredChoice = null;
-        // Premier actif attribué au clic gauche
-        player.activeSlots[0] = spell;
-    }
-
-    if(inGameOverMenu) {
-        let mx=mousePos.x;
-        let my=mousePos.y;
-        if(mx>=gameOverRect.x && mx<=gameOverRect.x+gameOverRect.width &&
-           my>=gameOverRect.y && my<=gameOverRect.y+gameOverRect.height) {
-            ruines = [];
-            initGame();
-        }
-    }
-}
-
-function tryActiveSpell(spell) {
-    if(spell==='lancePile') {
-        tryLancePile();
-    } else if(spell==='bombeEau') {
-        tryBombeEau();
-    } else if(spell==='coupeCoupe') {
-        tryCoupeCoupe();
-    }
-}
-
-function tryLancePile() {
-    let level = player.spells.lancePile; // Obtenir le niveau du sort
-    if (level > 0) {
-        let cooldown = 0;
-        let damage = 0;
-
-        // Définir le cooldown et les dégâts selon le niveau
-        switch (level) {
-            case 1:
-                cooldown = 1000;  // 1 tir/seconde
-                damage = 10;
-                break;
-            case 2:
-                cooldown = 800;  // ~1.25 tir/seconde
-                damage = 12;
-                break;
-            case 3:
-                cooldown = 700;  // ~1.43 tir/seconde
-                damage = 15;
-                break;
-            case 4:
-                cooldown = 600;  // ~1.67 tir/seconde
-                damage = 17;
-                break;
-            case 5:
-                cooldown = 500;  // 2 tirs/seconde
-                damage = 20;
-                break;
-            default:
-                return; // Si le niveau est en dehors de la plage prévue
-        }
-
-        // Vérifier le cooldown avant de tirer
-        if (performance.now() - lastLancePileShot > cooldown) {
-            lastLancePileShot = performance.now(); // Mettre à jour le dernier tir
-            let ang = angleBetween(player.x, player.y, mousePos.x, mousePos.y);
-            let speed = 6;
-
-            // Ajouter le projectile
-            projectiles.push({
-                x: player.x,
-                y: player.y,
-                vx: Math.cos(ang) * speed,
-                vy: Math.sin(ang) * speed,
-                damage: damage,
-                from: 'player',
-                type: 'lancePile',
-                img: pileImg
-            });
-        }
-    }
-}
-
-function tryBombeEau() {
-  let level = player.spells.bombeEau;
-  if (level > 0) {
-    let cooldown;
-    let extraRadius = 0; // +0, +10, +20, +30, +40
-    switch(level) {
-      case 1:
-        cooldown = 1000; // 1 tir/s
-        extraRadius = 0;
-        break;
-      case 2:
-        cooldown = 1333; // ~0.75 tir/s
-        extraRadius = 10;
-        break;
-      case 3:
-        cooldown = 2000; // ~0.5 tir/s
-        extraRadius = 20;
-        break;
-      case 4:
-        cooldown = 2000;
-        extraRadius = 30;
-        break;
-      case 5:
-        cooldown = 2000;
-        extraRadius = 40;
-        break;
-    }
-
-    // On déclenche le tir si cooldown ok
-    if (performance.now() - lastBombeEauShot > cooldown) {
-      lastBombeEauShot = performance.now();
-      let ang = angleBetween(player.x, player.y, mousePos.x, mousePos.y);
-      let speed = 6;
-      // On stocke extraRadius dans le projectile ou on calcule radius = base + extraRadius
-      projectiles.push({
-        x: player.x, y: player.y,
-        vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed,
-        from: 'player',
-        type: 'bao',
-        targetX: mousePos.x,
-        targetY: mousePos.y,
-        img: baoImg,
-        extraRadius: extraRadius // pour qu'à l'impact on ajoute ce rayon
-      });
-    }
-  }
-}
-
-function tryCoupeCoupe() {
-    let level = player.spells.coupeCoupe;
-    if (level > 0) {
-        let interval = 1000;
-        let arc = Math.PI/2;
-        let length = 65;
-        if (level === 2) {interval=750; arc=Math.PI*(135/180);}
-        if (level === 3) {interval=500; arc=Math.PI;}
-        if (level === 4) {interval=500; arc=Math.PI; length=75;}
-        if (level === 5) {interval=500; arc=Math.PI; length=85;}
-
-        if (performance.now() - lastCoupeCoupeShot > interval) {
-            lastCoupeCoupeShot = performance.now();
-            let baseAngle = angleBetween(player.x, player.y, mousePos.x, mousePos.y);
-
-            // Paramètres du coupecoupe (segment)
-            let handleLength = 5; // Manche
-            let bladeLength = length - handleLength;
-
-            // Points A et B du segment
-            let Ax = player.x + Math.cos(baseAngle)*(-handleLength);
-            let Ay = player.y + Math.sin(baseAngle)*(-handleLength);
-            let Bx = player.x + Math.cos(baseAngle)*bladeLength;
-            let By = player.y + Math.sin(baseAngle)*bladeLength;
-
-            // Dégâts
-            for (let e of enemies) {
-                let dist = distancePointToSegment(e.x, e.y, Ax, Ay, Bx, By);
-                if (dist <= e.size) {
-                    e.hp -= 20; // Ajustez les dégâts si nécessaire
-                    e.lastHitTime = performance.now();
-                    if (e.hp <= 0) killEnemy(e);
+/* =========================================
+   COLLISIONS & MINES & POTIONS
+   ========================================= */
+function checkCollisions(dt) {
+    for (let e of enemies) {
+        // 1. On définit la taille de collision réelle
+        let eSize = e.hitRadius || e.size; 
+        
+        let distE = dist(player.x, player.y, e.x, e.y);
+        
+        // 2. On vérifie la collision
+        if (distE < player.size + eSize) { 
+            if (player.dashTime <= 0) {
+                // Calcul des dégâts
+                let reduction = 0;
+                if (player.spells.bouclier) reduction = player.spells.bouclier * 0.1;
+                let damageTick = e.dmg * (dt/1000) * 5;
+                damageTick = damageTick * (1 - reduction);
+                
+                if (damageTick > 0.1) {
+                    player.hp -= damageTick;
+                    playerDamageAccumulator += damageTick;
                 }
             }
-
-            // On stocke juste baseAngle et length, pas besoin d'arc ni d'animation
-            // On garde un temps d’affichage de 200ms par exemple
-            coupeCoupeSlash = {
-                baseAngle: baseAngle,
-                arc: arc,     // arc n'est plus utilisé pour l'animation, mais on peut le laisser
-                start: performance.now(),
-                length: length
-            };
         }
     }
-}
-
-function distancePointToSegment(Px, Py, Ax, Ay, Bx, By) {
-    let APx = Px - Ax;
-    let APy = Py - Ay;
-    let ABx = Bx - Ax;
-    let ABy = By - Ay;
-
-    let ab2 = ABx*ABx + ABy*ABy;
-    if (ab2 === 0) {
-        return Math.sqrt(APx*APx + APy*APy); 
-    }
-
-    let t = (APx*ABx + APy*ABy) / ab2;
-    if (t < 0) t = 0;
-    else if (t > 1) t = 1;
-
-    let closestX = Ax + t*ABx;
-    let closestY = Ay + t*ABy;
-    let dx = Px - closestX;
-    let dy = Py - closestY;
-    return Math.sqrt(dx*dx + dy*dy);
-}
-
-function drawStartMenu() {
-    inStartMenu=true;
-    let choices = [
-        {spell:'lancePile',name:"Lance pile",img:lpImg},
-        {spell:'bombeEau',name:"Bombe à eau",img:baoImg},
-        {spell:'coupeCoupe',name:"Coupe Coupe",img:coupecoupeImg}
-    ];
-
-    let menuWidth=400;
-    let menuHeight=350; 
-    let menuX=(W-menuWidth)/2;
-    let menuY=(H-menuHeight)/2;
-    ctx.save();
-    ctx.globalAlpha=0.9;
-    ctx.drawImage(fondAmelioImg,menuX,menuY,menuWidth,menuHeight);
-    ctx.globalAlpha=1;
-
-    ctx.font="20px Roboto";
-    ctx.fillStyle="#fff";
-    let title="Choisissez votre sort actif de départ";
-    let tw=ctx.measureText(title).width;
-    ctx.fillText(title,(W-tw)/2,menuY+40);
-
-    let choiceWidth=300;
-    let choiceHeight=50;
-    let startX=(W-choiceWidth)/2;
-    let startY=menuY+80;
-    startMenuChoicesRects=[];
-
-    for(let i=0;i<choices.length;i++) {
-        let c=choices[i];
-        let x=startX;
-        let y=startY+i*(choiceHeight+10);
-        ctx.drawImage(boutonImg,x,y,choiceWidth,choiceHeight);
-
-        if(hoveredChoice && hoveredChoice.spell===c.spell) {
-            ctx.strokeStyle="#fff";
-            ctx.lineWidth=2;
-            ctx.strokeRect(x,y,choiceWidth,choiceHeight);
+    
+    mines.forEach(m => {
+        if(m.active) {
+            for(let e of enemies) {
+                if(dist(m.x, m.y, e.x, e.y) < 20) {
+                    explodeMine(m);
+                    break; 
+                }
+            }
         }
+    });
 
-        ctx.drawImage(c.img,x+5,y+(choiceHeight-32)/2,32,32);
-        ctx.fillStyle="#fff";
-        ctx.font="16px Roboto";
-        let ntw=ctx.measureText(c.name).width;
-        ctx.fillText(c.name,x+40+(choiceWidth-40-ntw)/2,y+choiceHeight/2+5);
-
-        startMenuChoicesRects.push({x:x,y:y,w:choiceWidth,h:choiceHeight,spell:c.spell});
-    }
-    ctx.restore();
-}
-
-function getSpellSlotImage(spell) {
-    switch(spell) {
-        case 'lancePile': return lpImg;
-        case 'bombeEau': return baoImg;
-        case 'livreErmite': return livreImg;
-        case 'bombeEauExplosif': return baoeImg;
-        case 'pistoletEau': return paoImg;
-        case 'armageddon': return armaImg;
-        case 'bouclier': return bouclierImg;
-        case 'coupeCoupe': return coupecoupeImg;
-        case 'bichonMalt3Pattes': return bichonImg;
-        case 'bricolKit': return cleImg;
-    }
-    return lpImg;
-}
-
-function getSpellName(spell) {
-    switch(spell) {
-        case 'lancePile': return "Lance pile";
-        case 'bombeEau': return "Bombe à eau";
-        case 'livreErmite': return "Livre ermite";
-        case 'bombeEauExplosif': return "Bombe à eau explosif";
-        case 'pistoletEau': return "Pistolet à eau";
-        case 'armageddon': return "Armageddon";
-        case 'bouclier': return "Bouclier";
-        case 'coupeCoupe': return "Coupe Coupe";
-        case 'bichonMalt3Pattes': return "Bichon maltais à 3 pattes";
-        case 'bricolKit': return "Kit du Bricoleur";
-    }
-    return "Sort inconnu";
-}
-
-function showLevelUpAnimation() {
-  const levelUpText = document.getElementById('level-up-text');
-  if (!levelUpText) return;
-
-  // Remettre l'animation à none
-  levelUpText.style.animation = 'none';
-
-  // Forcer un reflow pour que l'animation reparte de zéro
-  // (Truc classique en CSS)
-  void levelUpText.offsetWidth; 
-
-  // Appliquer l'animation
-  levelUpText.style.animation = 'pulseShake 1.8s ease-out forwards';
-
-  setTimeout(() => {
-    openLevelUpMenu();
-  }, 1800);
-}
-
-function openLevelUpMenu() {
-  levelUpPending = true;
-  inLevelUpMenu = true;
-  currentLevelUpChoices = generateLevelUpChoices();
-  // ... tout ce qu'il faut pour afficher le menu
-}
-
-function drawLevelUpMenu() {
-    inLevelUpMenu = true;
-
-    let menuWidth = 400;
-    let menuHeight = 460;
-    let menuX = (W - menuWidth) / 2;
-    let menuY = (H - menuHeight) / 2;
-
-    ctx.save();
-    ctx.globalAlpha = 0.9;
-    ctx.drawImage(fondAmelioImg, menuX, menuY, menuWidth, menuHeight);
-    ctx.globalAlpha = 1;
-
-    ctx.font = "20px Roboto";
-    ctx.fillStyle = "#fff";
-    let title = "Choisissez une amélioration";
-    let tw = ctx.measureText(title).width;
-    ctx.fillText(title, (W - tw) / 2, menuY + 40);
-
-    // On suppose que `currentLevelUpChoices` existe et contient 3 objets
-    let choiceWidth = 300;
-    let choiceHeight = 50;
-    let startX = (W - choiceWidth) / 2;
-    let startY = menuY + 80;
-
-    levelUpChoicesRects = [];  // Zones cliquables pour handleClick()
-
-    for (let i = 0; i < currentLevelUpChoices.length; i++) {
-        let c = currentLevelUpChoices[i]; // ex: { spell:'bombeEau', name:'Bombe à eau' }
-
-        let x = startX;
-        let y = startY + i * (choiceHeight + 10);
-
-        // Dessin du bouton (fond)
-        ctx.drawImage(boutonImg, x, y, choiceWidth, choiceHeight);
-
-        // Survol : tracé d'un contour
-        if (hoveredChoice && hoveredChoice.spell === c.spell) {
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, choiceWidth, choiceHeight);
+    potions.forEach(p => {
+        if (!p.collected && dist(player.x, player.y, p.x, p.y) < player.size + 15) {
+            p.collected = true;
+            // Calcul du soin avec bonus boutique
+            let healAmount = 20 + (shopUpgrades.potion.currentLevel * shopUpgrades.potion.baseValue); // 20 + (Niveau * 20)
+            player.hp = Math.min(player.maxHp, player.hp + healAmount);
+            spawnDamageNumber(player.x, player.y - 30, `+${healAmount} PV`, "#ff4444");
         }
+    });
+    potions = potions.filter(p => !p.collected);
 
-        // Image du sort
-        let img = getSpellSlotImage(c.spell); 
-        let imgSize = 32;
-        ctx.drawImage(img, x + 5, y + (choiceHeight - imgSize) / 2, imgSize, imgSize);
-
-        // Niveau actuel du sort (0 si on ne l'a pas encore)
-        let currentLvl = player.spells[c.spell] || 0;
-        // Niveau qu'on atteindra si on choisit ce sort
-        let displayedLevel = (currentLvl >= 5)
-            ? "5 (MAX)"
-            : (currentLvl + 1);
-
-        // Exemple : "Bombe à eau (Niv. 2)"
-        let displayName = c.name + " (Niv. " + displayedLevel + ")";
-
-        ctx.fillStyle = "#fff";
-        ctx.font = "16px Roboto";
-        let textX = x + imgSize + 15;
-        let textY = y + choiceHeight / 2 + 5;
-        ctx.fillText(displayName, textX, textY);
-
-        levelUpChoicesRects.push({
-            x: x,
-            y: y,
-            w: choiceWidth,
-            h: choiceHeight,
-            spell: c.spell,
-            name: c.name
-        });
-    }
-
-    ctx.restore();
+    updateHUD();
 }
 
-function getEnemyStats(type) {
-    let hp = enemyHpBase+(player.level*5);
-    let dmg=0.1;
-    let spd=enemySpeed;
-
-    if(type==='zombie2') {
-        dmg=0.2;
-    }
-    if(type==='zombie3') {
-        spd=enemySpeed*0.75;
-    }
-    if(type==='zombie4') {
-        hp=(enemyHpBase+(player.level*5))*0.5;
-    }
-
-    if (type === 'boss') {
-      hp = 100;       // Gros HP
-      dmg = 0.5;      // Dégâts plus élevés si souhaité
-      spd = 0.5;      // Lent
-    }
-
-    return {hp:hp,dmg:dmg,speed:spd};
-}
-
-function randChoice(arr) {
-    return arr[Math.floor(Math.random()*arr.length)];
-}
-
-function generateLevelUpChoices() {
-    // Filtrer les sorts actifs/passifs qui ne sont pas déjà au niveau 5
-    let availableActives = activeSpells.filter(sp => player.spells[sp] < 5);
-    let availablePassives = passiveSpells.filter(sp => player.spells[sp] < 5);
-
-    // On veut idéalement 1 actif + 2 passifs
-
-    // Choisir 1 actif si disponible
-    let chosenActive = null;
-    if (availableActives.length > 0) {
-        chosenActive = randChoice(availableActives);
-    }
-
-    // Choisir 2 passifs
-    let chosenPassives = [];
-    if (availablePassives.length > 0) {
-        let p1 = randChoice(availablePassives);
-        chosenPassives.push(p1);
-        let pool = availablePassives.filter(sp => sp !== p1);
-        if (pool.length > 0) {
-            let p2 = randChoice(pool);
-            chosenPassives.push(p2);
+function updateMines(dt) {
+    let now = performance.now();
+    mines.forEach(m => {
+        if (m.active) {
+            if (now - m.createdAt > 3000) {
+                explodeMine(m);
+            }
         }
-    }
-
-    // Construire le tableau final
-    let finalChoices = [];
-
-    // Ajouter l’actif si on en a un
-    if (chosenActive) {
-        finalChoices.push({
-            spell: chosenActive,
-            name: getSpellName(chosenActive)
-        });
-    }
-
-    // Ajouter les passifs
-    for (let sp of chosenPassives) {
-        finalChoices.push({
-            spell: sp,
-            name: getSpellName(sp)
-        });
-    }
-
-    return finalChoices;
+    });
+    mines = mines.filter(m => m.active);
 }
+
+function explodeMine(m) {
+    if (!m.active) return;
+    aoes.push({
+        x: m.x, y: m.y,
+        radius: m.radius,
+        damage: m.damage,
+        duration: 600,
+        start: performance.now()
+    });
+    createParticles(m.x, m.y, 20, '#44aaff');
+    m.active = false;
+    Sounds.playRandom('sonbaoe', 4);
+}
+
+function updatePotions(dt) {}
+
+/* =========================================
+   ENTITIES UPDATE
+   ========================================= */
 
 function updatePlayer(dt) {
-    playerFrameTime += dt;
-    if (playerFrameTime > playerFrameDelay) {
-      playerFrameTime -= playerFrameDelay; 
-      playerFrameIndex = (playerFrameIndex + 1) % playerFrames.length;
+    let dx = 0, dy = 0;
+    if (keys.Z) dy -= 1;
+    if (keys.S) dy += 1;
+    if (keys.Q) dx -= 1;
+    if (keys.D) dx += 1;
+
+    if (dx !== 0 || dy !== 0) {
+        let len = Math.sqrt(dx*dx + dy*dy);
+        dx /= len; dy /= len;
+        player.facing = Math.atan2(dy, dx);
     }
-    let dx=0,dy=0;
-    if(keys.Z) dy-=player.speed;
-    if(keys.S) dy+=player.speed;
-    if(keys.Q) dx-=player.speed;
-    if(keys.D) dx+=player.speed;
 
-    let oldX = player.x;
-    let oldY = player.y;
-    let newX = oldX + dx;
-    let newY = oldY + dy;
+    if (player.dashCooldown > 0) player.dashCooldown -= dt;
+    let currentSpeed = player.speed;
+    
+    if (keys.Space && player.dashCooldown <= 0 && (dx!==0 || dy!==0)) {
+        player.dashTime = 200; 
+        player.dashCooldown = 1500;
+        createParticles(player.x, player.y, 10, '#fff');
+    }
 
+    if (player.dashTime > 0) {
+        player.dashTime -= dt;
+        currentSpeed *= 3.0;
+        if (Math.random() > 0.5) {
+             particles.push({
+                x: player.x, y: player.y,
+                vx: 0, vy: 0, life: 300, maxLife: 300,
+                size: player.size, color: 'rgba(255,255,255,0.3)',
+                isGhost: true
+             });
+        }
+    }
+
+    let nextX = player.x + dx * currentSpeed;
+    let nextY = player.y + dy * currentSpeed;
+
+    if (nextX < 0) nextX = 0;
+    if (nextX > W) nextX = W;
+    if (nextY < 0) nextY = 0;
+    if (nextY > H) nextY = H;
+
+        // --- Collision avec les Ruines ---
+    let canMove = true;
+    // On vérifie si la position future est dans une ruine
     for (let r of ruines) {
-      let distAfter = distance(newX, newY, r.x, r.y);
-      // si distAfter < (16 + player.size) => collision
-      // Suppose que player.size=16 par ex.
-      if (distAfter < (r.radius + player.size)) {
-        // collision => on empêche le déplacement
-        dx=0; dy=0;
-        newX=oldX; newY=oldY;
-        break; // On sort de la boucle
-      }
+        // On utilise une hitbox circulaire pour la simplicité
+        if (dist(nextX, nextY, r.x, r.y) < player.size + 25) { // 25 = rayon approximatif de la ruine
+            canMove = false;
+            break;
+        }
     }
 
-    player.x = newX;
-    player.y = newY;
-
-    if(dx!==0||dy!==0) {
-        player.directionAngle=Math.atan2(dy,dx);
+    if (canMove) {
+        player.x = nextX;
+        player.y = nextY;
     }
 
-    player.x+=dx; player.y+=dy;
-    if(player.x<0) player.x=0;
-    if(player.x>W) player.x=W;
-    if(player.y<0) player.y=0;
-    if(player.y>H) player.y=H;
+    if (mouseLeftDown && player.activeSlots[0]) tryCast(player.activeSlots[0]);
+    if (mouseRightDown && player.activeSlots[1]) tryCast(player.activeSlots[1]);
 
-    // Pistolet a eau : nouvelle logique
-    let peLevel=player.spells.pistoletEau;
-    if(peLevel>0) {
-        let interval=3000; 
-        let nbProjectiles=1;
-        if(peLevel===2) { nbProjectiles=2; } 
-        if(peLevel===3) { nbProjectiles=3; }
-        if(peLevel===4) { nbProjectiles=3; interval=2000; }
-        if(peLevel===5) { nbProjectiles=3; interval=1000; }
+    updatePassives(dt);
+}
 
-        if(performance.now()-lastPistoletEau>interval) {
-            lastPistoletEau=performance.now();
-            if(enemies.length>0) {
-                let targets=enemies.slice().sort((a,b)=>{
-                    return distance(player.x,player.y,a.x,a.y)-distance(player.x,player.y,b.x,b.y);
-                }).slice(0,nbProjectiles);
+const spellTimers = {};
 
-                for(let t of targets) {
-                    let ang=angleBetween(player.x,player.y,t.x,t.y);
-                    projectiles.push({
-                        x:player.x,
-                        y:player.y,
-                        vx:Math.cos(ang)*5,
-                        vy:Math.sin(ang)*5,
-                        damage:10*peLevel,
-                        from:'player',
-                        type:'pistolet',
-                        img:ballepaoImg
-                    });
+function tryCast(spellName) {
+    const lvl = player.spells[spellName];
+    if (!lvl) return;
+    
+    const now = performance.now();
+    const last = spellTimers[spellName] || 0;
+    let cooldown = 0;
+    
+    if (spellName === 'lancePile') {
+        cooldown = 1000 - (lvl * 100); 
+        if (now - last > cooldown) {
+            spellTimers[spellName] = now;
+            const angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+            
+            projectiles.push({
+                x: player.x, y: player.y,
+                vx: Math.cos(angle)*7, vy: Math.sin(angle)*7,
+                damage: 10 + (lvl*5),
+                type: 'pile', 
+                img: images.pile,
+                angle: angle
+            });
+
+            aoes.push({
+                x: player.x, 
+                y: player.y,
+                duration: 200, 
+                type: 'lance-visuel',
+                img: images.slp,
+                angle: angle, 
+                start: now
+            });
+            Sounds.play('sonslp');
+        }
+    }
+    
+    if (spellName === 'bombeEau') {
+        cooldown = 2000;
+        if (now - last > cooldown) {
+            spellTimers[spellName] = now;
+            projectiles.push({
+                x: player.x, y: player.y,
+                vx: 0, vy: 0, 
+                targetX: mousePos.x, targetY: mousePos.y,
+                speed: 6,
+                damage: 20 + (lvl*10),
+                type: 'bao', img: images.bao,
+                isAoE: true, radius: 40 + (lvl*10)
+            });
+        }
+    }
+    
+    if (spellName === 'coupeCoupe') {
+        cooldown = 800 - (lvl * 50);
+        if (now - last > cooldown) {
+            spellTimers[spellName] = now;
+            const angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+            aoes.push({
+                x: player.x, y: player.y,
+                radius: 60,
+                damage: 25 + (lvl*5),
+                duration: 200, 
+                type: 'slash-visuel',
+                img: images.coupecoupe,
+                angle: angle, 
+                cone: Math.PI / 2,
+                start: now,
+                id: now,
+                soundPlayed: false
+            });
+        }
+    }
+}
+
+/* =========================================
+   LOGIQUE TONDEUSE À GAZON
+   ========================================= */
+
+function spawnTondeuse(lvl) {
+    tondeuses.push({
+        // -- ETAT DE LA SPIRALE --
+        loopIndex: 0, 
+        sideIndex: 0,   
+        t: 0,     
+        
+        // -- CONFIGURATION --
+        baseSize: 100,     
+        sizeGrowth: 40,    // De combien le carré grandit à chaque boucle
+        speed: 3,          // Vitesse de déplacement sur les côtés
+        turnSpeed: 0.02,
+        
+        // -- STATS COMBAT --
+        damage: 15 + (lvl * 10),
+        active: true
+    });
+}
+
+function updateTondeuses(dt, lvl) {
+    tondeuses.forEach(t => {
+        let maxLoops = 1 + (lvl - 1) * 2;
+        let currentSize = t.baseSize + (t.loopIndex * t.sizeGrowth);
+        let halfSize = currentSize / 2;
+        t.t += t.turnSpeed; 
+
+        //  GESTION DES CHANGEMENTS DE CÔTÉ ET DE BOUCLES
+        if (t.t >= 1.0) {
+            t.t = 0; // On reset la progression sur le côté
+            t.sideIndex++; // On change de côté
+
+            // Si on a fini les 4 côtés d'un carré
+            if (t.sideIndex > 3) {
+                t.sideIndex = 0;
+                t.loopIndex++; // On passe au carré suivant (plus grand)
+
+                // === CHANGEMENT ICI ===
+                // Si on a atteint le nombre de carrés requis pour le niveau
+                if (t.loopIndex >= maxLoops) {
+                    t.active = false; // ON DÉTRUIT LA TONDEUSE
+                }
+                // =====================
+            }
+        }
+
+        //  CALCUL DE LA POSITION RELATIVE AU JOUEUR
+        let relX, relY;
+        
+        if (t.sideIndex === 0) { // HAUT (Gauche vers Droite)
+            relX = -halfSize + (t.t * currentSize);
+            relY = -halfSize;
+        } 
+        else if (t.sideIndex === 1) { // DROITE (Haut vers Bas)
+            relX = halfSize;
+            relY = -halfSize + (t.t * currentSize);
+        } 
+        else if (t.sideIndex === 2) { // BAS (Droite vers Gauche)
+            relX = halfSize - (t.t * currentSize);
+            relY = halfSize;
+        } 
+        else { // GAUCHE (Bas vers Haut)
+            relX = -halfSize;
+            relY = halfSize - (t.t * currentSize);
+        }
+
+        //  POSITION MONDIALE (RELATIVE + JOUEUR)
+        let worldX = player.x + relX;
+        let worldY = player.y + relY;
+
+        // 7. COLLISIONS (Dégâts)
+        enemies.forEach(e => {
+            if (dist(worldX, worldY, e.x, e.y) < e.size + 15) {
+                if(!e.tondeuseTimer) e.tondeuseTimer = 0;
+                e.tondeuseTimer -= dt;
+                
+                if(e.tondeuseTimer <= 0) {
+                    hitEnemy(e, t.damage);
+                    e.tondeuseTimer = 150; 
+                }
+            }
+        });
+
+        gcems.forEach(g => {
+             if (dist(worldX, worldY, g.x, g.y) < g.size + 15) {
+                 g.hp -= t.damage * 0.5;
+                 createParticles(g.x, g.y, 1, '#ffd700');
+             }
+        });
+    });
+    
+    // === IMPORTANT : Nettoyage des tondeuses mortes (finies) ===
+    tondeuses = tondeuses.filter(t => t.active);
+}
+
+function updatePassives(dt) {
+    // Livre Ermite
+    let ermiteLvl = player.spells.livreErmite;
+    if (ermiteLvl > 0) {
+        let count = Math.min(3, ermiteLvl);
+        if (hermitBooks.length !== count) {
+            hermitBooks = Array(count).fill(0).map((_,i) => ({ angle: (Math.PI*2/count)*i }));
+        }
+        let damagePerHit = ermiteLvl * 5;
+        let tickCooldown = 500; 
+
+        hermitBooks.forEach(b => {
+            b.angle += 0.05; 
+            let bx = player.x + Math.cos(b.angle)*70;
+            let by = player.y + Math.sin(b.angle)*70;
+            enemies.forEach(e => {
+                if (dist(bx, by, e.x, e.y) < e.size + 15) {
+                    // Système de timer
+                    if(!e.ermitTimer) e.ermitTimer = 0;
+                    e.ermitTimer -= dt;
+                    
+                    if(e.ermitTimer <= 0) {
+                        hitEnemy(e, damagePerHit); 
+                        e.ermitTimer = tickCooldown;
+                        Sounds.play('sonlivreermite'); 
+                    }
+                }
+            });
+            gcems.forEach(g => {
+                if (dist(bx, by, g.x, g.y) < g.size + 15) {
+                    if(!g.ermitTimer) g.ermitTimer = 0;
+                    g.ermitTimer -= dt;
+                    if(g.ermitTimer <= 0) {
+                        g.hp -= damagePerHit;
+                        createParticles(g.x, g.y, 1, '#ffd700');
+                        g.ermitTimer = tickCooldown;
+                    }
+                }
+            });
+        });
+    }
+
+    // Armageddon
+    let armaLvl = player.spells.armageddon;
+    if (armaLvl > 0) {
+        let radius = 60 + armaLvl*20;
+        
+        // On vérifie s'il y a au moins un ennemi dans la zone
+        let enemyInZone = false;
+        
+        enemies.forEach(e => {
+            if (dist(player.x, player.y, e.x, e.y) < radius) {
+                enemyInZone = true; // On a trouvé un ennemi
+                
+                // Logique de dégâts existante
+                if(!e.armaTimer) e.armaTimer = 0;
+                e.armaTimer -= dt;
+                if(e.armaTimer <= 0) {
+                    hitEnemy(e, 2 + armaLvl); 
+                    e.armaTimer = 200; 
+                }
+            }
+        });
+
+        // --- GESTION DU SON ---
+        if (Sounds.armaSound) {
+            if (enemyInZone) {
+                // Si ennemi présent et son arrêté -> On joue
+                if (Sounds.armaSound.paused) {
+                    Sounds.armaSound.play().catch(e=>{}); 
+                }
+            } else {
+                // Si aucun ennemi et son en lecture -> On pause
+                if (!Sounds.armaSound.paused) {
+                    Sounds.armaSound.pause();
+                    // Optionnel : rembobiner pour être prêt pour la prochaine fois
+                    // Sounds.armaSound.currentTime = 0; 
                 }
             }
         }
-    }
 
-    //=======================
-    // Bichon maltais a 3 pattes
-    // ====================
-let bichonLevel = player.spells.bichonMalt3Pattes; 
-if (bichonLevel > 0) {
-    let maxBichons = 1;
-    let radius = 200;
-    let dps = 20; // dégât par seconde
-
-    switch(bichonLevel) {
-        case 1: maxBichons=1; radius=200; dps=20; break;
-        case 2: maxBichons=2; radius=250; dps=20; break;
-        case 3: maxBichons=3; radius=300; dps=20; break;
-        case 4: maxBichons=4; radius=300; dps=25; break;
-        case 5: maxBichons=5; radius=300; dps=30; break;
-    }
-
-    // Ajuster la taille de bichons[] 
-    // On recrée s’il n’existe pas, ou modifie le nombre
-    while (bichons.length < maxBichons) {
-        bichons.push({
-            x: player.x, 
-            y: player.y,
-            target: null,
-            radius: radius,
-            damage: dps,
-            img: bichonImg
+        // Dégâts aux coffres (inchangé)
+        gcems.forEach(g => {
+            if (dist(player.x, player.y, g.x, g.y) < radius) {
+                g.hp -= (2 + armaLvl);
+                createParticles(g.x, g.y, 1, '#ffd700');
+            }
         });
     }
-    while (bichons.length > maxBichons) {
-        bichons.pop();
-    }
 
-    // Mettre à jour radius/damage pour tous
-    for (let b of bichons) {
-        b.radius = radius;
-        b.damage = dps;
-    }
-
-    // Déplacement / attaque
-    updateBichons(dt);
-} else {
-    bichons = [];
-}
-    //=======================
-    // Kit du bricoleur
-    // ====================
-  let kitLevel = player.spells.bricolKit || 0;
-  if (kitLevel > 0) {
-    let cooldown = 3000; // niv1 = 3s par défaut
-    let damage = 20;
-    let maxRebounds = 1;
-
-    switch (kitLevel) {
-      case 1: cooldown=3000; damage=20; maxRebounds=1; break;
-      case 2: cooldown=2500; damage=20; maxRebounds=2; break;
-      case 3: cooldown=2000; damage=20; maxRebounds=3; break;
-      case 4: cooldown=2000; damage=25; maxRebounds=4; break;
-      case 5: cooldown=2000; damage=25; maxRebounds=5; break;
-    }
-
-    if (performance.now() - lastBricolShot > cooldown) {
-      lastBricolShot = performance.now();
-
-      // On choisit un ennemi pour le 1er tir (ici : ennemi le plus proche)
-      let target = getClosestEnemy(player.x, player.y);
-      if (target) {
-        projectiles.push({
-          x: player.x,
-          y: player.y,
-          vx: 0, 
-          vy: 0,
-          type: 'cle',
-          img: cleImg,
-          rotation: 0,
-          rotationSpeed: 0.3,
-          speed: 6,
-          damage: damage,
-          rebounds: maxRebounds,
-          currentTarget: target,
-          remove: false
-        });
-      }
-    }
-  }
-    // =====================
-    // LIVRE ERMITE (passif)
-    // =====================
-let ermiteLevel = player.spells.livreErmite;
-if (ermiteLevel > 0) {
-    let numberOfBooks = Math.min(3, ermiteLevel);
-    let angleSpeed = 0.05;
-    if (ermiteLevel === 4) angleSpeed = 0.07;
-    if (ermiteLevel === 5) angleSpeed = 0.09;
-
-    // Si le nombre de livres souhaité ne correspond pas à la taille actuelle du tableau
-    // on réinitialise leur position de façon régulière.
-    if (hermitBooks.length !== numberOfBooks) {
-        hermitBooks = [];
-        for (let i = 0; i < numberOfBooks; i++) {
-            let initialAngle = (2 * Math.PI * i) / numberOfBooks; 
-            hermitBooks.push({
-                angle: initialAngle,
-                radius: 65,
-                level: ermiteLevel
-            });
-        }
-    }
-
-    // Faire tourner les livres et infliger des dégâts
-    for (let hb of hermitBooks) {
-        hb.angle += angleSpeed;
-        let bx = player.x + Math.cos(hb.angle) * hb.radius;
-        let by = player.y + Math.sin(hb.angle) * hb.radius;
-
-        for (let e of enemies) {
-            if (distance(bx, by, e.x, e.y) < (20 + e.size)) {
-                e.hp -= 0.4;
-                e.lastHitTime = performance.now();
-                if (e.hp <= 0) killEnemy(e);
+    // Pistolet Eau
+    let paoLvl = player.spells.pistoletEau;
+    if (paoLvl > 0) {
+        const now = performance.now();
+        const last = spellTimers['pistoletEau'] || 0;
+        const cooldown = Math.max(500, 3000 - (paoLvl*500));
+        
+        if (now - last > cooldown) {
+            spellTimers['pistoletEau'] = now;
+            let target = getClosestEnemy();
+            if (target) {
+                let angle = Math.atan2(target.y - player.y, target.x - player.x);
+                 projectiles.push({
+                    x: player.x, y: player.y,
+                    vx: Math.cos(angle)*8, vy: Math.sin(angle)*8,
+                    damage: 15 + (paoLvl*5),
+                    type: 'pao', img: images.ballepao
+                });
             }
         }
     }
-} else {
-    hermitBooks = [];
-}
-
-
-    // =============================
-    // BOMBE A EAU EXPLOSIF (passif)
-    // =============================
-if (player.spells.bombeEauExplosif > 0) {
-    let boeLevel = player.spells.bombeEauExplosif;
-
-    // Paramètres en fonction du niveau
-    let bombsCount = 1; 
-    let interval = 5000; 
-    let radiusBonus = 0;
-
-    switch (boeLevel) {
-        case 1:
-            bombsCount = 1; 
-            interval = 5000; 
-            radiusBonus = 0;
-            break;
-        case 2:
-            bombsCount = 2; 
-            interval = 4000; 
-            radiusBonus = 0;
-            break;
-        case 3:
-            bombsCount = 3; 
-            interval = 3000; 
-            radiusBonus = 0;
-            break;
-        case 4:
-            bombsCount = 3; 
-            interval = 3000; 
-            radiusBonus = 10; // Rayon légèrement augmenté
-            break;
-        case 5:
-            bombsCount = 3; 
-            interval = 3000; 
-            radiusBonus = 20; // Rayon encore plus grand
-            break;
+    
+    // Kit Bricoleur
+    let bricolLvl = player.spells.bricolKit;
+    if (bricolLvl > 0) {
+        const now = performance.now();
+        const last = spellTimers['bricolKit'] || 0;
+        const cooldown = 2500;
+        
+        if (now - last > cooldown) {
+             spellTimers['bricolKit'] = now;
+             let target = getClosestEnemy();
+             if (target) {
+                 let angle = Math.atan2(target.y - player.y, target.x - player.x);
+                 projectiles.push({
+                    x: player.x, y: player.y,
+                    vx: Math.cos(angle)*6, vy: Math.sin(angle)*6,
+                    damage: 10 + (bricolLvl*5),
+                    type: 'cle', img: images.cle,
+                    bounces: bricolLvl, 
+                    hitList: [] 
+                });
+             }
+        }
     }
 
-    // Gestion du cooldown
-    if (performance.now() - lastBombeEauExplosif > interval) {
-        lastBombeEauExplosif = performance.now();
-
-        // Génération des bombes selon le niveau
-        for (let i = 0; i < bombsCount; i++) {
-            // Position aléatoire autour du joueur
-            let bx = player.x + (Math.random() * 200 - 100);
-            let by = player.y + (Math.random() * 200 - 100);
-            let ang = angleBetween(player.x, player.y, bx, by);
-            let speed = 4;
-
-            // Création d'un projectile 'baoe'
-            projectiles.push({
-                x: player.x,
-                y: player.y,
-                vx: Math.cos(ang) * speed,
-                vy: Math.sin(ang) * speed,
-                damage: 20 * boeLevel,
-                from: 'player',
-                type: 'baoe',
-                targetX: bx,
-                targetY: by,
-                radiusBonus: radiusBonus, // Ajout du bonus de rayon
-                img: baoeImg
+    // Bombe a eau explosive
+    let mineLvl = player.spells.bombeEauExplosif;
+    if (mineLvl > 0) {
+        const now = performance.now();
+        const last = spellTimers['mineEau'] || 0;
+        const cooldown = 3000; 
+        
+        if (now - last > cooldown) {
+            spellTimers['mineEau'] = now;
+            let angle = Math.random() * Math.PI * 2;
+            let dist = Math.random() * 100;
+            mines.push({
+                x: player.x + Math.cos(angle)*dist,
+                y: player.y + Math.sin(angle)*dist,
+                damage: 50 + (mineLvl * 20),
+                radius: 100 + (mineLvl * 10),
+                active: true,
+                createdAt: now, 
+                img: images.baoe
             });
         }
     }
-}
-    // ============
-    // ARMAGEDDON (passif)
-    // ============
-if (player.spells.armageddon > 0) {
-    let level = player.spells.armageddon;
-    let baseRadius = 50; // Rayon de base
-    let radius = baseRadius; 
-    let damage = 0.1 * level; // Dégâts progressifs par niveau
 
-    // Ajuster le rayon et les dégâts selon le niveau
-    switch (level) {
-        case 1:
-            radius = 50; 
-            damage = 0.4; // Dégâts modestes
-            break;
-        case 2:
-            radius = 60; 
-            damage = 0.5; // Dégâts légèrement augmentés
-            break;
-        case 3:
-            radius = 70; 
-            damage = 0.7; // Dégâts moyens
-            break;
-        case 4:
-            radius = 100; 
-            damage = 1.0; // Dégâts élevés
-            break;
-        case 5:
-            radius = 130; 
-            damage = 1.5; // Dégâts maximum
-            break;
+    // Bichon Maltais
+    let bichonLvl = player.spells.bichonMalt3Pattes;
+    if (bichonLvl > 0) {
+        updateBichons(bichonLvl, dt);
     }
+    checkGcemDestruction();
 
-    // Appliquer les dégâts aux ennemis dans la zone
-    for (let e of enemies) {
-        if (distance(player.x, player.y, e.x, e.y) < radius) {
-            e.hp -= damage; // dt représente le facteur de temps
-            e.lastHitTime = performance.now(); // Enregistrement du coup
-            if (e.hp <= 0) killEnemy(e); // Ennemis tués si PV <= 0
+    // Couteau à dents
+    let knifeLvl = player.spells.couteauADents;
+    if (knifeLvl > 0) {
+        const now = performance.now();
+        const last = spellTimers['couteauADents'] || 0;
+        const cooldown = 3000; // Tir toutes les 1.5 secondes
+
+        if (now - last > cooldown) {
+            spellTimers['couteauADents'] = now;
+            
+            // Nombre de couteaux : Niveau 1 = 1, Max 5
+            let count = Math.min(5, knifeLvl);
+            // Calcul de l'arc de cercle. 
+            // Niveau 1 : 0 degré (droit). 
+            // Niveau 2+ : Arc de 60 degrés (PI/3)
+            let spreadAngle = Math.PI / 3; 
+            
+            let baseAngle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+
+            for (let i = 0; i < count; i++) {
+                let angle = baseAngle;
+                
+                // Répartition en arc
+                if (count > 1) {
+                    // Calcul du décalage pour centrer l'arc
+                    // ex: pour 2 couteaux : -0.5 * step et +0.5 * step
+                    let step = spreadAngle / (count - 1);
+                    angle = baseAngle - spreadAngle / 2 + (i * step);
+                }
+
+                projectiles.push({
+                    x: player.x,
+                    y: player.y,
+                    // Vitesse initiale
+                    vx: Math.cos(angle) * 5,
+                    vy: Math.sin(angle) * 5,
+                    damage: 10 + (knifeLvl * 5), // Dégâts évolutifs
+                    type: 'knife',
+                    img: images.knife,
+                    // Logique Boomerang
+                    distance: 0,       // Distance parcourue
+                    maxDist: 200 + (knifeLvl * 30), // Portée
+                    returning: false,  // Est-ce qu'il revient ?
+                    startAngle: angle  // Mémorise l'angle de départ
+                });
+                if(i === 0) Sounds.play('soncouteauadent');
+            }
         }
     }
+    // === TONDEUSE À GAZON ===
+    let tondeuseLvl = player.spells.tondeuse;
+    if (tondeuseLvl > 0) {
+        const now = performance.now();
+        const last = spellTimers['tondeuse'] || 0;
+        
+        // === FIX DU BUG : On regarde combien de tondeuses sont en vie ===
+        // Niveau 1-3 : 1 tondeuse max
+        // Niveau 4-5 : 2 tondeuses max
+        let maxTondeuses = (tondeuseLvl >= 4) ? 2 : 1;
+        
+        // Si on a déjà atteint la limite, on n'en lance pas de nouvelle, même si le cooldown est passé
+        if (tondeuses.length < maxTondeuses) {
+            
+            // Cooldown de base (6 secondes)
+            const cooldown = 6000; 
+
+            if (now - last > cooldown) {
+                spellTimers['tondeuse'] = now;
+                
+                // Lancer la tondeuse principale
+                spawnTondeuse(tondeuseLvl);
+                
+                // Si Niveau 4 ou plus : Lancer une seconde tondeuse en différé
+                if (tondeuseLvl >= 4) {
+                    setTimeout(() => {
+                        // On vérifie AGAIN s'il y a de la place (au cas où le joueur est passé niveau 4 entre temps)
+                        if(gameState === 'PLAYING' && tondeuses.length < 2) {
+                            spawnTondeuse(tondeuseLvl);
+                        }
+                    }, 1000); // 1 seconde de délai
+                }
+            }
+        }
+        
+        // Mise à jour de la physique des tondeuses
+        updateTondeuses(dt, tondeuseLvl);
+    }
 }
 
-    // Attaques actives
-    if(mouseLeftDown && player.activeSlots[0]) {
-        tryActiveSpell(player.activeSlots[0]);
+function updateBichons(lvl, dt) {
+    let maxBichons = Math.min(5, lvl);
+    while (bichons.length < maxBichons) {
+        bichons.push({
+            x: player.x, y: player.y,
+            target: null,
+            state: 'IDLE',
+            angle: Math.random() * Math.PI * 2, // Pour l'orbite
+            attackCooldown: 0
+        });
     }
-    if(mouseRightDown && player.activeSlots[1]) {
-        tryActiveSpell(player.activeSlots[1]);
+    
+    let range = 200 + (lvl * 20);
+    let dmgPerHit = 5 + (lvl * 2);
+    let attackRadius = 25; // Distance pour mordre
+
+    // --- 1. ATTRIBUTION DES CIBLES (Intelligence Artificielle) ---
+    // On liste les ennemis à portée
+    let enemiesInRange = enemies.filter(e => 
+        dist(player.x, player.y, e.x, e.y) < range
+    );
+
+    // On mélange les ennemis pour éviter que les bichons visent tous le même par défaut
+    enemiesInRange.sort(() => Math.random() - 0.5);
+
+    // On compte combien de bichons visent déjà chaque ennemi
+    let targetCounts = {};
+    enemies.forEach(e => targetCounts[e] = 0); // Initialisation
+    
+    // Premier passage : on compte les cibles actuelles valides
+    bichons.forEach(b => {
+        if (b.target && enemies.includes(b.target)) {
+            targetCounts[b.target] = (targetCounts[b.target] || 0) + 1;
+        }
+    });
+
+    // Deuxième passage : assignation des cibles
+    bichons.forEach(b => {
+        // Si la cible est morte ou hors portée, on la retire
+        if (b.target && (!enemies.includes(b.target) || dist(player.x, player.y, b.target.x, b.target.y) > range)) {
+            b.target = null;
+        }
+
+        // Si pas de cible, on en cherche une
+        if (!b.target && enemiesInRange.length > 0) {
+            let bestTarget = null;
+            let minCount = Infinity;
+
+            // On cherche l'ennemi qui a le moins de bichons dessus
+            enemiesInRange.forEach(e => {
+                let count = targetCounts[e] || 0;
+                if (count < minCount) {
+                    minCount = count;
+                    bestTarget = e;
+                }
+            });
+
+            if (bestTarget) {
+                b.target = bestTarget;
+                targetCounts[bestTarget] = (targetCounts[bestTarget] || 0) + 1;
+            }
+        }
+    });
+
+    // --- 2. MOUVEMENT ET ATTAQUE ---
+    bichons.forEach((b, i) => {
+        // Gestion du cooldown d'attaque
+        if (b.attackCooldown > 0) b.attackCooldown -= dt;
+
+        let destX, destY;
+        let speedFactor;
+
+        if (b.target) {
+            // === MODE ATTAQUE ===
+            
+            // Calcul de la position désirée : on entoure l'ennemi
+            // On utilise l'index i pour répartir les bichons en cercle
+            let angleToEnemy = Math.atan2(b.target.y - b.y, b.target.x - b.x);
+            let orbitAngle = angleToEnemy + (i * (2 * Math.PI / bichons.length));
+            
+            // Position idéale : un peu avant l'ennemi pour ne pas se chevaucher
+            let distToTarget = dist(b.x, b.y, b.target.x, b.target.y);
+            
+            // Si on est loin, on vise l'ennemi. Si on est proche, on vise sa position en cercle
+            if (distToTarget > 60) {
+                destX = b.target.x;
+                destY = b.target.y;
+                speedFactor = 0.02; // Vitesse normale d'approche (lent)
+            } else {
+                // Cercle de rayon 30 autour de l'ennemi
+                destX = b.target.x + Math.cos(orbitAngle) * 30;
+                destY = b.target.y + Math.sin(orbitAngle) * 30;
+                speedFactor = 0.04; // Vitesse de positionnement
+            }
+
+            // Attaque
+            if (dist(b.x, b.y, b.target.x, b.target.y) < attackRadius && b.attackCooldown <= 0) {
+                hitEnemy(b.target, dmgPerHit);
+                b.attackCooldown = 500; // 0.5s cooldown
+            }
+
+        } else {
+            // === MODE REPOS (Orbite autour du joueur) ===
+            if (!b.angle) b.angle = Math.random() * Math.PI * 2;
+            b.angle += 0.02; 
+            
+            let radiusOrbit = 40; 
+            destX = player.x + Math.cos(b.angle) * radiusOrbit;
+            destY = player.y + Math.sin(b.angle) * radiusOrbit;
+            speedFactor = 0.08; // Vitesse de repos
+        }
+
+        // Application du mouvement (lissage)
+        b.x += (destX - b.x) * speedFactor;
+        b.y += (destY - b.y) * speedFactor;
+
+        if (b.target && Math.random() < 0.005) { // Faible probabilité pour "1 fois sur 3" global
+             Sounds.playRandom('sonbichon', 3);
+        }
+    });
+}
+
+// --- Ruines Logic ---
+function spawnRuine(x, y) {
+    let imgArray = [images.ruine1, images.ruine2, images.ruine3];
+    let randImg = imgArray[Math.floor(Math.random()*imgArray.length)];
+    let enemyTypes = ['zombie', 'zombie2', 'zombie3'];
+    let randEnemyType = enemyTypes[Math.floor(Math.random()*enemyTypes.length)];
+
+    ruines.push({
+        x: x || (Math.random()*W),
+        y: y || (Math.random()*H),
+        radius: 35,
+        img: randImg,
+        spawnType: randEnemyType,
+        lastSpawnTime: performance.now()
+    });
+}
+
+function updateRuines(dt) {
+    let now = performance.now();
+    ruines.forEach(r => {
+        if (now - r.lastSpawnTime > 3000) {
+            r.lastSpawnTime = now;
+            let stats = getEnemyStats(r.spawnType);
+            
+            let angle = Math.random() * Math.PI * 2;
+            let spawnDist = 55;
+            let spawnX = r.x + Math.cos(angle) * spawnDist;
+            let spawnY = r.y + Math.sin(angle) * spawnDist;
+            
+            enemies.push({
+                x: spawnX, y: spawnY,
+                vx: 0, vy: 0,
+                ...stats, maxHp: stats.hp, size: 20, flashTime: 0,
+                stuckTimer: 0, // Initialiser la variable pour la nouvelle logique
+                stuckDir: 0    // Initialiser la variable
+            });
+        }
+    });
+}
+
+/* =========================================
+   GESTION DE LA DIFFICULTÉ PROGRESSIVE
+   ========================================= */
+
+function applyDifficultyScaling(baseStats, currentLevel) {
+    // On commence l'augmentation de difficulté après le niveau 10
+    if (currentLevel <= 10) return baseStats;
+
+    // Calcul du multiplicateur basé sur le niveau
+    // Exemple : Au niveau 11, facteur = 1.1. Au niveau 20, facteur = 2.0.
+    let levelsAbove10 = currentLevel - 10;
+    
+    // Ajuste ces valeurs pour changer la courbe de difficulté
+    let hpMultiplier = 1 + (levelsAbove10 * 0.12); // +12% PV par niveau au-dessus de 10
+    let dmgMultiplier = 1 + (levelsAbove10 * 0.08); // +8% Dégâts par niveau au-dessus de 10
+
+    return {
+        ...baseStats,
+        hp: Math.floor(baseStats.hp * hpMultiplier),
+        dmg: Math.floor(baseStats.dmg * dmgMultiplier)
+    };
+}
+
+// --- Spawning Logic with Events ---
+let enemySpawnTimer = 0;
+
+function updateSpawns(dt) {
+    enemySpawnTimer += dt;
+    gcemSpawnTimer += dt;
+    
+    // Spawn des Gcem (Coffres) - inchangé
+    if (gcemSpawnTimer >= 10000) { 
+        gcemSpawnTimer = 0; 
+        if (Math.random() < 0.05) { 
+            let randX = Math.random() * (W - 100) + 50;
+            let randY = Math.random() * (H - 100) + 50;
+            gcems.push({
+                x: randX, y: randY,
+                hp: 30 + (player.level * 2), // On scale un peu les coffres aussi
+                maxHp: 30 + (player.level * 2),
+                size: 32
+            });
+            createParticles(randX, randY, 10, '#ffd700');
+        }
+    }
+    
+    // --- 1. ÉVÉNEMENTS SPÉCIAUX (Niveaux 4 à 27) ---
+    if(player.level===4 && !specialEventsDone[4]) { spawnCircleOfEnemies(8,'zombie4'); specialEventsDone[4]=true; }
+    if(player.level===5 && !specialEventsDone[5]) { spawnBoss(1); specialEventsDone[5]=true; }
+    if(player.level===10 && !specialEventsDone[10]) { spawnBoss(1); specialEventsDone[10]=true; }
+    if(player.level===12 && !specialEventsDone[12]) { spawnCircleOfEnemies(16,'zombie4'); specialEventsDone[12]=true; }
+    if(player.level===15 && !specialEventsDone[15]) { spawnBoss(1); specialEventsDone[15]=true; }
+    if(player.level===16 && !specialEventsDone[16]) { spawnSquareOfEnemies(16,'zombie'); specialEventsDone[16]=true; }
+    if(player.level===18 && !specialEventsDone[18]) { spawnCircleOfEnemies(16,'zombie4'); specialEventsDone[18]=true; }
+    if(player.level===20 && !specialEventsDone[20]) { spawnBoss(2); specialEventsDone[20]=true; }
+    if(player.level===22 && !specialEventsDone[22]) { spawnSquareOfEnemies(20,'zombie2'); specialEventsDone[22]=true; }
+    if(player.level===25 && !specialEventsDone[25]) { spawnBoss(2); specialEventsDone[25]=true; }
+    if(player.level===27 && !specialEventsDone[27]) { spawnSquareOfEnemies(10,'zombie'); specialEventsDone[27]=true; }
+
+    // --- 2. LOGIQUE INFINIE (Après niveau 27) ---
+    if (player.level > 27 && !specialEventsDone[player.level]) {
+        
+        // Tous les 5 niveaux (30, 35, 40...) -> BOSS
+        if (player.level % 5 === 0) {
+            spawnBoss(2); // Boss type 2 (le plus dur)
+        } 
+        // Si niveau pair (ex: 28, 32, 36...) -> CERCLE
+        else if (player.level % 2 === 0) {
+            // Le nombre d'ennemis augmente légèrement avec le niveau
+            let enemyCount = 16 + Math.floor((player.level - 27) / 2);
+            let randomType = Math.random() > 0.5 ? 'zombie4' : 'zombie5';
+            spawnCircleOfEnemies(enemyCount, 'zombie4');
+        } 
+        // Si niveau impair -> CARRÉ
+        else {
+            let enemyCount = 20 + Math.floor((player.level - 27) / 2);
+            spawnSquareOfEnemies(enemyCount, 'zombie2');
+        }
+
+        specialEventsDone[player.level] = true;
     }
 
-    if(player.hp<=0 && !gameOver) {
-        player.hp=0;
-        gameOver=true;
-        inGameOverMenu=true;
+    // --- 3. SPAWN NORMAL (Continu) ---
+    let spawnRate = 2000;
+    if (elapsedSec > 60) spawnRate = 1500;
+    if (elapsedSec > 180) spawnRate = 800;
+    // On continue d'accélérer le spawn après 3 minutes
+    if (elapsedSec > 300) spawnRate = 500; 
+    
+    if (enemySpawnTimer > spawnRate) {
+        enemySpawnTimer = 0;
+        let side = Math.floor(Math.random()*4);
+        let x, y;
+        if(side===0){x=Math.random()*W; y=-20;}
+        else if(side===1){x=W+20; y=Math.random()*H;}
+        else if(side===2){x=Math.random()*W; y=H+20;}
+        else {x=-20; y=Math.random()*H;}
+
+        let type = 'zombie';
+        if (elapsedSec > 60 && Math.random()>0.7) type = 'zombie2';
+        if (elapsedSec > 120 && Math.random()>0.7) type = 'zombie3';
+        if (elapsedSec > 150 && Math.random() > 0.8) type = 'zombie5';
+        
+        let stats = getEnemyStats(type);
+        
+        // IMPORTANT : On applique le scaling même aux ennemis normaux !
+        stats = applyDifficultyScaling(stats, player.level);
+
+        enemies.push({
+            x: x, y: y, vx: 0, vy: 0,
+            ...stats, maxHp: stats.hp, size: 20, flashTime: 0
+        });
     }
 }
 
-function getSpawnInfoForLevel(lvl) {
-    let interval=5000;
-    let types=['zombie'];
+// Helpers Spawns
+function spawnCircleOfEnemies(count, type) {
+    let baseStats = getEnemyStats(type);
+    
+    // On applique la difficulté ET on réduit l'XP pour l'équilibre
+    let stats = applyDifficultyScaling(baseStats, player.level);
+    stats.xp = Math.max(1, Math.floor(stats.xp * 0.4)); // 40% de l'XP de base
 
-    if(lvl===1) {interval=5000;types=['zombie'];}
-    else if(lvl===2) {interval=4500;types=['zombie','zombie2'];}
-    else if(lvl===3) {interval=4000;types=['zombie3'];}
-    else if(lvl===4) {interval=4000;types=['zombie4'];}
-    else if(lvl===5) {interval=10000;types=['zombie'];}
-    else if(lvl===6) {interval=3000;types=['zombie2','zombie3'];}
-    else if(lvl===7) {interval=2500;types=['zombie','zombie2','zombie3'];}
-    else if(lvl===8) {interval=2500;types=['zombie4'];}
-    else if(lvl===9) {interval=2000;types=['zombie','zombie2','zombie3','zombie4'];}
-    else if(lvl===10) {interval=10000;types=['zombie'];}
-    else if(lvl===11) {interval=3000;types=['zombie2','zombie3'];}
-    else if(lvl===12) {interval=2500;types=['zombie4'];}
-    else if(lvl===13) {interval=2500;types=['zombie','zombie2'];}
-    else if(lvl===14) {interval=2000;types=['zombie','zombie3'];}
-    else if(lvl===15) {interval=10000;types=['zombie'];}
-    else if(lvl===16) {interval=5000;types=['zombie'];}
-    else if(lvl===17) {interval=3000;types=['zombie2','zombie3'];}
-    else if(lvl===18) {interval=500;types=['zombie4'];}
-    else if(lvl===19) {interval=500;types=['zombie'];}
-    else if(lvl===20) {interval=10000;types=['zombie'];}
-    else if(lvl===21) {interval=500;types=['zombie'];}
-    else if(lvl===22) {interval=500;types=['zombie'];}
-    else if(lvl===23) {interval=500;types=['zombie'];}
-    else if(lvl===24) {interval=500;types=['zombie'];}
-    else if(lvl===25) {interval=10000;types=['zombie'];}
-    else if(lvl>21) {
-        let extra = (lvl-10)*100;
-        interval=Math.max(100,500-extra);
-        types=['zombie','zombie2','zombie3','zombie4'];
-    }
-
-    return {interval:interval,types:types};
-}
-
-function spawnCircleOfEnemies(count,type) {
-    for(let i=0;i<count;i++) {
+    for(let i=0; i<count; i++) {
         let angle=(2*Math.PI*(i/count));
         let radius=400; 
         let ex=player.x+Math.cos(angle)*radius;
         let ey=player.y+Math.sin(angle)*radius;
-
-        let stats=getEnemyStats(type);
         enemies.push({
-            x:ex,y:ey,
-            vx:0,vy:0,
-            size:20,
-            hp:stats.hp,
-            dmg:stats.dmg,
-            speed:stats.speed,
-            img:(type==='zombie'?enemyImg:(type==='zombie2'?enemy2Img:(type==='zombie3'?enemy3Img:enemy4Img)))
+            x:ex, y:ey, vx:0, vy:0, size:20,
+            hp:stats.hp, maxHp:stats.hp, dmg:stats.dmg, speed:stats.speed, 
+            img: stats.img, spriteKey: stats.spriteKey, flashTime:0, xp: stats.xp
         });
     }
 }
 
 function spawnSquareOfEnemies(count, type) {
-    let radius = 200; // Distance du joueur, ajustez selon vos besoins
-    let stats = getEnemyStats(type);
+    let radius = 250; 
+    let baseStats = getEnemyStats(type);
+    
+    // Même logique : Difficulté progressive + XP réduite
+    let stats = applyDifficultyScaling(baseStats, player.level);
+    stats.xp = Math.max(1, Math.floor(stats.xp * 0.4));
 
-    // On va répartir les ennemis sur 4 côtés. 
-    // Si count n'est pas un multiple de 4, on répartit le reste.
     let perSide = Math.floor(count / 4);
-    let remainder = count % 4;
-
-    let sideCounts = [perSide, perSide, perSide, perSide];
-    for (let i = 0; i < remainder; i++) {
-        sideCounts[i]++;
-    }
-
-    // Fonction d'aide pour l'image
-    let chosenImg = (type === 'zombie' ? enemyImg :
-                     type === 'zombie2' ? enemy2Img :
-                     type === 'zombie3' ? enemy3Img :
-                     enemy4Img);
-
-    // Côté supérieur (de gauche à droite)
-    if (sideCounts[0] > 0) {
-        for (let i = 0; i < sideCounts[0]; i++) {
-            let x = player.x - radius + (i * (2*radius/(sideCounts[0]-1)));
-            let y = player.y - radius;
-            enemies.push({
-                x:x, y:y,
-                vx:0, vy:0,
-                size:20,
-                hp:stats.hp,
-                dmg:stats.dmg,
-                speed:stats.speed,
-                img: chosenImg
-            });
-        }
-    }
-
-    // Côté droit (de haut en bas)
-    if (sideCounts[1] > 0) {
-        for (let i = 0; i < sideCounts[1]; i++) {
-            let x = player.x + radius;
-            let y = player.y - radius + (i * (2*radius/(sideCounts[1]-1)));
-            enemies.push({
-                x:x, y:y,
-                vx:0, vy:0,
-                size:20,
-                hp:stats.hp,
-                dmg:stats.dmg,
-                speed:stats.speed,
-                img: chosenImg
-            });
-        }
-    }
-
-    // Côté inférieur (de droite à gauche)
-    if (sideCounts[2] > 0) {
-        for (let i = 0; i < sideCounts[2]; i++) {
-            let x = player.x + radius - (i * (2*radius/(sideCounts[2]-1)));
-            let y = player.y + radius;
-            enemies.push({
-                x:x, y:y,
-                vx:0, vy:0,
-                size:20,
-                hp:stats.hp,
-                dmg:stats.dmg,
-                speed:stats.speed,
-                img: chosenImg
-            });
-        }
-    }
-
-    // Côté gauche (de bas en haut)
-    if (sideCounts[3] > 0) {
-        for (let i = 0; i < sideCounts[3]; i++) {
-            let x = player.x - radius;
-            let y = player.y + radius - (i * (2*radius/(sideCounts[3]-1)));
-            enemies.push({
-                x:x, y:y,
-                vx:0, vy:0,
-                size:20,
-                hp:stats.hp,
-                dmg:stats.dmg,
-                speed:stats.speed,
-                img: chosenImg
-            });
+    for(let i=0; i<4; i++) {
+        for(let j=0; j<perSide; j++) {
+             let ex = player.x; let ey = player.y;
+             let offset = (j - perSide/2) * 30;
+             if(i===0) { ey-=radius; ex+=offset; }
+             if(i===1) { ex+=radius; ey+=offset; }
+             if(i===2) { ey+=radius; ex+=offset; }
+             if(i===3) { ex-=radius; ey+=offset; }
+             
+             enemies.push({
+                x:ex, y:ey, vx:0, vy:0, size:20,
+                hp:stats.hp, maxHp:stats.hp, dmg:stats.dmg, speed:stats.speed, 
+                img: stats.img, spriteKey: stats.spriteKey, flashTime:0, xp: stats.xp
+             });
         }
     }
 }
 
-function spawnBoss(count, type) {
-  for (let i = 0; i < count; i++) {
-    let loc = randomSpawnLocation(); // par ex. aux bords de la map
-    let stats = getEnemyStats(type);
-    // On redimensionne l’image côté dessin : 
-    // on peut juste mettre e.size=30 au lieu de 20, pour être "plus gros".
+function spawnBoss(typeNumber) {
+    let bossKey = typeNumber === 2 ? 'boss2' : 'boss1';
+    
+    // Stats de base du boss
+    let baseStats = {
+        hp: 500 + (player.level * 50), // La formule actuelle est bien, on la garde
+        dmg: 20, // Dégâts de base
+        speed: 0.5,
+        xp: 200
+    };
 
+    // On applique le scaling des dégâts (et un peu de PV en plus si tu veux)
+    let scaledStats = applyDifficultyScaling(baseStats, player.level);
+
+    let side = Math.floor(Math.random()*4);
+    let x,y; 
+    if(side===0){x=W/2;y=-50;}else{x=W/2;y=H+50;}
+    
     enemies.push({
-      x: loc.x, 
-      y: loc.y,
-      vx: 0, 
-      vy: 0,
-      size: 70,     
-      hp: stats.hp,
-      dmg: stats.dmg,
-      speed: stats.speed,
-      img: bossImg,        // image du boss
-      type: 'boss'         // pour le reconnaître facilement
+        x: x, y: y, vx: 0, vy: 0,
+        hp: scaledStats.hp, 
+        maxHp: scaledStats.hp, // Important de mettre à jour le maxHP aussi
+        speed: scaledStats.speed, 
+        dmg: scaledStats.dmg, // Dégâts maintenant scalés
+        xp: scaledStats.xp,
+        size: 60, type: 'boss', 
+        hitRadius: 25,
+        img: images[bossKey], 
+        spriteKey: bossKey,
+        flashTime: 0
     });
-  }
 }
+
+function getEnemyStats(type) {
+    if(type==='zombie') return {hp:20, speed:1, dmg:5, img:images.zombie1, spriteKey:'zombie1', xp: 10};
+    if(type==='zombie2') return {hp:40, speed:1.5, dmg:8, img:images.zombie2, spriteKey:'zombie2', xp: 10};
+    if(type==='zombie3') return {hp:80, speed:0.8, dmg:15, img:images.zombie3, spriteKey:'zombie3', xp: 20};
+    if(type==='zombie4') return {hp:30, speed:1.2, dmg:6, img:images.zombie4, spriteKey:'zombie4', xp: 15};
+    if(type==='zombie5') return {hp:60, speed:1.5, dmg:12, img:images.zombie5, spriteKey:'zombie5', xp: 20};
+    return {hp:20, speed:1, dmg:5, img:images.zombie1, spriteKey:'zombie1', xp: 10};
+}
+
+// --- End Helpers ---
 
 function updateEnemies(dt) {
-    if(player.level===4 && !specialEventsDone[4]) {
-        spawnCircleOfEnemies(8,'zombie4');
-        specialEventsDone[4]=true;
-    }
-    if(player.level===5 && !specialEventsDone[5]) {
-        spawnBoss(1,'boss');
-        specialEventsDone[5]=true;
-    }
-    if(player.level===10 && !specialEventsDone[10]) {
-        spawnBoss(1,'boss');
-        specialEventsDone[10]=true;
-    }
-    if(player.level===12 && !specialEventsDone[12]) {
-        spawnCircleOfEnemies(16,'zombie4');
-        specialEventsDone[12]=true;
-    }
-    if(player.level===15 && !specialEventsDone[15]) {
-        spawnBoss(1,'boss');
-        specialEventsDone[15]=true;
-    }
-    if(player.level===16 && !specialEventsDone[16]) {
-        spawnSquareOfEnemies(16,'zombie');
-        specialEventsDone[16]=true;
-    }
-    if(player.level===18 && !specialEventsDone[18]) {
-        spawnCircleOfEnemies(16,'zombie4');
-        specialEventsDone[18]=true;
-    }
-    if(player.level===20 && !specialEventsDone[20]) {
-        spawnBoss(2,'boss');
-        specialEventsDone[20]=true;
-    }
-    if(player.level===22 && !specialEventsDone[22]) {
-        spawnSquareOfEnemies(20,'zombie2');
-        specialEventsDone[22]=true;
-    }
-    if(player.level===25 && !specialEventsDone[25]) {
-        spawnBoss(2,'boss');
-        specialEventsDone[25]=true;
-    }
-    if(player.level===27 && !specialEventsDone[27]) {
-        spawnSquareOfEnemies(10,'zombie');
-        specialEventsDone[27]=true;
-    }
+    enemies.forEach(e => {
+        let angle = Math.atan2(player.y - e.y, player.x - e.x);
+        let speed = e.speed;
+        
+        // Si l'ennemi est en train de contourner (coincé)
+        if (e.stuckTimer && e.stuckTimer > 0) {
+            e.stuckTimer -= dt;
+            // On force un mouvement perpendiculaire (gauche ou droite)
+            // e.stuckDir vaut 1 (droite) ou -1 (gauche)
+            angle += (Math.PI / 2) * e.stuckDir; 
+            
+            let vx = Math.cos(angle) * speed;
+            let vy = Math.sin(angle) * speed;
+            
+            // On vérifie si ce mouvement de contournement est possible
+            let nextX = e.x + vx;
+            let nextY = e.y + vy;
+            let canMove = true;
+            for (let r of ruines) {
+                if (dist(nextX, nextY, r.x, r.y) < e.size + 25) {
+                    canMove = false;
+                    break;
+                }
+            }
+            
+            if (canMove) {
+                e.x = nextX;
+                e.y = nextY;
+            } else {
+                // Si toujours bloqué même en contournant, on change de côté
+                e.stuckDir *= -1; 
+            }
+        } 
+        else {
+            // --- MOUVEMENT NORMAL ---
+            let vx = Math.cos(angle) * speed;
+            let vy = Math.sin(angle) * speed;
+            
+            let nextX = e.x + vx;
+            let nextY = e.y + vy;
 
-    let spawnInfo=getSpawnInfoForLevel(player.level);
-    let spawnInterval=spawnInfo.interval;
-    let enemyTypes=spawnInfo.types;
+            let blockedX = false;
+            let blockedY = false;
 
-    if(!levelUpPending && !gameOver && !inStartMenu && performance.now()-lastEnemySpawn>spawnInterval) {
-        lastEnemySpawn=performance.now();
-        let chosenType=randChoice(enemyTypes);
+            for (let r of ruines) {
+                if (dist(nextX, e.y, r.x, r.y) < e.size + 25) blockedX = true;
+                if (dist(e.x, nextY, r.x, r.y) < e.size + 25) blockedY = true;
+            }
 
-        let loc=randomSpawnLocation();
-        let stats=getEnemyStats(chosenType);
-        enemies.push({
-            x:loc.x,y:loc.y,
-            vx:0,vy:0,
-            size:20,
-            hp:stats.hp,
-            dmg:stats.dmg,
-            lastHitTime: 0,
-            speed:stats.speed,
-            img:(chosenType==='zombie'?enemyImg:(chosenType==='zombie2'?enemy2Img:(chosenType==='zombie3'?enemy3Img:enemy4Img)))
-        });
-    }
-
-    for(let e of enemies) {
-        let ang=Math.atan2(player.y-e.y,player.x-e.x);
-        e.vx=Math.cos(ang)*e.speed;
-        e.vy=Math.sin(ang)*e.speed;
-        e.x+=e.vx;
-        e.y+=e.vy;
-
-        if(distance(player.x,player.y,e.x,e.y)<(player.size+e.size)) {
-            let dmg=e.dmg;
-            dmg=damageReduction(dmg);
-            player.hp-=dmg;
+            // Si on bouge pas (double blocage), c'est qu'on est vraiment coincé face à l'obstacle
+            if (blockedX && blockedY) {
+                // On active le mode "contournement" pour 500ms
+                e.stuckTimer = 500; 
+                // On choisit aléatoirement de contourner par la gauche ou la droite
+                e.stuckDir = (Math.random() > 0.5) ? 1 : -1; 
+            } else {
+                // Sinon on applique le mouvement normal (avec glissement)
+                if (!blockedX) e.x = nextX;
+                if (!blockedY) e.y = nextY;
+            }
         }
-    }
-    enemies=enemies.filter(e=>e.hp>0);
+
+        if (e.flashTime > 0) e.flashTime -= dt;
+    });
+    enemies = enemies.filter(e => e.hp > 0);
 }
 
-function updateBichons(dt) {
-  // On parcourt chaque bichon
-  for (let i=0; i<bichons.length; i++) {
-    let b = bichons[i];
-
-    // Si la target est morte (hp<=0), on annule la target
-    if (b.target && b.target.hp <= 0) {
-      b.target = null;
+function hitEnemy(e, dmg, forceDisplay = false) {
+    if (e.hp <= 0) return;
+    e.hp -= dmg;
+    e.flashTime = 100;
+    if (dmg > 0 || forceDisplay) {
+        spawnDamageNumber(e.x, e.y - 20, Math.floor(dmg));
     }
-
-    // 1) Si le bichon n’a pas de cible, on en cherche une
-    if (!b.target) {
-      // Cherche un ennemi dans le rayon b.radius autour du joueur
-      let nearEnemy = enemies.find(e => 
-        e.hp>0 && distance(player.x, player.y, e.x, e.y) < b.radius
-      );
-      if (nearEnemy) {
-        b.target = nearEnemy;
-      }
-    }
-
-    let tx, ty; // position vers laquelle le bichon se dirige
-    if (b.target) {
-      // 2) Aller vers l’ennemi ciblé
-      tx = b.target.x;
-      ty = b.target.y;
-    } else {
-      // 3) Sinon, se place sur un cercle autour du joueur
-      let angle = i * (2*Math.PI / bichons.length);
-      let offsetRadius = 40;  // distance par rapport au joueur
-      tx = player.x + Math.cos(angle)*offsetRadius;
-      ty = player.y + Math.sin(angle)*offsetRadius;
-    }
-
-    // Déplacement
-    let dx = tx - b.x;
-    let dy = ty - b.y;
-    let dist = Math.sqrt(dx*dx + dy*dy);
-    let speed = 3; // Vitesse du bichon
-
-    if (dist > 2) {
-      let angle = Math.atan2(dy, dx);
-      b.x += Math.cos(angle)*speed;
-      b.y += Math.sin(angle)*speed;
-    } else {
-      // Si on touche l’ennemi, on inflige des dégâts (par seconde)
-      if (b.target) {
-        // Sur dt ms => b.damage*(dt/1000)
-        let damageThisFrame = b.damage*(dt/1000);
-        b.target.hp -= damageThisFrame;
-        if (b.target.hp <= 0) {
-          killEnemy(b.target);
-          b.target = null;
-        }
-      }
-    }
-  }
+    if (e.hp <= 0) killEnemy(e);
 }
 
-function updateRuines(dt) {
-  for (let r of ruines) {
-    // Si 3s se sont écoulées depuis le dernier spawn
-    if (performance.now() - r.lastSpawnTime > 3000) {
-      r.lastSpawnTime = performance.now();
-
-      // On spawn 1 ennemi du type r.spawnType
-      // On place l’ennemi à la position de la ruine
-      let stats = getEnemyStats(r.spawnType);
-      enemies.push({
-        x: r.x,
-        y: r.y,
-        vx: 0,
-        vy: 0,
-        size: 20,
-        hp: stats.hp,
-        dmg: stats.dmg,
-        speed: stats.speed,
-        img: (r.spawnType === 'zombie' ? enemyImg :
-             (r.spawnType === 'zombie2' ? enemy2Img : enemy3Img))
-      });
+function killEnemy(e) {
+    killCount++;
+    killCountDiv.innerText = killCount;
+    
+    player.xp += (e.xp || 10);
+    
+    // DROP DE PIECES (25% de chance)
+    if (Math.random() < 0.25) { 
+        spawnPiece(e.x, e.y);
     }
-  }
+
+    bloodStains.push({x: e.x, y: e.y});
+    if (bloodStains.length > 100) bloodStains.shift();
+
+    if (e.type === 'boss') {
+        spawnRuine(e.x, e.y);
+        bossKillCount++;
+    }
+    
+    // Drop potion (2%)
+    if (Math.random() < 0.02) {
+        potions.push({x: e.x, y: e.y, collected: false});
+    }
+
+    // NOUVEAU : Drop Magnétisme
+    if (Math.random() < 0.01) {
+        magnets.push({x: e.x, y: e.y, collected: false});
+    }
+    
+    if (player.xp >= player.xpForNext) {
+        player.xp -= player.xpForNext;
+        player.level++;
+        player.xpForNext = xpNeeded(player.level);
+        levelUpFlashTimer = 1200;
+    }
+    createParticles(e.x, e.y, 8, '#aa0000');
 }
 
 function updateProjectiles(dt) {
-    // On parcourt tous les projectiles
-    for (let p of projectiles) {
+    projectiles.forEach(p => {
+        // === LOGIQUE COUTEAU (AVANT LES COLLISIONS) ===
+        if (p.type === 'knife') {
+            p.distance += Math.sqrt(p.vx*p.vx + p.vy*p.vy); // Mesure distance
 
-        // --- 1) Cas du projectile "cle" ---
-    if (p.type === 'cle') {
-      // Faire tourner la clé
-      p.rotation += p.rotationSpeed;
-
-      // Se déplacer vers la cible si elle est encore en vie
-      if (p.currentTarget && p.currentTarget.hp > 0) {
-        let dx = p.currentTarget.x - p.x;
-        let dy = p.currentTarget.y - p.y;
-        let dist = Math.sqrt(dx*dx + dy*dy);
-
-        if (dist > 2) {
-          let ang = Math.atan2(dy, dx);
-          p.x += Math.cos(ang)*p.speed;
-          p.y += Math.sin(ang)*p.speed;
-        } else {
-          // On touche la cible => inflige dégâts
-          p.currentTarget.hp -= p.damage;
-          if (p.currentTarget.hp <= 0) {
-            killEnemy(p.currentTarget); 
-          }
-          // Gérer les rebonds
-          p.rebounds--;
-          if (p.rebounds > 0) {
-            let newT = findAnotherEnemy(p.currentTarget);
-            if (newT) {
-              p.currentTarget = newT;
-            } else {
-              p.remove = true;
+            if (!p.returning && p.distance >= p.maxDist) {
+                p.returning = true;
             }
-          } else {
-            p.remove = true;
-          }
-        }
-      } else {
-        // plus de target => on retire le projectile
-        p.remove = true;
-      }
-    }
 
-        // --- 2) Cas du projectile "bao" ou "baoe" ---
-        else if (p.type === 'bao' || p.type === 'baoe') {
-            let distToTarget = distance(p.x, p.y, p.targetX, p.targetY);
-            if (distToTarget < 5) {
-                // AoE
-                let baseRadius = (p.type === 'bao') ? 30 : 50; 
-                let extraRadius = 0;
-
-                // Ajuster selon le niveau de la bombe
-                if (p.type === 'bao') {
-                    extraRadius = p.extraRadius || 0;
-                } else if (p.type === 'baoe') {
-                    switch (player.spells.bombeEauExplosif) {
-                        case 4: extraRadius = 10; break;
-                        case 5: extraRadius = 20; break;
-                        default: extraRadius = 0; break;
-                    }
+            if (p.returning) {
+                // Retour vers le joueur
+                let angleToPlayer = Math.atan2(player.y - p.y, player.x - p.x);
+                // Vitesse de retour accélérée
+                p.vx = Math.cos(angleToPlayer) * 8; 
+                p.vy = Math.sin(angleToPlayer) * 8;
+                
+                // Si proche du joueur, on supprime
+                if (dist(p.x, p.y, player.x, player.y) < 20) {
+                    p.remove = true;
                 }
-                let totalRadius = baseRadius + extraRadius;
+            } else {
+                // Rotation visuelle pendant l'aller
+                if (!p.rotation) p.rotation = 0;
+                p.rotation += 0.3;
+            }
+        }
+        if (p.isAoE && p.targetX !== undefined) {
+            if (p.speed) {
+                let angle = Math.atan2(p.targetY - p.y, p.targetX - p.x);
+                p.x += Math.cos(angle) * p.speed;
+                p.y += Math.sin(angle) * p.speed;
+            } else {
+                 p.x += p.vx; p.y += p.vy;
+            }
 
+            if (dist(p.x, p.y, p.targetX, p.targetY) < 10) {
                 aoes.push({
-                    x: p.targetX,
-                    y: p.targetY,
-                    radius: totalRadius,
-                    damage: p.damage,
-                    duration: 1000,
-                    start: performance.now()
+                    x: p.targetX, y: p.targetY,
+                    radius: p.radius, damage: p.damage,
+                    duration: 500, start: performance.now()
                 });
                 p.remove = true;
-
-            } else {
-                // Déplacement de la bombe vers la cible
-                let ang = angleBetween(p.x, p.y, p.targetX, p.targetY);
-                let speed = (p.type === 'bao' ? 6 : 4);
-                p.vx = Math.cos(ang)*speed;
-                p.vy = Math.sin(ang)*speed;
-                p.x += p.vx;
-                p.y += p.vy;
+                createParticles(p.targetX, p.targetY, 15, '#4444ff');
+                Sounds.playRandom('sonbao', 4);
             }
-        }
-
-        // --- 3) Tous les autres projectiles ---
+        } 
         else {
-            p.x += p.vx; 
-            p.y += p.vy;
+            p.x += p.vx; p.y += p.vy;
+            if (p.type === 'cle') p.rotation = (p.rotation || 0) + 0.2;
 
-            // Collision avec les ennemis
-            if (p.from === 'player' && p.type !== 'bao' && p.type !== 'baoe') {
-                for (let e of enemies) {
-                    if (distance(p.x, p.y, e.x, e.y) < (10 + e.size)) {
-                        e.hp -= p.damage;
-                        e.lastHitTime = performance.now();
+            for (let e of enemies) {
+                if (dist(p.x, p.y, e.x, e.y) < e.size + 10) {
+                    if (p.type === 'cle') {
+                        if (!p.hitList.includes(e)) {
+                            hitEnemy(e, p.damage);
+                            p.hitList.push(e);
+                            p.bounces--;
+                            Sounds.playRandom('soncle', 4);
+                            if (p.bounces > 0) {
+                                let newTarget = null;
+                                let minD = Infinity;
+                                enemies.forEach(other => {
+                                    if (other !== e && !p.hitList.includes(other)) {
+                                        let d = dist(p.x, p.y, other.x, other.y);
+                                        if (d < 300 && d < minD) { minD = d; newTarget = other; }
+                                    }
+                                });
+                                if (newTarget) {
+                                    let angle = Math.atan2(newTarget.y - p.y, newTarget.x - p.x);
+                                    p.vx = Math.cos(angle) * 6;
+                                    p.vy = Math.sin(angle) * 6;
+                                } else { p.vx = -p.vx; p.vy = -p.vy; }
+                            } else { p.remove = true; }
+                        }
+                    }
+                    
+                    else if (p.type === 'knife') {
+                        if (!p.hitList) p.hitList = {};
+                        
+                        const now = performance.now();
+                        const lastHitTime = p.hitList[e]; 
+                        const cooldown = 500; 
+                        if (!lastHitTime || (now - lastHitTime > cooldown)) {
+                            hitEnemy(e, p.damage);
+                            createParticles(p.x, p.y, 3, '#ffffff');
+                            p.hitList[e] = now; 
+                        }
+                    }
+                    
+                    else {
+                        hitEnemy(e, p.damage);
                         p.remove = true;
-                        if (e.hp <= 0) killEnemy(e);
-                        break;
+                        Sounds.playRandom('sonpao', 3);
+                    }
+                    createParticles(p.x, p.y, 3, '#ffff00');
+                    break;
+                }
+            }
+
+            // === COLLISION AVEC LES COFFRES (GCEM) ===
+            if (!p.remove) { // Si le projectile n'a pas été détruit par un ennemi
+                for (let g of gcems) {
+                    if (dist(p.x, p.y, g.x, g.y) < g.size + 10) {
+                        g.hp -= p.damage; // Infliger des dégâts au coffre
+                        p.remove = true;  // Détruire le projectile
+                        createParticles(g.x, g.y, 3, '#ffd700'); // Particules dorées
+                        
+                        if (g.hp <= 0) {
+                            // Le coffre est cassé !
+                            let goldAmount = player.level;
+                            totalCoins += goldAmount;
+                            updateCoinUI();
+                            spawnDamageNumber(g.x, g.y - 20, `+${goldAmount} Or`);
+                            // Effet visuel de pièces qui jaillissent
+                            for(let i=0; i<goldAmount; i++) {
+                                pieces.push({
+                                    x: g.x + (Math.random()*40 - 20),
+                                    y: g.y + (Math.random()*40 - 20),
+                                    value: 1,
+                                    scaleX: 1, scaleDir: -1, life: 10000, collected: false
+                                });
+                            }
+                            g.hp = 0; // Marquer pour suppression
+                        }
+                        break; // On sort de la boucle des coffres
                     }
                 }
             }
         }
-
-        // --- 4) Supprimer les projectiles hors limites ---
-        if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) p.remove = true;
-
-    } // fin du for (let p of projectiles)
-
-    // Enfin, on filtre ceux à enlever
+        if(p.x<-50 || p.x>W+50 || p.y<-50 || p.y>H+50) p.remove = true;
+    });
     projectiles = projectiles.filter(p => !p.remove);
 }
 
-
 function updateAoes(dt) {
-    let now=performance.now();
-    for(let a of aoes) {
-        for(let e of enemies) {
-            if(distance(a.x,a.y,e.x,e.y)<a.radius) {
-                e.hp-=0.2*(a.damage/10);
-                e.lastHitTime = performance.now();
-                if(e.hp<=0) killEnemy(e);
+    let now = performance.now();
+    aoes.forEach(a => {
+        if (a.type === 'lance-visuel' || a.type === 'slash-visuel') {
+            if (player) { // Vérification de sécurité que le joueur existe
+                a.x = player.x;
+                a.y = player.y;
             }
         }
-        if(now - a.start > a.duration) {
-            a.remove=true;
+        if (a.type === 'slash-visuel') {
+            
+            enemies.forEach(e => {
+                // Si l'ennemi n'a pas de liste de mémoires, on la crée
+                if (!e.hitBySlash) e.hitBySlash = [];
+
+                // 1. Vérifier si l'ennemi est dans la zone du coup
+                let angToE = Math.atan2(e.y - player.y, e.x - player.x);
+                let diff = angToE - a.angle;
+                while(diff > Math.PI) diff -= Math.PI*2;
+                while(diff < -Math.PI) diff += Math.PI*2;
+                
+                let inZone = Math.abs(diff) < a.cone/2 && dist(player.x, player.y, e.x, e.y) < 90;
+
+                if (inZone) {
+                    if (!e.hitBySlash.includes(a.id)) {
+                        hitEnemy(e, a.damage);
+                        e.hitBySlash.push(a.id);
+                        if (!a.soundPlayed) {
+                            Sounds.playRandom('soncoupecoupe', 4);
+                            a.soundPlayed = true; // On marque le son comme joué
+                        }
+                    }
+                }
+             });
+        } else {
+            enemies.forEach(e => {
+                if (dist(a.x, a.y, e.x, e.y) < a.radius) {
+                    if (!e.hitByAoE) e.hitByAoE = [];
+                    if (!e.hitByAoE.includes(a)) {
+                        hitEnemy(e, a.damage);
+                        e.hitByAoE.push(a);
+                    }
+                }
+            });
         }
-    }
-    aoes=aoes.filter(a=>!a.remove);
+        gcems.forEach(g => {
+            if (dist(a.x, a.y, g.x, g.y) < a.radius + g.size/2) {
+                g.hp -= a.damage; // Inflige les dégâts de la zone
+                createParticles(g.x, g.y, 2, '#ffd700');
+            }
+        });
+        if (now - a.start > a.duration) a.remove = true;
+    });
+    aoes = aoes.filter(a => !a.remove);
+    // Nettoyage des gcems détruits
+    checkGcemDestruction();
 }
 
-function gameLoop() {
-    let now=performance.now();
-    let dt=now-(this.lastTime||now);
-    this.lastTime=now;
-
-    if(!levelUpPending && !gameOver && !inStartMenu) {
-        updatePlayer(dt);
-        updateEnemies(dt);
-        updateProjectiles(dt);
-        updateAoes(dt);
-        updateRuines(dt)
-    }
-
-    draw();
-
-    if(!gameOver) {
-        requestAnimationFrame(gameLoop);
-    }
-}
-
-
-function tryActiveSpell(spell) {
-    if(spell==='lancePile') {
-        tryLancePile();
-    } else if(spell==='bombeEau') {
-        tryBombeEau();
-    } else if(spell==='coupeCoupe') {
-        tryCoupeCoupe();
-    }
-}
-
-function drawStartMenu() {
-    inStartMenu=true;
-    let choices = [
-        {spell:'lancePile',name:"Lance pile",img:lpImg},
-        {spell:'bombeEau',name:"Bombe à eau",img:baoImg},
-        {spell:'coupeCoupe',name:"Coupe Coupe",img:coupecoupeImg}
-    ];
-
-    let menuWidth=400;
-    let menuHeight=350; 
-    let menuX=(W-menuWidth)/2;
-    let menuY=(H-menuHeight)/2;
-    ctx.save();
-    ctx.globalAlpha=0.9;
-    ctx.drawImage(fondAmelioImg,menuX,menuY,menuWidth,menuHeight);
-    ctx.globalAlpha=1;
-
-    ctx.font="20px Roboto";
-    ctx.fillStyle="#fff";
-    let title="Choisissez votre sort actif de départ";
-    let tw=ctx.measureText(title).width;
-    ctx.fillText(title,(W-tw)/2,menuY+40);
-
-    let choiceWidth=300;
-    let choiceHeight=50;
-    let startX=(W-choiceWidth)/2;
-    let startY=menuY+80;
-    startMenuChoicesRects=[];
-
-    for(let i=0;i<choices.length;i++) {
-        let c=choices[i];
-        let x=startX;
-        let y=startY+i*(choiceHeight+10);
-        ctx.drawImage(boutonImg,x,y,choiceWidth,choiceHeight);
-
-        if(hoveredChoice && hoveredChoice.spell===c.spell) {
-            ctx.strokeStyle="#fff";
-            ctx.lineWidth=2;
-            ctx.strokeRect(x,y,choiceWidth,choiceHeight);
+function checkGcemDestruction() {
+    gcems.forEach(g => {
+        if (g.hp <= 0 && !g.destroyed) {
+            g.destroyed = true; // Marqueur pour éviter double drop
+            
+            // Drop de pièces
+            let goldAmount = player.level; 
+            totalCoins += goldAmount;
+            updateCoinUI();
+            spawnDamageNumber(g.x, g.y - 20, `+${goldAmount} Or`);
+            
+            // Fait apparaître les pièces visuellement
+            for(let i=0; i<goldAmount; i++) {
+                pieces.push({
+                    x: g.x + (Math.random()*40 - 20),
+                    y: g.y + (Math.random()*40 - 20),
+                    value: 1, scaleX: 1, scaleDir: -1, life: 10000, collected: false
+                });
+            }
         }
-
-        ctx.drawImage(c.img,x+5,y+(choiceHeight-32)/2,32,32);
-        ctx.fillStyle="#fff";
-        ctx.font="16px Roboto";
-        let ntw=ctx.measureText(c.name).width;
-        ctx.fillText(c.name,x+40+(choiceWidth-40-ntw)/2,y+choiceHeight/2+5);
-
-        startMenuChoicesRects.push({x:x,y:y,w:choiceWidth,h:choiceHeight,spell:c.spell});
-    }
-    ctx.restore();
+    });
+    // Retire les gcems détruits de la liste
+    gcems = gcems.filter(g => !g.destroyed);
 }
 
-function drawLevelUpMenu() {
-    inLevelUpMenu = true;
-
-    let menuWidth = 400;
-    let menuHeight = 350;
-    let menuX = (W - menuWidth) / 2;
-    let menuY = (H - menuHeight) / 2;
-    ctx.save();
-    ctx.globalAlpha = 0.9;
-    ctx.drawImage(fondAmelioImg, menuX, menuY, menuWidth, menuHeight);
-    ctx.globalAlpha = 1;
-
-    ctx.font = "20px Roboto";
-    ctx.fillStyle = "#fff";
-    let title = "Choisissez une amélioration";
-    let tw = ctx.measureText(title).width;
-    ctx.fillText(title, (W - tw) / 2, menuY + 40);
-
-    // Supposez que `currentLevelUpChoices` contient le tableau retourné par generateLevelUpChoices().
-    // => ex: [ {spell:'bombeEau', name:'Bombe à eau'}, {...}, {...} ]
-    let choiceWidth = 300;
-    let choiceHeight = 50;
-    let startX = (W - choiceWidth) / 2;
-    let startY = menuY + 80;
-
-    levelUpChoicesRects = [];
-
-    for (let i = 0; i < currentLevelUpChoices.length; i++) {
-        let c = currentLevelUpChoices[i]; 
-        // c = { spell:'bombeEau', name:'Bombe à eau' } par ex
-
-        let x = startX;
-        let y = startY + i * (choiceHeight + 10);
-
-        // Dessin du bouton
-        ctx.drawImage(boutonImg, x, y, choiceWidth, choiceHeight);
-
-        // Survol
-        if (hoveredChoice && hoveredChoice.spell === c.spell) {
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, choiceWidth, choiceHeight);
-        }
-
-        // On dessine l'image du sort
-        let img = getSpellSlotImage(c.spell);
-        let imgSize = 32;
-        ctx.drawImage(img, x + 5, y + (choiceHeight - imgSize) / 2, imgSize, imgSize);
-
-        // Niveau actuel du sort
-        let currentLvl = player.spells[c.spell] || 0;
-        // Le niveau qu'on aura si on choisit ce sort
-        // => ex: si on a déjà niv. 1, on affiche "Niv. 2"
-        let displayedLevel = (currentLvl >= 5) 
-            ? 5 // ou "5 (MAX)" si vous préférez
-            : (currentLvl + 1);
-
-        // ex: "Bombe à eau (Niv. 2)"
-        let displayName = c.name + " (Niv. " + displayedLevel + ")";
-
-        ctx.fillStyle = "#fff";
-        ctx.font = "16px Roboto";
-        let textX = x + imgSize + 15;
-        let textY = y + choiceHeight / 2 + 5;
-        ctx.fillText(displayName, textX, textY);
-
-        // On stocke la zone cliquable
-        levelUpChoicesRects.push({
-            x: x,
-            y: y,
-            w: choiceWidth,
-            h: choiceHeight,
-            spell: c.spell,
-            name: c.name
+function createParticles(x, y, count, color) {
+    for(let i=0; i<count; i++) {
+        particles.push({
+            x: x, y: y,
+            vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+            life: 1.0, color: color, size: Math.random()*3+1
         });
     }
-
-    ctx.restore();
+}
+function updateParticles(dt) {
+    particles.forEach(p => {
+        if (p.isGhost) { p.life -= dt; }
+        else { p.x += p.vx; p.y += p.vy; p.life -= 0.05; }
+    });
+    particles = particles.filter(p => p.life > 0);
 }
 
-function drawGameOverMenu() {
-    ctx.save();
+function spawnDamageNumber(x, y, val, color = '#ffffff') { // Blanc par défaut
+    damageNumbers.push({ 
+        x: x+(Math.random()*20-10), 
+        y: y, 
+        text: val, 
+        life: 1.0, 
+        vy: -2,
+        color: color // On stocke la couleur
+    });
+}
+function updateDamageNumbers(dt) {
+    damageNumbers.forEach(d => { d.y += d.vy; d.life -= 0.02; });
+    damageNumbers = damageNumbers.filter(d => d.life > 0);
+}
 
-    // 1) Fond amelio
-    ctx.globalAlpha = 0.9;
-    let menuWidth = 400;
-    let menuHeight = 200;
-    let menuX = (W - menuWidth)/2;
-    let menuY = (H - menuHeight)/2;
-    ctx.drawImage(fondAmelioImg, menuX, menuY, menuWidth, menuHeight);
-    ctx.globalAlpha = 1;
+function updateHUD() {
+    let hpPct = Math.max(0, (player.hp / player.maxHp) * 100);
+    hpBar.style.width = `${hpPct}%`;
+    hpText.innerText = `${Math.ceil(player.hp)}/${player.maxHp}`;
+    let xpPct = (player.xp / player.xpForNext) * 100;
+    xpBar.style.width = `${xpPct}%`;
+    lvlText.innerText = `Niv. ${player.level}`;
+}
 
-    // 2) Titre "Partie Terminée"
-    ctx.fillStyle = '#fff';
-    ctx.font = "24px Roboto";
-    let txt = "Partie Terminée";
-    let tw = ctx.measureText(txt).width;
-    ctx.fillText(txt, (W - tw)/2, menuY + 40);
+function updateSpellDock() {
+    spellDock.innerHTML = '';
+    const mySpells = Object.keys(player.spells).filter(k => player.spells[k] > 0);
+    mySpells.forEach(k => {
+        let div = document.createElement('div');
+        div.className = 'spell-icon';
+        div.style.backgroundImage = `url(${images[spellData[k].img].src})`;
+        let lvl = document.createElement('div');
+        lvl.className = 'spell-lvl';
+        lvl.innerText = player.spells[k];
+        div.appendChild(lvl);
+        spellDock.appendChild(div);
+    });
+}
 
-    // 3) On affiche le temps, kills, etc. ou tout autre info
-    // ... exemple ...
-    let survivalTime = (this.lastTime - startTime)/1000;
-    survivalTime = Math.floor(survivalTime);
-    let minutes = Math.floor(survivalTime/60);
-    let seconds = survivalTime % 60;
-    let timeText = "Temps survécu: " + minutes + "m " + seconds + "s";
-    let killText = "Ennemis tués: " + killCount;
+// --- Level Up Logic Updated ---
+function levelUp() {
+    pauseStartTime = performance.now();
+    gameState = 'LEVELUP';
+    Sounds.lowerMusic();
+    keys.Z = false; keys.Q = false; keys.S = false; keys.D = false; keys.Space = false;
+    mouseLeftDown = false;
+    mouseRightDown = false;
+    levelupMenu.classList.remove('hidden');
+    
+    let myActiveCount = activeSpells.filter(s => player.spells[s] > 0).length;
+    let myPassiveCount = passiveSpells.filter(s => player.spells[s] > 0).length;
 
-    ctx.fillText(timeText, (W - ctx.measureText(timeText).width)/2, menuY + 80);
-    ctx.fillText(killText, (W - ctx.measureText(killText).width)/2, menuY + 110);
+    let pool = [...activeSpells, ...passiveSpells];
 
-    // 4) Bouton Rejouer
-    // On suppose que gameOverRect est global ou local
-    // let gameOverRect = {x: W/2 -75, y: H/2+35, width:150, height:40};
+    // On filtre les sorts comme avant
+    pool = pool.filter(s => {
+        let currentLvl = player.spells[s];
+        // Si niveau max (5), on ne propose plus
+        if (currentLvl >= 5) return false;
 
-    // Dessin du bouton
-    ctx.drawImage(boutonImg,
-                  gameOverRect.x,
-                  gameOverRect.y,
-                  gameOverRect.width,
-                  gameOverRect.height);
+        if (activeSpells.includes(s)) {
+            if (currentLvl === 0 && myActiveCount >= 2) return false;
+        } else {
+            if (currentLvl === 0 && myPassiveCount >= 4) return false;
+        }
+        return true;
+    });
 
-    // Survol : tracer un contour
-    if (mousePos.x >= gameOverRect.x &&
-        mousePos.x <= gameOverRect.x + gameOverRect.width &&
-        mousePos.y >= gameOverRect.y &&
-        mousePos.y <= gameOverRect.y + gameOverRect.height) {
-      
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(gameOverRect.x,
-                       gameOverRect.y,
-                       gameOverRect.width,
-                       gameOverRect.height);
+    // === DEBUT DE LA NOUVELLE LOGIQUE ==
+    levelupChoicesDiv.innerHTML = '';
+
+    // Si le pool est vide (niveau 31+ et tout est niveau 5)
+    if (pool.length === 0) {
+        // Proposer 2 choix alternatifs
+        
+        // Choix 1 : Potion
+        let divPotion = document.createElement('div');
+        
+        // Calcul du soin (même logique que la boutique)
+        let potLvl = shopUpgrades.potion.currentLevel;
+        let healAmount;
+        if (potLvl >= 10) healAmount = 130;
+        else if (potLvl >= 9) healAmount = 105;
+        else healAmount = potLvl * 10;
+        // Minimum garanti si niveau 0 (théorique)
+        if (healAmount === 0) healAmount = 10; 
+
+        divPotion.className = 'card-choice';
+        divPotion.innerHTML = `
+            <img src="${images.potion.src}" class="card-img">
+            <div class="card-info">
+                <h3>Potion de Vie</h3>
+                <p>Récupère ${healAmount} points de vie.</p>
+            </div>
+        `;
+        divPotion.onclick = () => selectSpecialReward('potion');
+        levelupChoicesDiv.appendChild(divPotion);
+
+        // Choix 2 : Gros Coffre
+        let divCoffre = document.createElement('div');
+        divCoffre.className = 'card-choice';
+        // On vérifie si l'image existe, sinon on met un texte
+        let coffreImgSrc = images.gcem ? images.gcem.src : 'images/gcem.gif'; 
+        divCoffre.innerHTML = `
+            <img src="${coffreImgSrc}" class="card-img">
+            <div class="card-info">
+                <h3>Gros Coffre</h3>
+                <p>Contient des pièces d'or (x${player.level}).</p>
+            </div>
+        `;
+        divCoffre.onclick = () => selectSpecialReward('coffre');
+        levelupChoicesDiv.appendChild(divCoffre);
+
+    } else {
+        // Logique normale : proposer 3 sorts
+        let choices = [];
+        for(let i=0; i<3; i++) {
+            if(pool.length === 0) break;
+            let idx = Math.floor(Math.random() * pool.length);
+            choices.push(pool[idx]);
+            pool.splice(idx, 1);
+        }
+        
+        choices.forEach(key => {
+            let current = player.spells[key];
+            let div = document.createElement('div');
+            div.className = 'card-choice';
+            div.innerHTML = `
+                <img src="${images[spellData[key].img].src}" class="card-img">
+                <div class="card-info">
+                    <h3>${spellData[key].name} [${current+1}]</h3>
+                    <p>${spellData[key].desc}</p>
+                </div>
+            `;
+            div.onclick = () => selectUpgrade(key);
+            levelupChoicesDiv.appendChild(div);
+        });
+    }
+}
+
+function selectUpgrade(key) {
+    if (pauseStartTime > 0) {
+        totalPausedTime += (performance.now() - pauseStartTime);
+        pauseStartTime = 0;
+    }
+    Sounds.restoreMusic();
+    Sounds.play('clicvalidation');
+    player.spells[key]++;
+    if (activeSpells.includes(key) && player.spells[key] === 1) {
+        if (!player.activeSlots[0]) player.activeSlots[0] = key;
+        else if (!player.activeSlots[1]) player.activeSlots[1] = key;
+    }
+    updateSpellDock();
+    levelupMenu.classList.add('hidden');
+    gameState = 'PLAYING';
+    player.hp = Math.min(player.maxHp, player.hp + 20);
+}
+
+function triggerGameOver() {
+    gameState = 'GAMEOVER';
+    gameoverMenu.classList.remove('hidden');
+    Sounds.stopMusic(); 
+    Sounds.stopArma();
+    Sounds.play('songameover');
+
+    // 1. Phrases humoristiques
+    const phrases = [
+        "Vous ferez mieux la prochaine fois.",
+        "Les zombies apprécient votre donation.",
+        "L'outre-monde remercie votre contribution.",
+        "La mort n'est qu'un début... ou pas.",
+        "Essayez de ne pas mourir la prochaine fois.",
+        "Un de moins, il en reste tant.",
+        "Votre âme a été délicieusement dévorée.",
+        "C'était un repas plutôt qu'un combat.",
+        "Retentez votre chance, citoyen.",
+        "L'erreur est humaine, la mort est zombie.",
+        "Bravo, vous avez servi de buffet pour l'apéro.",
+        "La prochaine fois, essayez de courir plus vite que votre voisin.",
+        "Vos restes ont été recyclés en décoration d'intérieur.",
+        "Votre courage n'aura servi qu'à assaisonner votre chair.",
+        "Le désert ne pardonne pas, mais il digère très bien.",
+        "Une mort tragique... surtout pour la qualité de la viande.",
+        "Merci pour ce moment de détente pour nos mâchoires.",
+        "Votre contribution à la biomasse est notée.",
+        "Respirez... ah non, en fait, ne respirez plus."
+    ];
+    const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+    document.getElementById('gameover-subtitle').innerText = randomPhrase;
+
+    // 2. Mise à jour des statistiques
+    document.getElementById('go-time').innerText = timerDiv.innerText;
+    document.getElementById('go-level').innerText = player.level;
+    document.getElementById('go-kills').innerText = killCount;
+
+    // --- AJOUT DES TACHES DE SANG ---
+    const stainCount = 15; // Nombre de taches à générer (tu peux changer ce chiffre)
+    
+    for (let i = 0; i < stainCount; i++) {
+        const stain = document.createElement('img');
+        stain.src = 'images/sang.png'; // On utilise l'image demandée
+        stain.className = 'blood-stain'; // Une classe pour les retrouver plus tard
+        
+        // Style CSS pour les positionner aléatoirement
+        stain.style.position = 'absolute';
+        stain.style.zIndex = '0'; // Derrière le texte (qui est par-dessus)
+        stain.style.top = Math.random() * 100 + '%'; // Position Y aléatoire
+        stain.style.left = Math.random() * 100 + '%'; // Position X aléatoire
+        
+        // Rotation aléatoire
+        const rotation = Math.random() * 360;
+        
+        // Taille aléatoire : L'image fait 23x18, on multiplie entre 2.5 et 4.5
+        // Cela donnera une taille visible entre ~60px et ~100px
+        const scale = 2.5 + Math.random() * 2; 
+        
+        stain.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+        
+        // Pour que les clics passent à travers les taches de sang (au cas où)
+        stain.style.pointerEvents = 'none';
+        
+        gameoverMenu.appendChild(stain); // On ajoute la tache au menu
+    }
+}
+
+// Gestion du bouton Retour (Home)
+// Ajoutez cet événement avec les autres (près de btn-restart)
+document.getElementById('btn-gameover-home').onclick = () => {
+    gameoverMenu.classList.add('hidden');
+    hud.classList.add('hidden');
+    showHomeMenu();
+};
+
+function selectSpecialReward(type) {
+    if (pauseStartTime > 0) {
+        totalPausedTime += (performance.now() - pauseStartTime);
+        pauseStartTime = 0;
+    }
+    Sounds.restoreMusic(); 
+    Sounds.play('clicvalidation');
+    if (type === 'potion') {
+        // Calcul du soin
+        let potLvl = shopUpgrades.potion.currentLevel;
+        let healAmount;
+        if (potLvl >= 10) healAmount = 130;
+        else if (potLvl >= 9) healAmount = 105;
+        else healAmount = potLvl * 10;
+        if (healAmount === 0) healAmount = 10;
+
+        player.hp = Math.min(player.maxHp, player.hp + healAmount);
+        spawnDamageNumber(player.x, player.y - 30, `+${healAmount} PV`, "#ff4444");
+    } 
+    else if (type === 'coffre') {
+        let spawnX = player.x + 50;
+        let spawnY = player.y;
+        
+        // Si ça dépasse de l'écran, on met à gauche
+        if (spawnX > W - 20) spawnX = player.x - 50;
+
+        // On crée le coffre
+        gcems.push({
+            x: spawnX,
+            y: spawnY,
+            hp: 30, // PV du coffre
+            maxHp: 30,
+            size: 32
+        });
+        
+        // Petit effet visuel pour montrer où il est apparu
+        createParticles(spawnX, spawnY, 10, '#ffd700');
     }
 
-    // Texte "Rejouer"
-    ctx.fillStyle = '#fff';
-    ctx.font = "18px Roboto";
-    let txt2 = "Rejouer";
-    let tw2 = ctx.measureText(txt2).width;
-    ctx.fillText(txt2,
-                 gameOverRect.x + (gameOverRect.width - tw2)/2,
-                 gameOverRect.y + gameOverRect.height/2 + 6);
+    // Fermer le menu et reprendre le jeu
+    levelupMenu.classList.add('hidden');
+    gameState = 'PLAYING';
+}
 
+document.getElementById('btn-restart').onclick = () => showStartMenu();
+
+// --- DRAW FUNCTIONS ---
+
+// dessiner les sprites sheets
+function drawSprite(img, x, y, size, flip, state) {
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+
+    const config = spriteConfig[state];
+    if (!config || !img.frameWidth) {
+        ctx.drawImage(img, x - size/2, y - size/2, size, size);
+        return;
+    }
+
+    const frameWidth = img.frameWidth;
+    const frameHeight = img.height;
+
+    // Animation basée sur le temps global
+    const now = performance.now();
+    const frameIndex = Math.floor(now / config.speed) % config.frames;
+
+    ctx.save();
+    ctx.translate(x, y);
+    if (flip) ctx.scale(-1, 1);
+
+    ctx.drawImage(
+        img, 
+        frameIndex * frameWidth, 0, frameWidth, frameHeight, 
+        -size/2, -size/2, size, size
+    );
+    
     ctx.restore();
 }
 
 function draw() {
-    ctx.clearRect(0,0,W,H);
-    if (inIntroMessage) {
-      drawIntroMessage();
-      return;
-    }
-    // joueur
-    ctx.save();
-    ctx.translate(player.x,player.y);
-    let currentImg = playerFrames[playerFrameIndex];
-    ctx.drawImage(currentImg, -16, -16, 32, 32);
-    ctx.restore();
-    for (let b of bloodStains) {
-        ctx.drawImage(sangImg, b.x - 8, b.y - 8, 20, 20);
-    }
-    // ennemis
-    for (let e of enemies) {
-      ctx.save();
-      ctx.translate(e.x, e.y);
+    ctx.clearRect(0, 0, W, H);
+    
+    // Taches de sang
+    bloodStains.forEach(b => {
+        ctx.drawImage(images.sang, b.x - 10, b.y - 10, 20, 20);
+    });
 
-      if (e.type === 'boss') {
-        // Boss plus grand
-        ctx.drawImage(e.img, -40, -40, 80, 80);
-      } else {
-        // Ennemi normal
-        ctx.drawImage(e.img, -16, -16, 32, 32);
-      }
+    // Ruines au sol
+    ruines.forEach(r => {
+        ctx.drawImage(r.img, r.x-30, r.y-30, 60, 60);
+    });
 
-      ctx.restore();
-    }
+        // === DESSINER LES COFFRES (GCEM) ===
+    gcems.forEach(g => {
+        ctx.drawImage(images.gcem, g.x - g.size/2, g.y - g.size/2, g.size, g.size);
+        
+        // Barre de vie du coffre
+        let barWidth = 30;
+        let hpPct = g.hp / g.maxHp;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(g.x - barWidth/2, g.y - g.size/2 - 8, barWidth, 5);
+        ctx.fillStyle = '#ffd700'; // Couleur or
+        ctx.fillRect(g.x - barWidth/2, g.y - g.size/2 - 8, barWidth * hpPct, 5);
+    });
+    
+    // Mines
+    mines.forEach(m => {
+        if(m.active) {
+            ctx.drawImage(m.img, m.x-16, m.y-16, 32, 32);
+        }
+    });
 
-    if(player.spells.livreErmite>0) {
-        for(let hb of hermitBooks){
-            let bx = player.x + Math.cos(hb.angle)*hb.radius;
-            let by = player.y + Math.sin(hb.angle)*hb.radius;
-            ctx.save();
-            ctx.translate(bx,by);
-            ctx.drawImage(livreImg,-8,-8,16,16);
-            ctx.restore();
+    // Potions
+    potions.forEach(p => {
+        ctx.drawImage(images.potion, p.x-10, p.y-10, 20, 20);
+    });
+
+    //  Aimants
+    magnets.forEach(m => {
+        if (!m.collected) {
+            ctx.drawImage(images.magne, m.x-10, m.y-10, 20, 20);
+        }
+    });
+
+    // Dessiner les pièces
+    drawPieces();
+    
+    // Projectiles
+    projectiles.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        
+        if(p.type === 'cle') {
+            ctx.rotate(p.rotation);
+        } 
+        else if (p.type === 'knife') {
+            // Le couteau tourne sur lui-même
+            if (p.rotation) ctx.rotate(p.rotation);
+        }
+        else if(p.type === 'pile') {
+            if(p.angle !== undefined) {
+                ctx.rotate(p.angle + Math.PI/2);
+            }
+        }
+        
+        ctx.drawImage(p.img, -8, -8, 16, 16);
+        ctx.restore();
+    });
+    
+    // Bichons
+    bichons.forEach(b => {
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        if(b.target && b.target.x < b.x) ctx.scale(-1,1);
+        ctx.drawImage(images.bichon, -12, -12, 24, 24);
+        ctx.restore();
+    });
+
+    // === TONDEUSES ===
+    tondeuses.forEach(t => {
+        let maxLoops = 1 + (player.spells.tondeuse - 1) * 2; // On récupère le niveau du joueur
+        let currentSize = t.baseSize + (t.loopIndex * t.sizeGrowth);
+        let halfSize = currentSize / 2;
+        
+        let relX, relY, angle = 0;
+        
+        // Calcul position (copie de la logique update)
+        if (t.sideIndex === 0) { 
+            relX = -halfSize + (t.t * currentSize); relY = -halfSize; angle = 0; 
+        } 
+        else if (t.sideIndex === 1) { 
+            relX = halfSize; relY = -halfSize + (t.t * currentSize); angle = Math.PI / 2; 
+        } 
+        else if (t.sideIndex === 2) { 
+            relX = halfSize - (t.t * currentSize); relY = halfSize; angle = Math.PI; 
+        } 
+        else { 
+            relX = -halfSize; relY = halfSize - (t.t * currentSize); angle = -Math.PI / 2; 
+        }
+
+        let worldX = player.x + relX;
+        let worldY = player.y + relY;
+
+        ctx.save();
+        ctx.translate(worldX, worldY);
+        ctx.rotate(angle); // Rotation dans le sens du mouvement
+        
+        if (images.tondeuse) {
+            ctx.drawImage(images.tondeuse, -16, -16, 32, 32);
+        } else {
+            // Fallback si l'image ne charge pas (cercle vert)
+            ctx.fillStyle = '#0f0';
+            ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+    });
+
+    // Ennemis
+    enemies.forEach(e => {
+        ctx.save();
+        ctx.translate(e.x, e.y);
+        let size = e.type === 'boss' ? 60 : 40;
+        
+        // Flash blanc
+        if (e.flashTime > 0) {
+            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(0, 0, size/2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+        
+        // Flip si le joueur est à gauche de l'ennemi
+        let flip = player.x < e.x;
+        
+        // Dessin avec le helper
+        drawSprite(e.img, 0, 0, size, flip, e.spriteKey);
+        
+        ctx.restore();
+    });
+    
+    // Joueur
+    if (player && player.hp > 0) {
+        let flipPlayer = Math.abs(player.facing) > Math.PI/2;
+        
+        // Dessin Joueur
+        let drawSize = player.size * 1.4; 
+        drawSprite(images.player, player.x, player.y, drawSize, flipPlayer, 'player');
+        
+        // Livres
+        if (hermitBooks.length > 0) {
+             hermitBooks.forEach(b => {
+                let bx = player.x + Math.cos(b.angle)*70;
+                let by = player.y + Math.sin(b.angle)*70;
+                ctx.drawImage(images.livre, bx-10, by-10, 20, 20);
+             });
+        }
+        
+        // Armageddon
+        if (player.spells.armageddon > 0) {
+             ctx.save();
+             ctx.translate(player.x, player.y); 
+             ctx.beginPath();
+             ctx.arc(0, 0, 60 + player.spells.armageddon*20, 0, Math.PI*2);
+             ctx.strokeStyle = `rgba(255, 50, 0, ${0.3 + Math.random()*0.2})`;
+             ctx.lineWidth = 3;
+             ctx.stroke();
+             ctx.restore();
         }
     }
-
-for (let p of projectiles) {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-
-  if (p.type==='cle') {
-    ctx.rotate(p.rotation);
-    ctx.drawImage(p.img, -16, -16, 16, 16);
-  } else {
-      let imgToDraw = p.img || pileImg;
-      ctx.drawImage(imgToDraw, -8, -8, 16, 16);
-    }
-
-    ctx.restore();
-}
-
-    for(let a of aoes) {
+    
+    // FX (AoE & Coupe Coupe)
+    aoes.forEach(a => {
         ctx.save();
-        ctx.beginPath();
-        ctx.arc(a.x,a.y,a.radius,0,Math.PI*2);
-        ctx.fillStyle='rgba(0,0,255,0.3)';
-        ctx.fill();
+        ctx.translate(a.x, a.y);
+        if (a.type === 'slash-visuel') {
+            ctx.rotate(a.angle + Math.PI / 2); 
+            
+            if (a.img) {
+                let largeurImg = 40;  
+                let hauteurImg = 60;  
+                ctx.drawImage(a.img, -largeurImg/2, -30 - 50, largeurImg, hauteurImg); 
+            }
+        } 
+        else if (a.type === 'lance-visuel') {
+            // Affichage du Lance-Pile
+            ctx.rotate(a.angle + Math.PI); 
+            if (a.img) {
+                ctx.drawImage(a.img, -30, -10, 30, 20); 
+            }
+        }
+        else {
+            ctx.beginPath();
+            ctx.arc(0, 0, a.radius, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(100, 100, 255, 0.3)`;
+            ctx.fill();
+        }
+        ctx.restore();
+    });
+    
+    particles.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        if (p.isGhost) {
+            ctx.globalAlpha = p.life / 300;
+            if (images.player && images.player.complete) {
+                 ctx.drawImage(images.player, -16, -16, 32, 32);
+            }
+        } else {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size, 0, Math.PI*2);
+            ctx.fill();
+        }
+        ctx.restore();
+    });
+    
+    damageNumbers.forEach(d => {
+        ctx.save();
+        // Utilisation de la couleur définie, avec l'opacité (life)
+        ctx.fillStyle = d.color.replace(')', `, ${d.life})`).replace('rgb', 'rgba'); 
+        
+        // Si c'est une couleur hex (#...), on gère l'opacité différemment ou on laisse tel quel
+        // Pour faire simple et efficace, voici la méthode adaptée à votre code existant :
+        
+        // On reconstruit la couleur avec opacité si besoin, ou on utilise fillStyle direct
+        // Le plus simple pour votre code actuel :
+        ctx.fillStyle = d.color; 
+        ctx.globalAlpha = d.life; // L'opacité gère la disparition
+        
+        ctx.font = "bold 14px Verdana";
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.strokeText(d.text, d.x, d.y);
+        ctx.fillText(d.text, d.x, d.y);
+        
+        ctx.globalAlpha = 1; // Reset opacité
+        ctx.restore();
+    });
+
+    if (levelUpFlashTimer > 0) {
+        // Calcul du temps (0 à 1)
+        let duration = 1000; // 1 seconde
+        let progress = levelUpFlashTimer / duration; // 1.0 -> 0.0
+
+        // 1. Flash Blanc (disparaît vite)
+        let alphaFlash = Math.max(0, (progress - 0.5) * 2); // Disparait à mi-temps
+        ctx.fillStyle = `rgba(255, 255, 255, ${alphaFlash * 0.6})`;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Texte "LEVEL UP" Animé
+        let textAlpha = progress; // Disparaît progressivement
+        // Echelle : commence petit (0.5), grossit jusqu'à 1.2, puis revient à 1
+        let textScale = 0.5 + (1 - progress) * 0.7; 
+        
+        ctx.save();
+        ctx.translate(W / 2, H / 2); // On se place au centre
+        ctx.scale(textScale, textScale); // On applique le zoom
+        
+        // Style du texte
+        ctx.font = "bold 48px Verdana"; // Police grande
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
+        // Contour rouge
+        ctx.strokeStyle = `rgba(255, 0, 0, ${textAlpha})`;
+        ctx.lineWidth = 4;
+        ctx.strokeText("LEVEL UP !", 0, 0);
+        
+        // Texte blanc
+        ctx.fillStyle = `rgba(255, 255, 255, ${textAlpha})`; // Blanc
+        ctx.fillText("LEVEL UP !", 0, 0);
+        
         ctx.restore();
     }
+    // === EFFET VISUEL MAGNETISME (ASPIRATION) ===
+    magnets.forEach(m => {
+        if (m.collected && performance.now() < m.endTime) {
+            
+            // 1. Particules d'aspiration (Apparaissent sur les bords et vont vers le joueur)
+            // On génère des particules un peu plus souvent pour un flux constant
+            if (Math.random() < 0.4) { 
+                // On choisit un bord au hasard
+                let startX, startY;
+                let side = Math.floor(Math.random() * 4);
+                if (side === 0) { startX = Math.random() * W; startY = -10; }
+                else if (side === 1) { startX = W + 10; startY = Math.random() * H; }
+                else if (side === 2) { startX = Math.random() * W; startY = H + 10; }
+                else { startX = -10; startY = Math.random() * H; }
 
-    // dessins bichon
-    for (let b of bichons) {
-      ctx.save();
-      ctx.translate(b.x, b.y);
-      ctx.drawImage(b.img, -16, -16, 16, 16);
-      ctx.restore();
-    }
+                particles.push({
+                    x: startX, y: startY,
+                    // On calcule la direction vers le joueur
+                    vx: (player.x - startX) * 0.03, 
+                    vy: (player.y - startY) * 0.03,
+                    life: 1.0, 
+                    color: '#00ffff', // Couleur Cyan
+                    size: Math.random() * 3 + 1
+                });
+            }
 
-
-    // Dessin des ruines
-    for (let r of ruines) {
-      ctx.save();
-      ctx.translate(r.x, r.y);
-      ctx.drawImage(r.img, -16, -16, 70, 70);
-      ctx.restore();
-    }
-
-    // Armageddon (zone)
-if (player.spells.armageddon > 0) {
-    ctx.save();
-    let level = player.spells.armageddon;
-    let baseRadius = 50; 
-    let radius = baseRadius;
-
-    // Ajuster le rayon selon le niveau
-    switch (level) {
-        case 1:
-            radius = 50;
-            break;
-        case 2:
-            radius = 60;
-            break;
-        case 3:
-            radius = 70;
-            break;
-        case 4:
-            radius = 100;
-            break;
-        case 5:
-            radius = 130;
-            break;
-    }
-
-    // Dessiner le cercle Armageddon
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,0,0,0.5)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-}
-    let now = performance.now();
-    for (let e of enemies) {
-     let recentlyHit = (now - e.lastHitTime < HIT_FLASH_DURATION);
-
-     ctx.save();
-     ctx.translate(e.x,e.y);
-
-     if (recentlyHit) {
-         // L'ennemi a été touché récemment, on va le faire clignoter.
-         // Par exemple, on peut changer son alpha (transparence) ou son mode de composition
-         ctx.globalAlpha = 0.5; // Le rendre plus transparent ou
-         ctx.globalCompositeOperation = 'lighter'; // ajouter un effet de surbrillance
-         // Vous pouvez aussi dessiner un rectangle coloré derrière l'image pour mieux le signaler
-     }
-
-     ctx.drawImage(e.img,-16,-16,32,32);
-
-     ctx.restore();
-}
-
-
-    drawUI();
-    if(inStartMenu) {
-        drawStartMenu();
-    }
-
-    if(inLevelUpMenu) {
-        drawLevelUpMenu();
-    }
-
-    if(inGameOverMenu) {
-        drawGameOverMenu();
-    }
-
-    drawTooltip();
-    drawCoupeCoupeSlash();
-}
-
-function drawCoupeCoupeSlash() {
-    if (!coupeCoupeSlash) return;
-    let now = performance.now();
-    let elapsed = now - coupeCoupeSlash.start;
-    if (elapsed > 200) {
-        coupeCoupeSlash = null;
-        return;
-    }
-
-    let baseAngle = coupeCoupeSlash.baseAngle;
-    let length = coupeCoupeSlash.length;
-
-    ctx.save();
-    ctx.translate(player.x, player.y);
-
-    // Manche marron (optionnel)
-    ctx.strokeStyle='brown';
-    ctx.lineWidth=4;
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(Math.cos(baseAngle)*(-5), Math.sin(baseAngle)*(-5));
-    ctx.stroke();
-
-    // Lame blanche
-    ctx.strokeStyle='white';
-    ctx.lineWidth=4; 
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(Math.cos(baseAngle)*length, Math.sin(baseAngle)*length);
-    ctx.stroke();
-
-    ctx.restore();
-}
-
-function drawUI() {
-    let hpRatio=player.hp/player.maxHp;
-    let xpRatio=player.xp/player.xpForNextLevel;
-
-    let hpWidth=200;let hpHeight=20;
-    ctx.fillStyle='#555';
-    ctx.fillRect(10,10,hpWidth,hpHeight);
-    ctx.fillStyle='#e00';
-    ctx.fillRect(10,10,hpWidth*hpRatio,hpHeight);
-    ctx.strokeStyle='#aaa';
-    ctx.strokeRect(10,10,hpWidth,hpHeight);
-    ctx.fillStyle='#fff';
-    ctx.font="14px Roboto";
-    ctx.fillText("Vie",10+hpWidth-30,10+hpHeight-5);
-
-    let xpWidth=200; let xpHeight=20;
-    ctx.fillStyle='#555';
-    ctx.fillRect(W-10 - xpWidth,10,xpWidth,xpHeight);
-    ctx.fillStyle='#0f0';
-    ctx.fillRect(W-10 - xpWidth,10,xpWidth*xpRatio,xpHeight);
-    ctx.strokeStyle='#aaa';
-    ctx.strokeRect(W-10 - xpWidth,10,xpWidth,xpHeight);
-    ctx.fillStyle='#fff';
-    ctx.fillText("Exp",W-10 - xpWidth + xpWidth -30,10+xpHeight-5);
-
-    ctx.font="20px Roboto";
-    let lvlTxt="Niv: "+player.level;
-    let mt=ctx.measureText(lvlTxt).width;
-    ctx.fillText(lvlTxt,(W-mt)/2,30);
-
-    // Affichage du killCount en bas à droite
-    let killText = "Ennemis tués: "+killCount;
-    let ktw=ctx.measureText(killText).width;
-    ctx.fillStyle='#fff';
-    ctx.font='16px Roboto';
-    ctx.fillText(killText, W-ktw-10, H-10);
-
-    let unlockedSpells=Object.keys(player.spells).filter(sp=>player.spells[sp]>0);
-    let slotSize=32;
-    let startX=10;
-    let startY=H-slotSize-10;
-    let offsetX=5;
-    for(let i=0;i<unlockedSpells.length;i++) {
-        let sp=unlockedSpells[i];
-        let imgSlot=getSpellSlotImage(sp);
-        ctx.drawImage(imgSlot,startX+i*(slotSize+offsetX),startY,slotSize,slotSize);
-    }
-}
-
-function drawTooltip() {
-    if(!hoveredChoice || !hoveredChoice.spell) return;
-    let sp = hoveredChoice.spell;
-    if(!spellDescriptions[sp]) return;
-
-    let txt = spellDescriptions[sp];
-    ctx.save();
-    ctx.font="14px Roboto";
-    ctx.shadowColor="#000";
-    ctx.shadowBlur=2;
-    let tw = ctx.measureText(txt).width;
-
-    let tx = mousePos.x + 15;
-    let ty = mousePos.y + 15;
-    let padding = 5;
-    let bgWidth = tw + padding*2;
-    let bgHeight = 24; 
-
-    if(tx+bgWidth > W) tx = W - bgWidth - 10;
-    if(ty+bgHeight > H) ty = H - bgHeight - 10;
-
-    ctx.fillStyle="rgba(0,0,0,0.8)";
-    ctx.fillRect(tx,ty,bgWidth,bgHeight);
-    ctx.strokeStyle="#fff";
-    ctx.lineWidth=1;
-    ctx.strokeRect(tx,ty,bgWidth,bgHeight);
-
-    ctx.fillStyle="#fff";
-    ctx.fillText(txt, tx+padding, ty+bgHeight - 8);
-
-    ctx.restore();
-}
-
-function randChoice(arr) {
-    return arr[Math.floor(Math.random()*arr.length)];
-}
-
-function generateLevelUpChoices() {
-    // 1) Filtrer les sorts actifs/passifs qui ne sont pas encore au niveau 5
-    let notMaxActives = activeSpells.filter(sp => player.spells[sp] < 5);
-    let notMaxPassives = passiveSpells.filter(sp => player.spells[sp] < 5);
-
-    // 2) Vérifier les sorts déjà possédés
-    let ownedActives = notMaxActives.filter(sp => player.spells[sp] > 0);
-    let ownedPassives = notMaxPassives.filter(sp => player.spells[sp] > 0);
-
-    // maxActive et maxPassive décrivent la limite de sorts actifs/passifs *possédés*
-    let maxActive=2;
-    let maxPassive=3;
-
-    // === Choisir l'actif ===
-    // S’il a déjà 2 actifs possédés (et pas au niveau 5),
-    // on pioche parmi ceux qu'il possède (pour l'augmenter).
-    // Sinon on pioche parmi tous les sorts actifs non-max.
-    let chosenActive;
-    if (ownedActives.length >= maxActive) {
-        if (ownedActives.length > 0) {
-            chosenActive = randChoice(ownedActives);
-        } else {
-            chosenActive = null; // Plus aucun actif possible
+            // 2. Traînées derrière les pièces (Effet de vitesse)
+            pieces.forEach(p => {
+                if (!p.collected) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    // On dessine une ligne vers l'opposé du joueur
+                    let angle = Math.atan2(player.y - p.y, player.x - p.x);
+                    ctx.lineTo(
+                        p.x - Math.cos(angle) * 15, 
+                        p.y - Math.sin(angle) * 15
+                    );
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
         }
-    } else {
-        if (notMaxActives.length > 0) {
-            chosenActive = randChoice(notMaxActives);
-        } else {
-            chosenActive = null; // aucun actif non-max
-        }
-    }
+    });
+}
 
-    // === Choisir 2 passifs ===
-    let chosenPassives=[];
-    if (ownedPassives.length >= maxPassive) {
-        // on pioche 2 dans ceux qu’il possède et pas max
-        if (ownedPassives.length > 0) {
-            let pool = ownedPassives.slice();
-            let p1 = randChoice(pool);
-            chosenPassives.push(p1);
-            pool = pool.filter(sp=>sp!==p1);
-            if (pool.length>0) {
-                let p2=randChoice(pool);
-                chosenPassives.push(p2);
+// --- SYSTEME DE PIECES ---
+
+function spawnPiece(x, y) {
+    pieces.push({
+        x: x,
+        y: y,
+        value: 1,
+        // Propriétés pour l'animation de rotation "horizontale"
+        scaleX: 1,       // 1 = face visible, 0 = profil
+        scaleDir: -1,    // Direction du retournement
+        life: 10000,     // Temps de vie (ms)
+        collected: false
+    });
+}
+
+function updatePieces(dt) {
+    // Récupération du niveau de magnétisme
+    const magnetLvl = shopUpgrades.magnet.currentLevel;
+    const magnetRange = magnetLvl > 0 ? shopUpgrades.magnet.baseValue + (magnetLvl * 10) : 0; // Base 30 + 10 par niveau
+
+    pieces.forEach(p => {
+        if (p.collected) return;
+
+        // 1. Animation
+        p.scaleX += p.scaleDir * (dt / 450);
+        
+        if (p.scaleX <= -1) {
+            p.scaleDir = 1;
+            p.scaleX = -1;
+        } else if (p.scaleX >= 1) {
+            p.scaleDir = -1;
+            p.scaleX = 1;
+        }
+
+        // 2. Magnétisme (Attraction)
+        if (magnetLvl > 0) {
+            let d = dist(player.x, player.y, p.x, p.y);
+            // Si la pièce est dans le rayon de magnétisme
+            if (d < magnetRange && d > 5) { // d > 5 pour éviter les tremblements
+                // On attire la pièce vers le joueur
+                let angle = Math.atan2(player.y - p.y, player.x - p.x);
+                let speed = 4; // Vitesse d'attraction
+                p.x += Math.cos(angle) * speed;
+                p.y += Math.sin(angle) * speed;
             }
         }
-    } else {
-        // on pioche 2 dans tous les passifs non-max
-        if (notMaxPassives.length > 0) {
-            let p1 = randChoice(notMaxPassives);
-            chosenPassives.push(p1);
-            let pool = notMaxPassives.filter(sp => sp !== p1);
-            if (pool.length > 0) {
-                let p2 = randChoice(pool);
-                chosenPassives.push(p2);
-            }
+
+        // 3. Collision avec le joueur (Ramassage)
+        let d = dist(player.x, player.y, p.x, p.y);
+        if (d < player.size + 10) {
+            p.collected = true;
+            totalCoins += p.value;
+            saveCoins(); // Sauvegarder les pièces dès qu'on en ramasse
+            updateCoinUI();
+            createParticles(p.x, p.y, 5, '#ffd700');
+            spawnDamageNumber(p.x, p.y - 20 - Math.random()*10, "+1", "#00ff00");
         }
-    }
 
-    // 3) Construire le tableau final
-    let finalChoices = [];
-    if (chosenActive) {
-        finalChoices.push({ spell: chosenActive, name: getSpellName(chosenActive) });
-    }
+        // 4. Disparition (DÉSACTIVÉ)
+        // p.life -= dt;
+        // if (p.life <= 0) p.collected = true;
+    });
 
-    for (let sp of chosenPassives) {
-        finalChoices.push({ spell: sp, name: getSpellName(sp) });
-    }
-
-    return finalChoices;
+    pieces = pieces.filter(p => !p.collected);
 }
 
-function getClosestEnemy(px, py) {
-  let target = null;
-  let minDist = Infinity;
+function updateCoinUI() {
+    // Met à jour l'affichage dans le HUD
+    const hudCoins = document.getElementById('coin-count-hud');
+    if(hudCoins) hudCoins.innerText = totalCoins;
 
-  // Parcourt tous les ennemis
-  for (let e of enemies) {
-    if (e.hp > 0) { // Uniquement ceux qui sont encore en vie
-      let d = distance(px, py, e.x, e.y);
-      if (d < minDist) {
-        minDist = d;
-        target = e;
-      }
+    // Met à jour l'affichage dans la Boutique
+    const shopCoins = document.getElementById('coin-count-shop');
+    if(shopCoins) shopCoins.innerText = totalCoins;
+}
+
+function drawPieces() {
+    pieces.forEach(p => {
+        if (p.collected) return;
+        
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        
+        // Applique la rotation horizontale (scaleX)
+        // Math.abs pour éviter d'inverser l'image, on veut juste réduire la largeur
+        ctx.scale(Math.abs(p.scaleX), 1);
+        
+        // Dessine la pièce
+        ctx.drawImage(images.piece, -10, -10, 20, 20); // Taille 20x20
+        
+        ctx.restore();
+    });
+}
+
+function dist(x1, y1, x2, y2) { return Math.sqrt((x2-x1)**2 + (y2-y1)**2); }
+function getClosestEnemy() {
+    let best = null, minD = Infinity;
+    enemies.forEach(e => {
+        let d = dist(player.x, player.y, e.x, e.y);
+        if (d < minD) { minD = d; best = e; }
+    });
+    return best;
+}
+
+window.addEventListener('keydown', e => {
+    let k = e.key.toLowerCase();
+    if(k==='z'||k==='arrowup') keys.Z=true;
+    if(k==='q'||k==='arrowleft') keys.Q=true;
+    if(k==='s'||k==='arrowdown') keys.S=true;
+    if(k==='d'||k==='arrowright') keys.D=true;
+    if(e.code === 'Space') keys.Space=true;
+});
+window.addEventListener('keyup', e => {
+    let k = e.key.toLowerCase();
+    if(k==='z'||k==='arrowup') keys.Z=false;
+    if(k==='q'||k==='arrowleft') keys.Q=false;
+    if(k==='s'||k==='arrowdown') keys.S=false;
+    if(k==='d'||k==='arrowright') keys.D=false;
+    if(e.code === 'Space') keys.Space=false;
+});
+canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mousePos.x = (e.clientX - r.left) * (W/r.width);
+    mousePos.y = (e.clientY - r.top) * (H/r.height);
+});
+canvas.addEventListener('mousedown', e => {
+    if(e.button===0) mouseLeftDown=true;
+    if(e.button===2) mouseRightDown=true;
+});
+canvas.addEventListener('mouseup', e => {
+    if(e.button===0) mouseLeftDown=false;
+    if(e.button===2) mouseRightDown=false;
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+// Navigation Accueil
+btnPlay.onclick = () => showStartMenu();
+btnOptions.onclick = () => showOptionsMenu();
+btnShop.onclick = () => showShopMenu();
+
+// Retours
+btnOptionsBack.onclick = () => quitToHome();
+btnShopBack.onclick = () => showHomeMenu();
+btnBackToHome.onclick = () => showHomeMenu();
+
+// --- GESTION MENU PAUSE ---
+
+function showPauseMenu() {
+    if (gameState !== 'PLAYING') return;
+    pauseStartTime = performance.now();
+    gameState = 'PAUSE';
+    pauseMenu.classList.remove('hidden');
+}
+
+function hidePauseMenu() {
+    if (pauseStartTime > 0) {
+        // On ajoute la durée de cette pause au total
+        totalPausedTime += (performance.now() - pauseStartTime);
+        pauseStartTime = 0; // On reset pour la prochaine fois
     }
-  }
-  return target;  // null si aucun ennemi en vie, ou l'ennemi le plus proche
+    pauseMenu.classList.add('hidden');
+    gameState = 'PLAYING';
 }
 
-function findAnotherEnemy(ignoredEnemy) {
-  // par ex. n’importe quel ennemi vivant :
-  for (let e of enemies) {
-    if (e !== ignoredEnemy && e.hp>0) {
-      return e; // On renvoie le premier trouvé
-    }
-  }
-  return null;
+function quitToHome() {
+    Sounds.stopMusic();
+    pauseMenu.classList.add('hidden');
+    gameoverMenu.classList.add('hidden');
+    hud.classList.add('hidden'); // Cache le HUD
+    btnOptionsIngame.classList.add('hidden'); // Cache le bouton option
+    showHomeMenu();
 }
 
-function drawIntroMessage() {
-  ctx.save();
+// Evenements clic
+btnOptionsIngame.onclick = () => {
+    if(gameState === 'PLAYING') showPauseMenu();
+};
 
-  // Dimensions de la "bulle"
-  let bubbleWidth = 650;
-  let bubbleHeight = 300;
-  introRect.width = bubbleWidth;
-  introRect.height = bubbleHeight;
-  introRect.x = (W - bubbleWidth) / 2;
-  introRect.y = (H - bubbleHeight) / 2 - 40;
+btnResumeGame.onclick = () => hidePauseMenu();
+btnQuitGame.onclick = () => quitToHome();
 
-  // 1) Dessin du fondAmelioImg à la place du rectangle
-  ctx.drawImage(
-    fondAmelioImg,
-    introRect.x,
-    introRect.y,
-    introRect.width,
-    introRect.height
-  );
-
-  // 2) Texte en blanc
-  ctx.fillStyle = "#fff";
-  ctx.font = "16px Roboto";
-
-  // Petit offset à l'intérieur de la bulle
-  let lines = introText.split("\n");
-  let lineHeight = 20;
-  let textX = introRect.x + 20;
-  let textY = introRect.y + 40;
-
-  for (let line of lines) {
-    ctx.fillText(line, textX, textY);
-    textY += lineHeight;
-  }
-
-  // 3) Bouton "Jouer" avec l'image boutonImg
-  playButtonRect.width = 150;
-  playButtonRect.height = 40;
-  playButtonRect.x = introRect.x + (introRect.width - playButtonRect.width) / 2;
-  playButtonRect.y = introRect.y + introRect.height - 60; // un peu plus bas que la fin du texte
-
-  // Dessin du bouton (image)
-  ctx.drawImage(
-    boutonImg,
-    playButtonRect.x,
-    playButtonRect.y,
-    playButtonRect.width,
-    playButtonRect.height
-  );
-
-  // Survol => contour blanc
-  if (
-    mousePos.x >= playButtonRect.x &&
-    mousePos.x <= playButtonRect.x + playButtonRect.width &&
-    mousePos.y >= playButtonRect.y &&
-    mousePos.y <= playButtonRect.y + playButtonRect.height
-  ) {
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(
-      playButtonRect.x,
-      playButtonRect.y,
-      playButtonRect.width,
-      playButtonRect.height
-    );
-  }
-
-  // 4) Texte "Jouer" en blanc, centré dans le bouton
-  ctx.fillStyle = "#fff";
-  ctx.font = "18px Roboto";
-  let txt = "Jouer";
-  let tw = ctx.measureText(txt).width;
-  ctx.fillText(
-    txt,
-    playButtonRect.x + (playButtonRect.width - tw) / 2,
-    playButtonRect.y + 26
-  );
-
-  ctx.restore();
-}
-
-function drawRoundedRect(x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const tooltip = document.createElement('div'); // Crée un élément pour le tooltip
-    tooltip.id = 'tooltip';
-    tooltip.style.display = 'none';
-    tooltip.style.position = 'absolute';
-    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    tooltip.style.color = '#fff';
-    tooltip.style.padding = '5px 10px';
-    tooltip.style.borderRadius = '5px';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.pointerEvents = 'none';
-    tooltip.style.whiteSpace = 'nowrap';
-    tooltip.style.zIndex = '1000';
-    document.body.appendChild(tooltip);
-
-    const logo = document.getElementById('toncplay-logo');
-
-    if (logo) {
-        // Montrer le tooltip
-        logo.addEventListener('mouseenter', (e) => {
-            const text = logo.getAttribute('data-tooltip');
-            if (text) {
-                tooltip.textContent = text;
-                tooltip.style.display = 'block';
-            }
-        });
-
-        // Déplacer le tooltip avec la souris
-        logo.addEventListener('mousemove', (e) => {
-            tooltip.style.left = e.pageX + 10 + 'px'; // Position horizontale
-            tooltip.style.top = e.pageY + 10 + 'px'; // Position verticale
-        });
-
-        // Cacher le tooltip
-        logo.addEventListener('mouseleave', () => {
-            tooltip.style.display = 'none';
-        });
+// Gestion Touche Echap pour ouvrir/fermer le menu pause
+window.addEventListener('keydown', e => {
+    // ... (vos touches existantes) ...
+    
+    // Ajout pour Echap
+    if (e.key === 'Escape') {
+        if (gameState === 'PLAYING') showPauseMenu();
+        else if (gameState === 'PAUSE') hidePauseMenu();
     }
 });
 
-initGame();
+// --- BOUTIQUE & UPGRADES ---
+
+// Configuration des améliorations
+const shopUpgrades = {
+    hp: { currentLevel: 0, maxLevel: 10, baseCost: 25, costMultiplier: 1.2, baseValue: 25 }, 
+    potion: { currentLevel: 0, maxLevel: 10, baseCost: 20, costMultiplier: 1.2, baseValue: 10 },     
+    magnet: { currentLevel: 0, maxLevel: 10, baseCost: 10, costMultiplier: 1.2, baseValue: 30 },
+    speed: { currentLevel: 0, maxLevel: 10, baseCost: 10, costMultiplier: 1.2, baseValue: 0.12 }
+};
+
+// Chargement des améliorations ET des pièces depuis le localStorage
+function loadUpgrades() {
+    // 1. Upgrades
+    const data = localStorage.getItem('hordesUpgrades');
+    if (data) {
+        const saved = JSON.parse(data);
+        for (let key in saved) {
+            if (shopUpgrades[key]) {
+                shopUpgrades[key].currentLevel = saved[key];
+        }
+        }
+    }
+
+    // 2. Pièces (Nouveau)
+    const savedCoins = localStorage.getItem('hordesCoins');
+    if (savedCoins) {
+        totalCoins = parseInt(savedCoins) || 0;
+    }
+}
+
+// Sauvegarde des améliorations
+function saveUpgrades() {
+    const data = {};
+    for (let key in shopUpgrades) {
+        data[key] = shopUpgrades[key].currentLevel;
+    }
+    localStorage.setItem('hordesUpgrades', JSON.stringify(data));
+}
+
+// Sauvegarde des pièces (Nouveau)
+function saveCoins() {
+    localStorage.setItem('hordesCoins', totalCoins.toString());
+}
+
+// Calcul du coût pour le niveau suivant
+function getUpgradeCost(type) {
+    const upgrade = shopUpgrades[type];
+    return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.currentLevel));
+}
+
+// Logique d'achat
+function buyUpgrade(type) {
+    const upgrade = shopUpgrades[type];
+    if (upgrade.currentLevel >= upgrade.maxLevel) return;
+
+    const cost = getUpgradeCost(type);
+
+    if (totalCoins >= cost) {
+        totalCoins -= cost;
+        upgrade.currentLevel++;
+        
+        // --- LOGIQUE SPECIALE POTION ---
+        if (type === 'potion') {
+            // On met à jour le soin en mémoire pour l'affichage et l'utilisation
+            // Niveaux 1 à 8 : +10 PV
+            // Niveaux 9 et 10 : +25 PV (le 10 cumule le bonus du 9)
+            if (upgrade.currentLevel === 9) {
+                upgrade.currentBonus = (upgrade.currentLevel - 1) * 10 + 25; // 8*10 + 25 = 105
+            } else if (upgrade.currentLevel === 10) {
+                upgrade.currentBonus = (upgrade.currentLevel - 2) * 10 + 25 + 25; // 8*10 + 50 = 130
+            } else {
+                upgrade.currentBonus = upgrade.currentLevel * 10;
+            }
+        }
+        // ---------------------------------
+
+        saveUpgrades();
+        saveCoins();
+        updateCoinUI();
+        updateShopUI();
+    }
+}
+
+// Mise à jour de l'affichage de la boutique
+function updateShopUI() {
+    // Mise à jour Pièces
+    const shopCoins = document.getElementById('coin-count-shop');
+    if(shopCoins) shopCoins.innerText = totalCoins;
+
+    // Mise à jour PV
+    const hpLvl = document.getElementById('shop-hp-level');
+    const hpCost = document.getElementById('shop-hp-cost');
+    const hpItem = document.getElementById('shop-item-hp');
+    if (hpLvl) hpLvl.innerText = `Niveau actuel : ${shopUpgrades.hp.currentLevel}/${shopUpgrades.hp.maxLevel}`;
+    if (hpCost) hpCost.innerText = getUpgradeCost('hp');
+    if (hpItem) {
+        if (shopUpgrades.hp.currentLevel >= shopUpgrades.hp.maxLevel) {
+            hpItem.classList.add('disabled');
+            if(hpCost) hpCost.innerText = "MAX";
+        } else {
+            hpItem.classList.remove('disabled');
+        }
+    }
+
+    // Mise à jour Potions
+    const potLvl = document.getElementById('shop-potion-level');
+    const potCost = document.getElementById('shop-potion-cost');
+    const potItem = document.getElementById('shop-item-potion');
+    
+    // Calcul du soin total actuel
+    let currentHeal = 0;
+    if (shopUpgrades.potion.currentLevel > 0) {
+        // On recalcule ou on utilise la valeur stockée
+        let lvl = shopUpgrades.potion.currentLevel;
+        if (lvl >= 10) currentHeal = 130;
+        else if (lvl >= 9) currentHeal = 105;
+        else currentHeal = lvl * 10;
+    }
+    
+    if (potLvl) potLvl.innerText = `Soin actuel : +${currentHeal} PV (${shopUpgrades.potion.currentLevel}/${shopUpgrades.potion.maxLevel})`;
+    if (potCost) potCost.innerText = getUpgradeCost('potion');
+    if (potItem) {
+        if (shopUpgrades.potion.currentLevel >= shopUpgrades.potion.maxLevel) {
+            potItem.classList.add('disabled');
+            if(potCost) potCost.innerText = "MAX";
+        } else {
+            potItem.classList.remove('disabled');
+        }
+    }
+
+    // Mise à jour Magnétisme
+    const magLvl = document.getElementById('shop-magnet-level');
+    const magCost = document.getElementById('shop-magnet-cost');
+    const magItem = document.getElementById('shop-magnet');
+    if (magLvl) magLvl.innerText = `Niveau actuel : ${shopUpgrades.magnet.currentLevel}/${shopUpgrades.magnet.maxLevel}`;
+    if (magCost) magCost.innerText = getUpgradeCost('magnet');
+    if (magItem) {
+        if (shopUpgrades.magnet.currentLevel >= shopUpgrades.magnet.maxLevel) {
+            magItem.classList.add('disabled');
+            if(magCost) magCost.innerText = "MAX";
+        } else {
+            magItem.classList.remove('disabled');
+        }
+    }
+    // Mise à jour Vitesse 
+    const speedLvl = document.getElementById('shop-speed-level');
+    const speedCost = document.getElementById('shop-speed-cost');
+    const speedItem = document.getElementById('shop-item-speed');
+    
+    // Calcul de la vitesse actuelle pour l'affichage (1.5 + niveau*0.12)
+    let currentSpeedVal = (1.5 + (shopUpgrades.speed.currentLevel * 0.12)).toFixed(2);
+    
+    if (speedLvl) speedLvl.innerText = `Vitesse : ${currentSpeedVal} (${shopUpgrades.speed.currentLevel}/${shopUpgrades.speed.maxLevel})`;
+    if (speedCost) speedCost.innerText = getUpgradeCost('speed');
+    if (speedItem) {
+        if (shopUpgrades.speed.currentLevel >= shopUpgrades.speed.maxLevel) {
+            speedItem.classList.add('disabled');
+            if(speedCost) speedCost.innerText = "MAX";
+        } else {
+            speedItem.classList.remove('disabled');
+        }
+    }
+}
+
+function updateMagnets(dt) {
+    // Durée de l'effet en millisecondes (5 secondes)
+    const MAGNET_DURATION = 5000; 
+
+    magnets.forEach(m => {
+        if (m.collected) return;
+
+        // 1. Collision avec le joueur (Ramassage)
+        if (dist(player.x, player.y, m.x, m.y) < player.size + 15) {
+            m.collected = true;
+            m.endTime = performance.now() + MAGNET_DURATION;
+            
+            // Feedback
+            Sounds.play('clicvalidation');
+            spawnDamageNumber(player.x, player.y - 30, "MAGNÉTISME !", "#00ffff");
+            createParticles(m.x, m.y, 10, '#00ffff');
+        }
+    });
+
+    // 2. Effet d'attraction GLOBAL
+    // On vérifie s'il existe au moins un aimant actif
+    let isMagnetActive = magnets.some(m => m.collected && performance.now() < m.endTime);
+
+    if (isMagnetActive) {
+        // On parcourt TOUTES les pièces de la carte
+        pieces.forEach(p => {
+            if (p.collected) return;
+            let angle = Math.atan2(player.y - p.y, player.x - p.x);
+            
+            // Vitesse d'attraction 
+            let speed = 6; 
+            p.x += Math.cos(angle) * speed;
+            p.y += Math.sin(angle) * speed;
+        });
+    }
+
+    magnets = magnets.filter(m => !m.collected || performance.now() < m.endTime);
+}
+
+// Initialisation de la boutique
+function initShop() {
+    loadUpgrades();
+    
+    // Assigner les événements aux boutons
+    const hpBtn = document.getElementById('shop-item-hp');
+    if (hpBtn) hpBtn.onclick = () => buyUpgrade('hp');
+    const potBtn = document.getElementById('shop-item-potion');
+    if (potBtn) potBtn.onclick = () => buyUpgrade('potion');
+    const magBtn = document.getElementById('shop-item-magnet');
+    if (magBtn) magBtn.onclick = () => buyUpgrade('magnet');
+    const speedBtn = document.getElementById('shop-item-speed');
+    if (speedBtn) speedBtn.onclick = () => buyUpgrade('speed');
+    
+    updateShopUI();
+}
 
 
+
+// --- GESTION PAGE AME ---
+
+// Afficher le menu Ame
+function showSoulMenu() {
+    Sounds.play('clicmenu');
+    homeMenu.classList.add('hidden');
+    soulMenu.classList.remove('hidden');
+    updateSoulStats();
+}
+
+// Cacher le menu Ame
+function hideSoulMenu() {
+    soulMenu.classList.add('hidden');
+    showHomeMenu();
+}
+
+// Calculer et afficher les stats
+function updateSoulStats() {
+    const history = getGameHistory();
+    
+    // Calculs totaux
+    let totalGames = history.length;
+    let totalZombies = 0;
+    let totalBoss = 0;
+    
+    history.forEach(game => {
+        totalZombies += game.kills;
+        totalBoss += game.boss;
+    });
+
+    totalGamesEl.innerText = totalGames;
+    totalZombiesEl.innerText = totalZombies;
+    totalBossEl.innerText = totalBoss;
+
+    // Affichage historique
+    historyContainer.innerHTML = '';
+    
+    if (history.length === 0) {
+        historyContainer.innerHTML = '<p style="color:#888; text-align:center;">Aucune âme enregistrée.</p>';
+        return;
+    }
+
+    // --- TRI : Meilleur temps en premier ---
+    // On copie le tableau pour ne pas modifier l'original
+    let sortedHistory = [...history].sort((a, b) => {
+        if (b.time !== a.time) return b.time - a.time; // Temps décroissant
+        return b.level - a.level; // Si égalité, niveau décroissant
+    });
+
+    // On identifie la meilleure partieglobale (pour le style doré)
+    // Note : Comme le tableau est trié, c'est forcément le premier, mais on garde la logique robuste
+    let bestGame = sortedHistory[0]; 
+
+    sortedHistory.forEach(game => {
+        const isBest = (game === bestGame);
+        const div = document.createElement('div');
+        div.className = `history-entry ${isBest ? 'best' : ''}`;
+        
+        // Formatage du temps
+        let m = Math.floor(game.time / 60);
+        let s = game.time % 60;
+        let timeStr = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+        // Formatage de la date
+        let dateStr = "Date inconnue";
+        if (game.date) {
+            let dateObj = new Date(game.date);
+            // Format JJ/MM/AAAA HH:MM
+            dateStr = dateObj.toLocaleDateString('fr-FR') + " " + dateObj.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Structure compacte
+        div.innerHTML = `
+            <div>
+                <span class="col-header">Temps</span>
+                <span class="stat-value">${timeStr}</span>
+            </div>
+            <div>
+                <span class="col-header">Niv</span>
+                <span class="stat-value">${game.level}</span>
+            </div>
+            <div>
+                <span class="col-header">Kills</span>
+                <span class="stat-value">${game.kills}</span>
+            </div>
+            <div>
+                <span class="col-header">Boss</span>
+                <span class="stat-value">${game.boss}</span>
+            </div>
+            <div style="text-align: right; font-size: 11px; color: #aaa;">
+                ${dateStr}
+                ${isBest ? '<div style="color:#ffd700; font-weight:bold; font-size:10px;">⭐ RECORD</div>' : ''}
+            </div>
+        `;
+        historyContainer.appendChild(div);
+    });
+}
+
+// Sauvegarder une partie
+function saveGameSession() {
+    const history = getGameHistory();
+    
+    // Compter les boss tués
+    let bossKills = 0;
+    bossKills = bossKillCount; // Approximation : chaque ruine vient d'un boss mort
+    
+    const session = {
+        time: elapsedSec,
+        level: player.level,
+        kills: killCount,
+        boss: bossKills,
+        date: Date.now()
+    };
+
+    history.push(session);
+    // On garde seulement les 20 dernières parties pour ne pas surcharger
+    if (history.length > 20) history.shift();
+    
+    localStorage.setItem('hordesHistory', JSON.stringify(history));
+}
+
+// Récupérer l'historique
+function getGameHistory() {
+    const data = localStorage.getItem('hordesHistory');
+    return data ? JSON.parse(data) : [];
+}
+
+// Evenements Clic
+btnSoul.onclick = () => showSoulMenu();
+btnSoulBack.onclick = () => hideSoulMenu();
+
+// Modification de triggerGameOver pour sauvegarder
+const originalTriggerGameOver = triggerGameOver;
+triggerGameOver = function() {
+    saveGameSession(); // Sauvegarde avant d'afficher le game over
+    originalTriggerGameOver(); // Appelle la fonction originale
+};
+
+// Navigation Accueil -> Changelog
+if (btnChangelog) {
+    btnChangelog.onclick = (e) => {
+        e.preventDefault(); // Empêche le lien de recharger la page
+        Sounds.play('clicmenu');
+        homeMenu.classList.add('hidden');
+        changelogMenu.classList.remove('hidden');
+    };
+}
+
+// Retour Changelog -> Accueil
+if (btnChangelogBack) {
+    btnChangelogBack.onclick = () => {
+        Sounds.play('clicretour');
+        changelogMenu.classList.add('hidden');
+        homeMenu.classList.remove('hidden');
+    };
+}
+
+// --- CONNEXION DES SLIDERS OPTIONS ---
+
+// Menu Options Principal
+const musicSlider = document.getElementById('music-volume');
+const sfxSlider = document.getElementById('sfx-volume');
+
+if (musicSlider) {
+    musicSlider.oninput = function() {
+        Sounds.setMusicVolume(this.value);
+    };
+    // Init au chargement
+    Sounds.setMusicVolume(musicSlider.value); 
+}
+
+if (sfxSlider) {
+    sfxSlider.oninput = function() {
+        Sounds.setSfxVolume(this.value);
+    };
+    Sounds.setSfxVolume(sfxSlider.value);
+}
+
+// Menu Pause (Ingame)
+const pauseMusicSlider = document.getElementById('pause-music-volume');
+const pauseSfxSlider = document.getElementById('pause-sfx-volume');
+
+if (pauseMusicSlider) {
+    // On synchronise avec la valeur du menu principal
+    if(musicSlider) pauseMusicSlider.value = musicSlider.value;
+    
+    pauseMusicSlider.oninput = function() {
+        Sounds.setMusicVolume(this.value);
+        if(musicSlider) musicSlider.value = this.value; // Synchro
+    };
+}
+
+if (pauseSfxSlider) {
+    if(sfxSlider) pauseSfxSlider.value = sfxSlider.value;
+    
+    pauseSfxSlider.oninput = function() {
+        Sounds.setSfxVolume(this.value);
+        if(sfxSlider) sfxSlider.value = this.value; // Synchro
+    };
+}
+
+// --- LOGIQUE REINITIALISATION ---
+
+// Références DOM
+const btnResetData = document.getElementById('btn-reset-data');
+const confirmResetModal = document.getElementById('confirm-reset-modal');
+const btnConfirmYes = document.getElementById('btn-confirm-reset-yes');
+const btnConfirmNo = document.getElementById('btn-confirm-reset-no');
+
+// Afficher la confirmation
+if (btnResetData) {
+    btnResetData.onclick = () => {
+        confirmResetModal.classList.remove('hidden');
+    };
+}
+
+// Annuler
+if (btnConfirmNo) {
+    btnConfirmNo.onclick = () => {
+        confirmResetModal.classList.add('hidden');
+    };
+}
+
+// Confirmer la réinitialisation
+if (btnConfirmYes) {
+    btnConfirmYes.onclick = () => {
+        // 1. Vider le LocalStorage
+        localStorage.removeItem('hordesUpgrades');
+        localStorage.removeItem('hordesHistory');
+        localStorage.removeItem('hordesCoins');
+        // Si vous avez d'autres clés, ajoutez-les ici (ex: totalCoins si sauvegardé)
+
+        // 2. Réinitialiser les variables en mémoire
+        totalCoins = 0;
+        shopUpgrades.hp.currentLevel = 0;
+        shopUpgrades.potion.currentLevel = 0;
+        shopUpgrades.magnet.currentLevel = 0;
+        shopUpgrades.speed.currentLevel = 0;
+        
+        // 3. Mettre à jour l'interface
+        updateCoinUI();
+        updateShopUI();
+        updateSoulStats(); // Vider l'historique affiché
+
+        // 4. Fermer le modal et afficher un retour (optionnel)
+        confirmResetModal.classList.add('hidden');
+        
+        // Petit feedback visuel (optionnel)
+        const resetBtnSpan = btnResetData.querySelector('span');
+        const originalText = resetBtnSpan.innerText;
+        resetBtnSpan.innerText = "Effectué !";
+        setTimeout(() => resetBtnSpan.innerText = originalText, 1500);
+    };
+}
+
+// Permettre de fermer le modal en cliquant ailleurs (optionnel)
+confirmResetModal.onclick = (e) => {
+    if (e.target === confirmResetModal) {
+        confirmResetModal.classList.add('hidden');
+    }
+};
+
+// Charger les upgrades AVANT de lancer le jeu
+loadUpgrades(); 
+
+// Initialiser la boutique ===
+initShop(); 
+
+// Lancer la boucle principale
+main(); 
