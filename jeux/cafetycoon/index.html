@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Café Tycoon</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="bg-effects" aria-hidden="true">
+    <div class="steam steam-1"></div>
+    <div class="steam steam-2"></div>
+    <div class="steam steam-3"></div>
+    <div class="steam steam-4"></div>
+  </div>
+
+  <header id="game-header">
+    <div class="header-brand">
+      <i class="fas fa-mug-hot"></i>
+      <h1>Coffee Tycoon</h1>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item stat-money">
+        <i class="fas fa-coins"></i>
+        <span id="stat-money">50</span>
+        <small>$</small>
+      </div>
+      <div class="stat-item stat-beans">
+        <i class="fas fa-seedling"></i>
+        <span id="stat-beans">0</span>
+        <small>grains</small>
+      </div>
+      <div class="stat-item stat-milk">
+        <i class="fas fa-droplet"></i>
+        <span id="stat-milk">0</span>
+        <small>lait</small>
+      </div>
+      <div class="stat-item stat-rep">
+        <i class="fas fa-star"></i>
+        <span id="stat-rep">0</span>
+        <small>rep.</small>
+      </div>
+      <button class="settings-btn" id="settings-btn" aria-label="Paramètres"><i class="fas fa-gear"></i></button>
+    </div>
+  </header>
+
+  <nav id="tab-nav" role="tablist">
+    <button class="tab-btn active" data-tab="plantation" role="tab" aria-selected="true">
+      <i class="fas fa-leaf"></i>
+      <span>Plantation</span>
+    </button>
+    <button class="tab-btn" data-tab="coffeeshop" role="tab" aria-selected="false">
+      <i class="fas fa-store"></i>
+      <span>Coffee Shop</span>
+    </button>
+    <button class="tab-btn" data-tab="commerce" role="tab" aria-selected="false">
+      <i class="fas fa-truck"></i>
+      <span>Commerce</span>
+    </button>
+    <button class="tab-btn" data-tab="magasin" role="tab" aria-selected="false">
+      <i class="fas fa-arrow-up-right-dots"></i>
+      <span>Magasin</span>
+    </button>
+    <button class="tab-btn" data-tab="succes" role="tab" aria-selected="false">
+      <i class="fas fa-trophy"></i>
+      <span>Succès</span>
+    </button>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- PLANTATION -->
+    <section id="tab-plantation" class="tab-panel active" role="tabpanel">
+      <!-- NOUVEAU : Conteneur de la ligne du haut en 2 colonnes -->
+      <div class="plantation-top-bar">
+        <div class="plantation-top-left">
+          <div class="tab-header">
+            <h2>Plantation</h2>
+            <p>Plantez vos caféiers, surveillez leur croissance et récoltez les grains bruts.</p>
+          </div>
+          <div class="plantation-stats">
+            <div class="info-chip">
+              <i class="fas fa-coins"></i>
+              <span>Plantation : <strong id="plant-cost-display">10$</strong></span>
+            </div>
+            <div class="info-chip">
+              <i class="fas fa-clock"></i>
+              <span>Pousse : <strong id="grow-time-display">30s</strong></span>
+            </div>
+            <div class="info-chip">
+              <i class="fas fa-box-open"></i>
+              <span>Rendement : <strong id="yield-display">5-10</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="plantation-top-right">
+          <div id="gardener-container"></div>
+        </div>
+      </div>
+      <!-- FIN DU CONTENEUR 2 COLONNES -->
+      
+      <div id="parcelle-nav" class="parcelle-nav"></div>
+      <div id="parcelle-info" class="parcelle-info"></div>
+      <div id="plots-grid" class="plots-grid"></div>
+    </section>
+
+    <!-- COFFEE SHOP -->
+    <section id="tab-coffeeshop" class="tab-panel" role="tabpanel">
+      <!-- NOUVEAU : Conteneur de la ligne du haut en 2 colonnes -->
+      <div class="shop-top-bar">
+        <div class="tab-header">
+          <h2>Coffee Shop</h2>
+          <p>Préparez et servez les commandes de vos clients. Chaque vente rapporte de l'argent et de la réputation.</p>
+        </div>
+        <div class="shop-top-right">
+          <div class="shop-status-bar">
+            <div class="shop-status-info">
+              <span class="shop-dot" id="shop-dot"></span>
+              <span id="shop-label">Ouvert</span>
+            </div>
+            <button class="btn btn-sm" id="shop-toggle-btn">Fermer le café</button>
+          </div>
+          <div class="rep-tier-bar" id="rep-tier-bar">
+            <div class="rep-tier-left">
+              <i class="fas fa-star"></i>
+              <span class="rep-tier-label" id="rep-tier-label">Inconnu</span>
+            </div>
+            <span class="rep-tier-effect" id="rep-tier-effect">Fréquence clients : normale</span>
+            <span class="rep-tier-next" id="rep-tier-next">Prochain : 15 rép.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOUVEAU : Conteneur principal avec le shop à gauche et les recettes à droite -->
+      <div class="shop-main-layout">
+        <div class="shop-layout">
+          <div class="counter-area">
+            <h3><i class="fas fa-blender"></i> Comptoir de préparation <span id="counter-slots-count" class="badge">(1/1)</span></h3>
+            <div id="counter-content" class="counter-slots"></div>
+          </div>
+          <div class="queue-area">
+            <h3><i class="fas fa-users"></i> File d'attente <span id="queue-count" class="badge">(0/5)</span></h3>
+            <div id="queue-content" class="queue-content">
+              <p class="empty-msg"><i class="fas fa-hourglass-half"></i> En attente de clients...</p>
+            </div>
+          </div>
+        </div>
+        <div class="shop-recipes-section">
+          <h3><i class="fas fa-book-open"></i> Carte des recettes</h3>
+          <div id="recipes-info" class="recipes-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMERCE -->
+    <section id="tab-commerce" class="tab-panel" role="tabpanel">
+      <div class="commerce-top-bar">
+        <div class="tab-header">
+          <h2>Commerce de Gros</h2>
+          <p>Écoulez vos surplus de grains bruts auprès des marchands. Les prix fluctuent en temps réel.</p>
+        </div>
+        <div class="commerce-top-actions">
+          <div class="market-stock-card commerce-stock-top">
+            <i class="fas fa-warehouse"></i>
+            <span>Stock : <strong id="commerce-beans">0</strong> grains · <strong id="commerce-milk">0</strong> lait</span>
+          </div>
+          <button class="btn btn-sm btn-toggle-close" id="toggle-urgent-btn"><i class="fas fa-pause"></i> Suspendre les urgences</button>
+        </div>
+      </div>
+      <div class="market-display-with-chart">
+        <div class="market-price-card">
+          <span class="market-label">Cours du grain</span>
+          <span class="market-price" id="market-price">3.50$</span>
+          <span class="market-trend stable" id="market-trend"><i class="fas fa-minus"></i> Stable</span>
+        </div>
+        <div class="market-price-card">
+          <span class="market-label">Cours du lait</span>
+          <span class="market-price" id="milk-market-price" style="color:#7ab8e0;">2.00$</span>
+          <span class="market-trend stable" id="milk-market-trend"><i class="fas fa-minus"></i> Stable</span>
+        </div>
+        <div class="chart-container-compact">
+          <div class="chart-header-compact">
+            <span class="chart-title-compact"><i class="fas fa-chart-line"></i> Historique</span>
+            <div class="chart-legend-custom">
+              <span class="legend-item"><span class="legend-dot beans-dot"></span> Grain</span>
+              <span class="legend-item"><span class="legend-dot milk-dot"></span> Lait</span>
+            </div>
+          </div>
+          <div class="chart-wrapper-compact">
+            <canvas id="price-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div id="sellers-grid" class="sellers-grid"></div>
+    </section>
+
+    <!-- MAGASIN -->
+    <section id="tab-magasin" class="tab-panel" role="tabpanel">
+      <div class="tab-header">
+        <h2>Magasin</h2>
+        <p>Investissez dans des ressources et des améliorations pour booster votre empire du café.</p>
+      </div>
+      
+      <div class="magasin-section">
+        <div class="magasin-top-grid">
+          <!-- COLONNE DE GAUCHE : RESSOURCES -->
+          <div class="magasin-col">
+            <h3><i class="fas fa-box-open"></i> Ressources</h3>
+            <div class="resources-grid ressources-col">
+              <div class="resource-card">
+                <div class="resource-icon milk-icon"><i class="fas fa-droplet"></i></div>
+                <div class="resource-info">
+                  <h4>Lait frais</h4>
+                  <p>10 unités de lait pour vos lattes et cappuccinos</p>
+                  <span class="resource-price" id="milk-price-display">20$</span>
+                </div>
+                <button class="btn btn-accent" id="buy-milk-btn">Acheter</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- COLONNE DE DROITE : TERRAIN -->
+          <div class="magasin-col">
+            <h3><i class="fas fa-leaf"></i> Terrain de plantation</h3>
+            <div id="plant-purchases-grid" class="terrain-col"></div>
+          </div>
+        </div>
+      </div>
+            <div class="magasin-section">
+        <h3><i class="fas fa-flask"></i> Améliorations</h3>
+        <div id="upgrades-grid" class="upgrades-grid"></div>
+      </div>
+      <div class="magasin-section">
+        <h3><i class="fas fa-chart-line"></i> Manipulations de marché</h3>
+        <p class="magasin-section-desc">Influencez temporairement les cours du marché pour maximiser vos profits.</p>
+        <div id="market-manip-grid" class="upgrades-grid"></div>
+      </div>
+    </section>
+
+    <!-- SUCCÈS -->
+    <section id="tab-succes" class="tab-panel" role="tabpanel">
+      <div class="tab-header">
+        <h2>Succès</h2>
+        <p>Accomplissez des objectifs pour débloquer des succès et prouvez votre talent de tycoon du café.</p>
+      </div>
+      <div class="achievements-summary">
+        <i class="fas fa-trophy"></i>
+        <span id="achievements-count">0 / 0</span>
+        <span class="achievements-summary-label">succès débloqués</span>
+      </div>
+      <div id="achievements-content"></div>
+    </section>
+
+  </main>
+
+  <!-- MODAL PARAMÈTRES -->
+  <div class="modal-overlay" id="settings-overlay" role="dialog" aria-modal="true" aria-label="Paramètres">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3><i class="fas fa-gear"></i> Paramètres</h3>
+        <button class="modal-close-btn" id="settings-close-btn" aria-label="Fermer"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <button class="modal-action-btn" id="help-btn">
+          <div class="modal-action-icon"><i class="fas fa-circle-question"></i></div>
+          <div class="modal-action-text">
+            <strong>Aide</strong>
+            <span>Explications du jeu et de ses mécaniques</span>
+          </div>
+          <i class="fas fa-chevron-right modal-action-arrow"></i>
+        </button>
+        <button class="modal-action-btn modal-action-danger" id="reset-btn">
+          <div class="modal-action-icon"><i class="fas fa-triangle-exclamation"></i></div>
+          <div class="modal-action-text">
+            <strong>Réinitialiser la partie</strong>
+            <span>Toute progression sera perdue définitivement</span>
+          </div>
+          <i class="fas fa-chevron-right modal-action-arrow"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AIDE -->
+  <div class="modal-overlay" id="help-overlay" role="dialog" aria-modal="true" aria-label="Aide">
+    <div class="modal-panel modal-panel-lg">
+      <div class="modal-header">
+        <h3><i class="fas fa-circle-question"></i> Aide</h3>
+        <button class="modal-close-btn" id="help-close-btn" aria-label="Fermer"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body modal-scroll">
+        <div class="help-section">
+          <h4><i class="fas fa-leaf"></i> Plantation</h4>
+          <p>Plantez des caféiers sur vos parcelles. Chaque plantation coûte <strong>10$</strong> et produit entre <strong>5 et 10 grains</strong> après environ <strong>30 secondes</strong>. Cliquez sur un caféier prêt pour récolter. Vous pouvez acheter de nouveaux emplacements et de nouvelles parcelles dans le Magasin.</p>
+        </div>
+        <div class="help-section">
+          <h4><i class="fas fa-store"></i> Coffee Shop</h4>
+          <p>Ouvrez votre café pour faire venir des clients. Chaque client attend en file d'attente avec une commande. Cliquez sur <strong>Préparer</strong> pour lancer la commande sur un poste libre du comptoir. Quand la préparation est terminée, cliquez sur <strong>Servir</strong> pour encaisser et gagner de la réputation.</p>
+          <p>Si un client attend trop longtemps, il part mécontent et vous perdez de la réputation. Vous pouvez agrandir le comptoir (jusqu'à 5 postes) et la file d'attente (jusqu'à 15 places) via le Magasin.</p>
+          <p><strong>Recettes :</strong> L'Espresso ne nécessite que des grains. Le <strong>Double Espresso</strong> en consomme 4 mais rapporte plus. Le Latte et le Cappuccino nécessitent aussi du lait. Le <strong>Café Tonc Play</strong> est la boisson premium (8 grains + 4 lait) : elle débloque à 60 de réputation et rapporte le plus. Plus la recette est complexe, plus elle rapporte en argent et en réputation.</p>
+        </div>
+        <div class="help-section">
+          <h4><i class="fas fa-truck"></i> Commerce</h4>
+          <p>Vendez vos grains bruts en gros à quatre marchands, chacun avec un quota, un prix et un temps de recharge différents. Le <strong>Marchand Local</strong> offre le meilleur prix mais un petit quota. <strong>Livraison Pro</strong> ravitaille les machines à café d'entreprises avec un prix intermédiaire. Le <strong>Supermarché</strong> prend beaucoup de grains à prix correct. L'<strong>Export</strong> prend énormément de grains à prix réduit. Le cours du grain fluctue en temps réel.</p>
+          <p>Des <strong>Besoins urgents</strong> apparaissent aléatoirement sous les marchands : plus le temps passe sans offre, plus les chances augmentent. Chaque offre demande une quantité spécifique de grains en échange d'une récompense bonus, avec un compte à rebours limité. Les commandes plus volumineuses rapportent davantage mais exigent plus de stock.</p>
+        </div>
+        <div class="help-section">
+          <h4><i class="fas fa-star"></i> Réputation</h4>
+                    <p>Chaque café servi donne un gain de réputation variable : Espresso <strong>+3 rép.</strong>, Double Espresso <strong>+4 rép.</strong>, Latte <strong>+4 rép.</strong>, Cappuccino <strong>+5 rép.</strong>, Café Tonc Play <strong>+10 rép.</strong>. Un client qui part mécontent coûte <strong>-3 rép.</strong>. Une commande jetée coûte <strong>-5 rép.</strong></p>
+          <p>La réputation débloque des paliers qui augmentent la <strong>fréquence d'arrivée des clients</strong> : Inconnu → Nouveau (15) → Connu (40) → Populaire (80) → Célèbre (150) → Légende (300) → Institution (500) → Référence (750) → Phénomène (1100) → Mythe (1600) → Empereur (2500). Si votre réputation descend sous un palier, la fréquence baisse en conséquence.</p>
+        </div>
+        <div class="help-section">
+          <h4><i class="fas fa-flask"></i> Améliorations</h4>
+          <p>Dans le Magasin, investissez dans des améliorations permanentes : engrais (pousse plus rapide), recherche (meilleur rendement), machine (préparation plus rapide), variétés (prix augmentés), comptoir élargi et file d'attente agrandie.</p>
+        </div>
+        <div class="help-section">
+          <h4><i class="fas fa-trophy"></i> Succès</h4>
+          <p>Accomplissez des objectifs liés à la plantation, au coffee shop, au commerce et à la réputation pour débloquer des succès. Consultez l'onglet Succès pour suivre votre progression.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMATION RESET -->
+  <div class="modal-overlay" id="reset-overlay" role="dialog" aria-modal="true" aria-label="Confirmation">
+    <div class="modal-panel modal-panel-sm">
+      <div class="modal-header">
+        <h3><i class="fas fa-triangle-exclamation" style="color:var(--danger)"></i> Réinitialisation</h3>
+      </div>
+      <div class="modal-body">
+        <p class="reset-warning-text">Êtes-vous sûr de vouloir réinitialiser votre partie ? <strong>Toute progression sera perdue définitivement</strong> : argent, grains, améliorations, succès, réputation… Cette action est irréversible.</p>
+        <div class="reset-actions">
+          <button class="btn btn-sm" id="reset-cancel-btn">Non, annuler</button>
+          <button class="btn btn-danger btn-sm" id="reset-confirm-btn"><i class="fas fa-trash"></i> Oui, réinitialiser</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" aria-live="polite"></div>
+  <script src="achievements.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
