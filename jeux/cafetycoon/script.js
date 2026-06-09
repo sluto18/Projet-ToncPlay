@@ -11,7 +11,7 @@ var BASE_YIELD_MAX = 10;
 var MILK_COST = 20;
 var MILK_AMOUNT = 10;
 var BASE_SPAWN_INTERVAL = 14000;
-var MIN_SPAWN_INTERVAL = 2100;
+var MIN_SPAWN_INTERVAL = 1000;
 var BASE_PATIENCE = 32000;
 var SAVE_INTERVAL = 20000;
 var PRICE_CHANGE_MIN = 5000;
@@ -26,6 +26,8 @@ var MAX_QUEUE_SIZE = 15;
 var BASE_COUNTER_SLOTS = 1;
 var MAX_COUNTER_SLOTS = 5;
 var GARDENER_PLANT_COST = 12;
+var PLANT_BEANS_COST = 2;
+var GARDENER_BEANS_SALARY = 2;
 var URGENT_OFFER_MAX_ACTIVE = 3;
 var URGENT_OFFER_CHECK_INTERVAL = 5000;
 var _nextUrgentOfferId = 1;
@@ -40,6 +42,12 @@ var GRAIN_BOOST_MULT = 1.8;
 var MILK_DROP_COST = 400;
 var MILK_DROP_DURATION = 60000;
 var MILK_DROP_CD = 300000;
+var AD_COST = 350;
+var AD_DURATION = 60000;
+var AD_CD = 240000;
+var AD_SPAWN_MULT = 0.6;
+var BARISTA_COST = 5000;
+var BARISTA_PREP_COST = 2;
 var GRAIN_PRICE_SPIKE_CHANCE = 0.04;
 var GRAIN_PRICE_SPIKE_MIN = 1.5;
 var GRAIN_PRICE_SPIKE_MAX = 3.5;
@@ -48,7 +56,7 @@ var MILK_PRICE_SPIKE_MIN = 1.0;
 var MILK_PRICE_SPIKE_MAX = 3.0;
 
 var SLOT_COSTS = [30, 50, 80, 120, 170, 230, 300, 380, 470, 570];
-var PARCELLE_COSTS = [500, 1500, 4000, 10000];
+var PARCELLE_COSTS = [500, 1500, 4000, 10000, 25000];
 
 var RECIPES = {
   espresso:      { name: 'Espresso',       beans: 2, milk: 0, basePrice: 15,  prepTime: 5000,  repGain: 3  },
@@ -132,6 +140,12 @@ function createFreshState() {
     grainBoostCd: 0,
     milkDropTimer: 0,
     milkDropCd: 0,
+    adTimer: 0,
+    adCd: 0,
+    plantPayMode: 'money',
+    hasBarista: false,
+    baristaActive: false,
+    activityLog: [],
     lastSaveTime: Date.now()
   };
 }
@@ -149,8 +163,12 @@ function getYieldAmount() {
 function getPrepDuration(k) { return RECIPES[k].prepTime * Math.max(0.25, 1 - state.upgrades.machine * 0.15); }
 function getSellPrice(k) { return Math.ceil(RECIPES[k].basePrice * (1 + state.upgrades.variety * 0.15)); }
 function getSpawnInterval() {
-  var tier = getCurrentRepTier();
-  var interval = BASE_SPAWN_INTERVAL * tier.spawnMult;
+  var factor = 1 + (state.reputation / 100);
+  var interval = BASE_SPAWN_INTERVAL / factor;
+  if (state.adTimer > 0) {
+    var tier = getCurrentRepTier();
+    interval *= (1 - tier.spawnMult * 0.4);
+  }
   return Math.max(MIN_SPAWN_INTERVAL, interval);
 }
 function getPatience() { return BASE_PATIENCE + Math.min(state.reputation * 80, 20000); }
@@ -168,6 +186,19 @@ function getPlots() { return state.parcelles[state.currentParcelle].plots; }
 function getSlots() { return state.parcelles[state.currentParcelle].slots; }
 function updateMaxReputation() {
   if (state.reputation > state.stats.maxReputation) state.stats.maxReputation = state.reputation;
+}
+
+function getPlantCost() {
+  if (state.plantPayMode === 'beans') return { type: 'beans', beans: PLANT_BEANS_COST, money: 0 };
+  return { type: 'money', beans: 0, money: PLANT_COST };
+}
+function getGardenerPlantCost() {
+  if (state.plantPayMode === 'beans') return { type: 'beans', beans: PLANT_BEANS_COST, money: GARDENER_BEANS_SALARY };
+  return { type: 'money', beans: 0, money: GARDENER_PLANT_COST };
+}
+function getPlantCostLabel() {
+  if (state.plantPayMode === 'beans') return PLANT_BEANS_COST + ' grains';
+  return PLANT_COST + '$';
 }
 
 /* ===================================================
@@ -226,14 +257,32 @@ function loadGame() {
       if (state.parcelles[p].plots.length > state.parcelles[p].slots) state.parcelles[p].plots.length = state.parcelles[p].slots;
     }
     state.currentParcelle = Math.min(state.currentParcelle, state.parcelles.length - 1);
-    var elapsed = Date.now() - (state.lastSaveTime || Date.now());
-    if (elapsed > 1000) {
-      for (var pi = 0; pi < state.parcelles.length; pi++) {
-        for (var pp = 0; pp < state.parcelles[pi].plots.length; pp++) {
-          if (state.parcelles[pi].plots[pp]) state.parcelles[pi].plots[pp].plantedAt += elapsed;
+    if (state.hasBarista === undefined) state.hasBarista = false;
+    if (state.baristaActive === undefined) state.baristaActive = false;
+    if (state.plantPayMode === undefined) state.plantPayMode = 'money';
+    if (state.plantPayMode !== 'beans' && state.plantPayMode !== 'money') state.plantPayMode = 'money';
+    if (!state.activityLog) state.activityLog = [];
+    while (state.activityLog.length > 50) state.activityLog.shift();
+    /* --- Récolte hors-ligne : calculer ce qui a mûri pendant l'absence --- */
+    var _offlineElapsed = Math.max(0, Date.now() - (state.lastSaveTime || Date.now()));
+    if (_offlineElapsed > 30000) {
+      var _readyPlots = [];
+      var _totalReadyBeans = 0;
+      var _now = Date.now();
+      for (var _opi = 0; _opi < state.parcelles.length; _opi++) {
+        for (var _opp = 0; _opp < state.parcelles[_opi].plots.length; _opp++) {
+          var _oplot = state.parcelles[_opi].plots[_opp];
+          if (_oplot && (_now - _oplot.plantedAt >= _oplot.growDuration)) {
+            _readyPlots.push({ parcelle: _opi + 1, slot: _opp + 1, yieldAmount: _oplot.yieldAmount });
+            _totalReadyBeans += _oplot.yieldAmount;
+          }
         }
       }
+      if (_readyPlots.length > 0) {
+        offlineHarvestData = { elapsed: _offlineElapsed, plots: _readyPlots, totalBeans: _totalReadyBeans };
+      }
     }
+    /* Fin récolte hors-ligne — les timestamps réels sont conservés, la pousse continue naturellement */
     var now = Date.now();
     state.activeOrders = state.activeOrders.filter(function(o) { return now - o.startTime < o.prepDuration + 30000; });
     if (!state.urgentOffers) state.urgentOffers = [];
@@ -243,6 +292,8 @@ function loadGame() {
     if (state.grainBoostCd === undefined) state.grainBoostCd = 0;
     if (state.milkDropTimer === undefined) state.milkDropTimer = 0;
     if (state.milkDropCd === undefined) state.milkDropCd = 0;
+    if (state.adTimer === undefined) state.adTimer = 0;
+    if (state.adCd === undefined) state.adCd = 0;
     if (state.urgentOffersPaused === undefined) state.urgentOffersPaused = false;
     if (state.urgentOffersPaused) state.urgentOffersPaused = false;
     _urgentPauseStart = 0;
@@ -306,12 +357,63 @@ function doResetGame() {
 
 function showToast(message, type) {
   type = type || 'info';
+  if (type === 'success' || type === 'info' || type === 'warning') return;
   var c = document.getElementById('toast-container');
   var t = document.createElement('div');
   t.className = 'toast ' + type;
   t.innerHTML = message;
   c.appendChild(t);
   setTimeout(function() { if (t.parentNode) t.remove(); }, 3200);
+}
+
+/* ===================================================
+   JOURNAL D'ACTIVITÉ (Dashboard)
+   =================================================== */
+
+var _dashboardLogBuilt = false;
+var _lastGardenerLogTime = 0;
+
+function logEvent(message, type) {
+  type = type || 'info';
+  var now = new Date();
+  var h = String(now.getHours()).padStart(2, '0');
+  var m = String(now.getMinutes()).padStart(2, '0');
+  var s = String(now.getSeconds()).padStart(2, '0');
+  var entry = { time: h + ':' + m + ':' + s, message: message, type: type };
+  state.activityLog.push(entry);
+  if (state.activityLog.length > 50) state.activityLog.shift();
+  if (currentTab === 'dashboard') appendLogEntry(entry);
+}
+
+function renderActivityLog() {
+  var container = document.getElementById('activity-log-content');
+  var emptyEl = document.getElementById('log-empty');
+  if (!container) return;
+  if (emptyEl) emptyEl.remove();
+  /* Vider et reconstruire */
+  var children = container.querySelectorAll('.log-entry');
+  for (var i = 0; i < children.length; i++) children[i].remove();
+  for (var j = 0; j < state.activityLog.length; j++) {
+    appendLogEntry(state.activityLog[j], false);
+  }
+  container.scrollTop = container.scrollHeight;
+  var countEl = document.getElementById('log-count');
+  if (countEl) countEl.textContent = state.activityLog.length + ' entr\u00e9e' + (state.activityLog.length !== 1 ? 's' : '');
+}
+
+function appendLogEntry(entry, doScroll) {
+  if (doScroll === undefined) doScroll = true;
+  var container = document.getElementById('activity-log-content');
+  if (!container) return;
+  var emptyEl = document.getElementById('log-empty');
+  if (emptyEl) emptyEl.remove();
+  var div = document.createElement('div');
+  div.className = 'log-entry log-' + entry.type;
+  div.innerHTML = '<span class="log-time">[' + entry.time + ']</span><span class="log-dot"></span><span class="log-msg">' + entry.message + '</span>';
+  container.appendChild(div);
+  if (doScroll) container.scrollTop = container.scrollHeight;
+  var countEl = document.getElementById('log-count');
+  if (countEl) countEl.textContent = state.activityLog.length + ' entr\u00e9e' + (state.activityLog.length !== 1 ? 's' : '');
 }
 
 /* ===================================================
@@ -333,10 +435,17 @@ function initPlots() {
 function plantPlot(index) {
   var plots = getPlots();
   if (plots[index]) return;
-  if (state.money < PLANT_COST) { showToast('Pas assez d\'argent pour planter !', 'error'); return; }
-  state.money -= PLANT_COST;
+  var cost = getPlantCost();
+  if (cost.type === 'beans') {
+    if (state.rawBeans < cost.beans) { showToast('Pas assez de grains pour planter ! (' + cost.beans + ' requis)', 'error'); return; }
+    state.rawBeans -= cost.beans;
+  } else {
+    if (state.money < cost.money) { showToast('Pas assez d\'argent pour planter !', 'error'); return; }
+    state.money -= cost.money;
+  }
   plots[index] = { plantedAt: Date.now(), growDuration: getGrowDuration(), yieldAmount: getYieldAmount() };
   showToast('Emplacement ' + (index + 1) + ' planté !', 'success');
+  logEvent('Plantation emplacement ' + (index + 1) + ' (' + getPlantCostLabel() + ')', 'success');
 }
 
 function harvestPlot(index, e) {
@@ -353,6 +462,7 @@ function harvestPlot(index, e) {
   if (btn) popButton(btn);
   plots[index] = null;
   showToast('+' + plot.yieldAmount + ' grains récoltés !', 'success');
+  logEvent('Récolte : +' + plot.yieldAmount + ' grains (empl. ' + (index + 1) + ')', 'success');
 }
 
 function switchParcelle(idx) {
@@ -410,7 +520,8 @@ function refuseCustomer(customerId) {
   state.reputation = Math.max(0, state.reputation - 1);
   state.customers.splice(idx, 1);
   updateMaxReputation();
-  showToast(c.name + ' refus\u00e9(e) ! (-1 r\u00e9p.)', 'warning');
+  showToast(c.name + ' refusé(e) ! (-1 rép.)', 'warning');
+  logEvent(c.name + ' refusé(e) (-1 rép.)', 'warning');
 }
 
 /* ===================================================
@@ -419,27 +530,48 @@ function refuseCustomer(customerId) {
 
 function toggleShop() {
   state.shopOpen = !state.shopOpen;
-  if (state.shopOpen) { state.spawnTimer = 3000; showToast('Le café est maintenant ouvert !', 'success'); }
-  else { showToast('Le café est maintenant fermé.', 'info'); }
+  if (state.shopOpen) { state.spawnTimer = 3000; showToast('Le café est maintenant ouvert !', 'success'); logEvent('Le café est ouvert', 'info'); }
+  else { showToast('Le café est maintenant fermé.', 'info'); logEvent('Le café est fermé', 'info'); }
 }
 
 function spawnCustomer() {
   if (state.customers.length >= state.maxQueue) return;
-  var isGroup = state.reputation >= 20 && Math.random() < GROUP_SPAWN_CHANCE;
+
+  // Modifié : La chance de groupe augmente avec la réputation (+1% tous les 10 points de rép, max 50%)
+  var dynamicGroupChance = Math.min(0.50, 0.12 + (state.reputation / 1000));
+  var isGroup = state.reputation >= 20 && Math.random() < dynamicGroupChance;
+  
   var name, orders;
 
   if (isGroup) {
     name = GROUP_NAMES[Math.floor(Math.random() * GROUP_NAMES.length)];
-    var groupSize = state.reputation < 60 ? 2 : (Math.random() < 0.6 ? 2 : 3);
+    
+    // Modifié : Taille du groupe selon la réputation (Ajout du palier 200+ pour des groupes de 3 à 5)
+    var groupSize = 2;
+    if (state.reputation >= 200) {
+      groupSize = Math.floor(Math.random() * 3) + 3; // Groupes de 3, 4 ou 5 personnes !
+    } else if (state.reputation >= 60) {
+      groupSize = Math.random() < 0.6 ? 2 : 3;      // Logique d'origine (60% de chance d'être 2, sinon 3)
+    } else {
+      groupSize = 2;                                 // Logique d'origine si < 60 de réputation
+    }
+
     orders = [];
     for (var g = 0; g < groupSize; g++) {
       var r = Math.random(), ok;
-      if (state.reputation < 60) ok = r < 0.3 ? 'espresso' : r < 0.65 ? 'latte' : 'cappuccino';
-      else if (state.reputation < 150) ok = r < 0.15 ? 'espresso' : r < 0.35 ? 'doubleespresso' : r < 0.6 ? 'latte' : r < 0.85 ? 'cappuccino' : 'toncplay';
-      else ok = r < 0.10 ? 'espresso' : r < 0.22 ? 'doubleespresso' : r < 0.42 ? 'latte' : r < 0.68 ? 'cappuccino' : 'toncplay';
+      // Conservation stricte de tes règles d'origine pour les types de boissons
+      if (state.reputation < 60) {
+        ok = r < 0.3 ? 'espresso' : r < 0.65 ? 'latte' : 'cappuccino';
+      } else if (state.reputation < 150) {
+        ok = r < 0.15 ? 'espresso' : r < 0.35 ? 'doubleespresso' : r < 0.6 ? 'latte' : r < 0.85 ? 'cappuccino' : 'toncplay';
+      } else {
+        // Gère aussi automatiquement les réputations >= 200 avec les boissons de fin de jeu
+        ok = r < 0.10 ? 'espresso' : r < 0.22 ? 'doubleespresso' : r < 0.42 ? 'latte' : r < 0.68 ? 'cappuccino' : 'toncplay';
+      }
       orders.push(ok);
     }
   } else {
+    // Client seul (Code d'origine conservé à 100%)
     name = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
     var r2 = Math.random(), ok2;
     if (state.reputation < 20) ok2 = r2 < 0.55 ? 'espresso' : r2 < 0.8 ? 'latte' : 'cappuccino';
@@ -449,6 +581,7 @@ function spawnCustomer() {
     orders = [ok2];
   }
 
+  // Logique de patience et d'insertion d'origine conservée à 100%
   var extraPatience = isGroup ? 8000 : 0;
   var patience = getPatience() + extraPatience;
   state.customers.push({
@@ -481,8 +614,8 @@ function prepareOrder(customerId) {
     totalPrepTime += getPrepDuration(orders[j]);
     totalRepGain += recipe.repGain;
   }
-  if (state.rawBeans < totalBeans) { showToast('Pas assez de grains ! (' + totalBeans + ' requis)', 'error'); return; }
-  if (state.milk < totalMilk) { showToast('Pas assez de lait ! (' + totalMilk + ' requis)', 'error'); return; }
+  if (state.rawBeans < totalBeans) { showToast('Pas assez de grains ! (' + totalBeans + ' requis)', 'error'); logEvent('Préparation impossible : pas assez de grains', 'warning'); return; }
+  if (state.milk < totalMilk) { showToast('Pas assez de lait ! (' + totalMilk + ' requis)', 'error'); logEvent('Préparation impossible : pas assez de lait', 'warning'); return; }  if (state.milk < totalMilk) { showToast('Pas assez de lait ! (' + totalMilk + ' requis)', 'error'); logEvent('Préparation impossible : pas assez de lait', 'warning'); return; }
   state.rawBeans -= totalBeans;
   state.milk -= totalMilk;
   state.customers.splice(idx, 1);
@@ -519,7 +652,8 @@ function serveOrder(orderIndex) {
     setTimeout(function() { spawnParticle('+' + repGain + ' r\u00e9p.', 'rep', btn); }, 150);
     popButton(btn);
   }
-  showToast(order.name + ' servi(e) : ' + order.orderName + ' +' + order.price + '$ (+' + repGain + ' r\u00e9p.)', 'success');
+  showToast(order.name + ' servi(e) : ' + order.orderName + ' +' + order.price + '$ (+' + repGain + ' rép.)', 'success');
+  logEvent(order.name + ' servi(e) : ' + order.orderName + ' → +' + order.price + '$, +' + repGain + ' rép.', 'money');
   state.activeOrders.splice(orderIndex, 1);
 }
 
@@ -533,9 +667,11 @@ function updateGardeners() {
       var plot = p.plots[i];
       
       if (!plot) {
-        // Si l'emplacement est vide, on replante si on a les fonds
-        if (state.money >= GARDENER_PLANT_COST) {
-          state.money -= GARDENER_PLANT_COST;
+        var gc = getGardenerPlantCost();
+        var canAfford = state.rawBeans >= gc.beans && state.money >= gc.money;
+        if (canAfford) {
+          state.rawBeans -= gc.beans;
+          state.money -= gc.money;
           p.plots[i] = { plantedAt: now, growDuration: getGrowDuration(), yieldAmount: getYieldAmount() };
         }
       } else if (now - plot.plantedAt >= plot.growDuration) {
@@ -543,8 +679,50 @@ function updateGardeners() {
         state.rawBeans += plot.yieldAmount;
         state.stats.totalHarvested += plot.yieldAmount;
         state.stats.totalHarvestActions++;
+        if (now - _lastGardenerLogTime > 8000) {
+          logEvent('Jardinier P' + (pi + 1) + ' : +' + plot.yieldAmount + ' grains', 'success');
+          _lastGardenerLogTime = now;
+        }
         p.plots[i] = null; // Devient vide, sera replanté au prochain tour de boucle si l'argent le permet
       }
+    }
+  }
+}
+
+function baristaBuyMilk() {
+  var currentMilkPrice = state.milkDropTimer > 0 ? MILK_PRICE_MIN : state.milkMarketPrice;
+  var cost = Math.ceil(currentMilkPrice * MILK_AMOUNT);
+  if (state.money < cost) return false;
+  state.money -= cost;
+  state.milk += MILK_AMOUNT;
+  showToast('<i class="fas fa-mug-hot"></i> Barista : +' + MILK_AMOUNT + ' lait acheté (' + cost + '$)', 'info');
+  logEvent('Barista : achat auto de ' + MILK_AMOUNT + ' lait (' + cost + '$)', 'info');
+  return true;
+}
+
+function updateBaristas() {
+  if (!state.hasBarista || !state.baristaActive) return;
+
+  /* A) ENCAISSEMENT AUTOMATIQUE — parcourir à l'envers pour garder les index valides */
+  for (var i = state.activeOrders.length - 1; i >= 0; i--) {
+    var o = state.activeOrders[i];
+    if (Date.now() - o.startTime >= o.prepDuration) {
+      serveOrder(i);
+    }
+  }
+
+  /* B) PRÉPARATION AUTOMATIQUE — un seul client par frame pour rester lisible */
+  if (state.activeOrders.length < state.counterSlots && state.customers.length > 0) {
+    var firstCustomer = state.customers[0];
+    var req = getCustomerTotalRequirements(firstCustomer);
+    /* Si le client demande du lait mais le stock est insuffisant, le barista achète du lait */
+    if (req.milk > 0 && state.milk < req.milk) {
+      baristaBuyMilk();
+    }
+    /* Re-vérifier après l'achat éventuel, puis préparer */
+    if (state.rawBeans >= req.beans && state.milk >= req.milk && state.money >= BARISTA_PREP_COST) {
+      state.money -= BARISTA_PREP_COST;
+      prepareOrder(firstCustomer.id);
     }
   }
 }
@@ -554,8 +732,8 @@ function updateCustomers(dt) {
     state.customers[i].patience -= dt;
     if (state.customers[i].patience <= 0) {
       var c = state.customers[i];
-      if (state.shopOpen) { state.reputation = Math.max(0, state.reputation - 3); showToast(c.name + ' est parti(e) mécontent(e) ! (-3 rép.)', 'warning'); }
-      else { showToast(c.name + ' est parti(e) (café fermé).', 'info'); }
+      if (state.shopOpen) { state.reputation = Math.max(0, state.reputation - 3); showToast(c.name + ' est parti(e) : file d\'attente trop longue ! (-3 rép.)', 'warning'); logEvent(c.name + ' a quitté la file d\'attente (-3 rép.)', 'danger'); }
+      else { showToast(c.name + ' est parti(e) (caf\u00e9 ferm\u00e9).', 'info'); }
       state.customers.splice(i, 1);
     }
   }
@@ -563,7 +741,8 @@ function updateCustomers(dt) {
     var o = state.activeOrders[j];
     if (Date.now() - o.startTime > o.prepDuration + 30000) {
       state.reputation = Math.max(0, state.reputation - 5);
-      showToast('Commande de ' + o.name + ' jetée ! (-5 rép.)', 'error');
+      showToast('Commande de ' + o.name + ' abandonn\u00e9e au comptoir ! (-5 rép.)', 'error');
+      logEvent('Commande de ' + o.name + ' abandonnée au comptoir (-5 rép.)', 'danger');
       state.activeOrders.splice(j, 1);
     }
   }
@@ -626,6 +805,7 @@ function deliverUrgentOffer(offerId) {
   _urgentStates = {};
   _sellerStates = {};
   showToast('<i class="fas fa-truck-fast"></i> ' + offer.beansRequired + ' grains livrés : +' + formatNumber(offer.bonusReward) + '$ bonus !', 'success');
+  logEvent('Livraison urgente : ' + offer.beansRequired + ' grains → +' + formatNumber(offer.bonusReward) + '$ bonus', 'money');
 }
 
 /* ===================================================
@@ -665,6 +845,7 @@ function sellToMerchant(sellerId) {
   state.stats.totalSold += amount;
   state.stats.totalEarned += total;
   showToast(amount + ' grains vendus à ' + seller.name + ' : +' + total + '$', 'success');
+  logEvent('Vente : ' + amount + ' grains à ' + seller.name + ' → +' + total + '$', 'money');
 }
 
 function updateCommerce(dt) {
@@ -703,6 +884,8 @@ function updateCommerce(dt) {
   if (state.grainBoostCd > 0) state.grainBoostCd = Math.max(0, state.grainBoostCd - dt);
   if (state.milkDropTimer > 0) state.milkDropTimer = Math.max(0, state.milkDropTimer - dt);
   if (state.milkDropCd > 0) state.milkDropCd = Math.max(0, state.milkDropCd - dt);
+  if (state.adTimer > 0) state.adTimer = Math.max(0, state.adTimer - dt);
+  if (state.adCd > 0) state.adCd = Math.max(0, state.adCd - dt);
   if (_prevGrainBoost > 0 && state.grainBoostTimer === 0) {
     state.priceHistory.beans.push(state.marketPrice);
     _lastChartKey = '';
@@ -725,7 +908,8 @@ function updateCommerce(dt) {
     var uoNow = Date.now();
     state.urgentOffers = state.urgentOffers.filter(function(o) {
       if (uoNow - o.createdAt - _urgentTotalPausedMs >= o.duration) {
-        showToast('Le besoin urgent chez ' + SELLERS[o.sellerId].name + ' a expir\u00e9.', 'warning');
+        showToast('Le besoin urgent chez ' + SELLERS[o.sellerId].name + ' a expiré.', 'warning');
+        logEvent('Besoin urgent expiré chez ' + SELLERS[o.sellerId].name, 'warning');
         return false;
       }
       return true;
@@ -854,6 +1038,7 @@ function buyMilk() {
   state.money -= cost;
   state.milk += MILK_AMOUNT;
   showToast('+' + MILK_AMOUNT + ' unités de lait achetées pour ' + cost + '$.', 'success');
+  logEvent('Achat : +' + MILK_AMOUNT + ' lait pour ' + cost + '$', 'money');
 }
 
 function buyPlotSlot() {
@@ -863,6 +1048,7 @@ function buyPlotSlot() {
   if (state.money < cost) { showToast('Pas assez d\'argent !', 'error'); return; }
   state.money -= cost; p.slots++; p.plots.push(null);
   showToast('Emplacement ajouté à la parcelle ' + (idx + 1) + ' !', 'success');
+  logEvent('Nouvel emplacement ajouté (Parcelle ' + (idx + 1) + ')', 'success');
   plotStates.push('init'); initPlots(); _plantPurchKey = ''; updateUI();
 }
 
@@ -880,8 +1066,9 @@ function buyGardener(pIdx) {
   state.money -= cost;
   p.hasGardener = true;
   p.gardenerActive = true;
-  _gardenerKey = ''; // Force le rafraîchissement de l'interface du jardinier
+  _gardenerKey = '';
   showToast('Jardinier embauché pour la Parcelle ' + (pIdx + 1) + ' !', 'success');
+  logEvent('Jardinier embauché pour la Parcelle ' + (pIdx + 1), 'success');
 }
 
 function buyParcelle() {
@@ -892,6 +1079,7 @@ function buyParcelle() {
   state.parcelles.push({ slots: 2, plots: [null, null], hasGardener: false, gardenerActive: false });
   state.currentParcelle = state.parcelles.length - 1;
   showToast('Nouvelle parcelle achetée !', 'success');
+  logEvent('Nouvelle parcelle achetée (Parcelle ' + state.parcelles.length + ')', 'success');
   plotStates = ['init', 'init']; _parcelleNavKey = ''; _plantPurchKey = ''; initPlots(); updateUI();
 }
 
@@ -930,7 +1118,8 @@ function buyGrainBoost() {
   state.priceHistory.beans.push(state.marketPrice * GRAIN_BOOST_MULT);
   _lastChartKey = '';
   _manipBuilt = false;
-  showToast('<i class="fas fa-arrow-trend-up"></i> Cours du grain boost\u00e9 de +80% !', 'success');
+  showToast('<i class="fas fa-arrow-trend-up"></i> Cours du grain boosté de +80% !', 'success');
+  logEvent('Cours du grain boosté de +80% pendant 45s', 'money');
 }
 
 function buyMilkDrop() {
@@ -943,6 +1132,18 @@ function buyMilkDrop() {
   _lastChartKey = '';
   _manipBuilt = false;
   showToast('<i class="fas fa-arrow-trend-down"></i> Prix du lait au minimum !', 'success');
+  logEvent('Prix du lait réduit au minimum pendant 60s', 'money');
+}
+
+function buyAd() {
+  if (state.adCd > 0 || state.adTimer > 0) return;
+  if (state.money < AD_COST) { showToast('Pas assez d\'argent ! (' + AD_COST + '$)', 'error'); return; }
+  state.money -= AD_COST;
+  state.adTimer = AD_DURATION;
+  state.adCd = AD_CD + AD_DURATION;
+  _manipBuilt = false;
+  showToast('<i class="fas fa-bullhorn"></i> Campagne publicitaire lancée !', 'success');
+  logEvent('Campagne pub lancée : clients +40% plus rapides pendant 60s', 'money');
 }
 
 /* ===================================================
@@ -969,20 +1170,41 @@ function invalidateAllUI() {
   _plantPurchKey = ''; _parcelleNavKey = ''; _counterKey = ''; _lastQueueKey = '';
   _sellerStates = {}; _upgradeLevels = {}; _achievementsBuilt = false; _repTierKey = '';
   _gardenerKey = '';
+  _plantModeKey = '';
+  _baristaKey = '';
+  _baristaPurchKey = '';
   _manipBuilt = false;
   _manipStates = {};
   _urgentStates = {};
   plotStates = [];
+  _dashboardLogBuilt = false;
   for (var i = 0; i < getSlots(); i++) plotStates.push('init');
+}
+
+function updateDashboard() {
+  document.getElementById('dash-money').textContent = formatNumber(state.money) + '$';
+  document.getElementById('dash-beans').textContent = formatNumber(state.rawBeans);
+  document.getElementById('dash-milk').textContent = formatNumber(state.milk);
+  document.getElementById('dash-rep').textContent = formatNumber(state.reputation);
+  var tier = getCurrentRepTier(), next = getNextRepTier();
+  document.getElementById('dash-tier').textContent = tier.label;
+  document.getElementById('dash-next-tier').textContent = next ? next.min + ' r\u00e9p.' : 'MAX';
+  document.getElementById('dash-served').textContent = formatNumber(state.stats.totalServed);
+  document.getElementById('dash-harvested').textContent = formatNumber(state.stats.totalHarvested);
+  document.getElementById('dash-earned').textContent = formatNumber(state.stats.totalEarned) + '$';
+  document.getElementById('dash-sold').textContent = formatNumber(state.stats.totalSold);
+  document.getElementById('dash-achievements').textContent = getAchievementCount() + '/' + ACHIEVEMENTS.length;
+  if (!_dashboardLogBuilt) { renderActivityLog(); _dashboardLogBuilt = true; }
 }
 
 function updateUI() {
   updateHeader();
   updateShopToggle();
-  if (currentTab === 'plantation') { updatePlantationNav(); updatePlantationInfo(); updateGardenerUI(); updatePlantation(); }
-  if (currentTab === 'coffeeshop') { updateRepTierBar(); updateCoffeeShop(); }
+  if (currentTab === 'dashboard') updateDashboard();
+  if (currentTab === 'plantation') { updatePlantModeUI(); updatePlantationNav(); updatePlantationInfo(); updateGardenerUI(); updatePlantation(); }
+  if (currentTab === 'coffeeshop') { updateRepTierBar(); updateBaristaUI(); updateCoffeeShop(); }
   if (currentTab === 'commerce') updateCommerceUI();
-  if (currentTab === 'magasin') { updatePlantPurchases(); updateMagasinUI(); updateMilkPriceDisplay(); }
+  if (currentTab === 'magasin') { updatePlantPurchases(); updateBaristaPurchaseUI(); updateMagasinUI(); updateMilkPriceDisplay(); }
   if (currentTab === 'succes') { if (!_achievementsBuilt) renderAchievementsUI(); else lightUpdateAchievementsCount(); }
   updateCommerceBadge();
 }
@@ -1032,7 +1254,7 @@ function updateGardenerUI() {
       var cost = getGardenerCost(state.currentParcelle);
       el.innerHTML = '<div class="resource-card">' +
         '<div class="resource-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8;"><i class="fas fa-person-digging"></i></div>' +
-        '<div class="resource-info"><h4>Engager un jardinier</h4><p>Récolte et replante automatiquement (Coût : ' + GARDENER_PLANT_COST + '$)</p><span class="resource-price">' + formatNumber(cost) + '$</span></div>' +
+        '<div class="resource-info"><h4>Engager un jardinier</h4><p>Récolte et replante automatiquement (Coût : ' + getPlantCostLabel() + (state.plantPayMode === 'beans' ? ' + ' + GARDENER_BEANS_SALARY + '$' : '') + ')</p><span class="resource-price">' + formatNumber(cost) + '$</span></div>' +
         '<button class="btn btn-accent" id="buy-gardener-btn">Engager</button></div>';
       var btn = document.getElementById('buy-gardener-btn');
       if (btn) {
@@ -1042,13 +1264,13 @@ function updateGardenerUI() {
     } else if (p.gardenerActive) {
       el.innerHTML = '<div class="resource-card" style="border-color:var(--success);">' +
         '<div class="resource-icon" style="background:rgba(34,197,94,0.15);color:#22c55e;"><i class="fas fa-person-digging"></i></div>' +
-        '<div class="resource-info"><h4>Jardinier Actif</h4><p>Travaille sur cette parcelle.</p><span class="resource-price" style="color:var(--success);">Actif ✅</span></div>' +
+        '<div class="resource-info"><h4>Jardinier Actif</h4><p>Coût/plantation : ' + getPlantCostLabel() + (state.plantPayMode === 'beans' ? ' + ' + GARDENER_BEANS_SALARY + '$ salaire' : '') + '</p><span class="resource-price" style="color:var(--success);">Actif ✅</span></div>' +
         '<button class="btn btn-sm btn-toggle-close" id="toggle-gardener-btn">Pause</button></div>';
       document.getElementById('toggle-gardener-btn').addEventListener('click', function() { toggleGardener(state.currentParcelle); });
     } else {
       el.innerHTML = '<div class="resource-card" style="opacity:0.6;">' +
         '<div class="resource-icon" style="background:rgba(122,122,122,0.15);color:#7a7a7a;"><i class="fas fa-person-digging"></i></div>' +
-        '<div class="resource-info"><h4>Jardinier En pause</h4><p>Ne travaille pas actuellement.</p><span class="resource-price" style="color:var(--text-muted);">En pause ⏸️</span></div>' +
+        '<div class="resource-info"><h4>Jardinier En pause</h4><p>Coût/plantation : ' + getPlantCostLabel() + (state.plantPayMode === 'beans' ? ' + ' + GARDENER_BEANS_SALARY + '$ salaire' : '') + '</p><span class="resource-price" style="color:var(--text-muted);">En pause ⏸️</span></div>' +
         '<button class="btn btn-sm btn-toggle-open" id="toggle-gardener-btn">Activer</button></div>';
       document.getElementById('toggle-gardener-btn').addEventListener('click', function() { toggleGardener(state.currentParcelle); });
     }
@@ -1063,13 +1285,14 @@ function toggleGardener(pIdx) {
   var p = state.parcelles[pIdx];
   if (!p.hasGardener) return;
   p.gardenerActive = !p.gardenerActive;
-  _gardenerKey = ''; // Force le rafraîchissement de l'UI
+  _gardenerKey = '';
   showToast(p.gardenerActive ? 'Jardinier activé sur la parcelle ' + (pIdx + 1) + ' !' : 'Jardinier mis en pause.', 'info');
+  logEvent(p.gardenerActive ? 'Jardinier activé (P' + (pIdx + 1) + ')' : 'Jardinier en pause (P' + (pIdx + 1) + ')', 'info');
 }
 
 function updatePlantation() {
   var now = Date.now(), growDur = getGrowDuration();
-  document.getElementById('plant-cost-display').textContent = PLANT_COST + '$';
+  document.getElementById('plant-cost-display').textContent = getPlantCostLabel();
   document.getElementById('grow-time-display').textContent = (growDur / 1000).toFixed(1) + 's';
   var yMin = Math.floor(BASE_YIELD_MIN * (1 + state.upgrades.research * 0.2)), yMax = Math.floor(BASE_YIELD_MAX * (1 + state.upgrades.research * 0.2));
   document.getElementById('yield-display').textContent = yMin + '-' + yMax;
@@ -1093,9 +1316,10 @@ function buildPlotHTML(el, i, plot, ns) {
         '<img src="images/pousse0.png" alt="Parcelle vide">' +
       '</div>' +
       '<span class="plot-status">Vide</span>' +
-      '<div class="plot-action"><button class="btn btn-accent btn-sm" id="pbtn-' + i + '"><i class="fas fa-seedling"></i> Planter (' + PLANT_COST + '$)</button></div>';
+      '<div class="plot-action"><button class="btn btn-accent btn-sm" id="pbtn-' + i + '"><i class="fas fa-seedling"></i> Planter (' + getPlantCostLabel() + ')</button></div>';
     document.getElementById('pbtn-' + i).addEventListener('click', function(e) { plantPlot(i); });
-    if (state.money < PLANT_COST) document.getElementById('pbtn-' + i).disabled = true;
+    var pCost = getPlantCost();
+    if ((pCost.type === 'beans' && state.rawBeans < pCost.beans) || (pCost.type === 'money' && state.money < pCost.money)) document.getElementById('pbtn-' + i).disabled = true;
 
   } else if (ns === 'ready') {
     el.className = 'plot-card ready';
@@ -1128,7 +1352,10 @@ function buildPlotHTML(el, i, plot, ns) {
 function lightUpdatePlot(el, i, plot, ns, now) {
   if (ns === 'empty') {
     var b = document.getElementById('pbtn-' + i);
-    if (b) b.disabled = (state.money < PLANT_COST);
+    if (b) {
+      var pCost = getPlantCost();
+      b.disabled = (pCost.type === 'beans' ? state.rawBeans < pCost.beans : state.money < pCost.money);
+    }
     return;
   }
   if (ns === 'ready') return;
@@ -1165,6 +1392,96 @@ function lightUpdatePlot(el, i, plot, ns, now) {
   var pe = document.getElementById('ppct-' + i);
   if (te) te.textContent = formatTime(remaining);
   if (pe) pe.textContent = pct + '%';
+}
+
+/* ===================== MODE DE PAIEMENT PLANTATION ===================== */
+
+var _plantModeKey = '';
+
+function togglePlantMode() {
+  state.plantPayMode = (state.plantPayMode === 'money') ? 'beans' : 'money';
+  _plantModeKey = '';
+  _gardenerKey = '';
+  /* Forcer le rebuild de toutes les cartes de parcelles vides */
+  var plots = getPlots();
+  for (var i = 0; i < plots.length; i++) { if (!plots[i]) plotStates[i] = 'init'; }
+  showToast('Mode plantation : ' + (state.plantPayMode === 'beans' ? 'Payer en grains' : 'Payer en dollars'), 'info');
+}
+
+function updatePlantModeUI() {
+  var key = state.plantPayMode;
+  if (key === _plantModeKey) return;
+  _plantModeKey = key;
+  var el = document.getElementById('plant-mode-container');
+  if (!el) return;
+  var isMoney = (state.plantPayMode === 'money');
+  el.innerHTML =
+    '<div class="plant-mode-toggle">' +
+      '<button class="plant-mode-btn' + (isMoney ? ' active' : '') + '" id="pmode-money"><i class="fas fa-coins"></i> Payer en $ (' + PLANT_COST + '$)</button>' +
+      '<button class="plant-mode-btn' + (!isMoney ? ' active' : '') + '" id="pmode-beans"><i class="fas fa-seedling"></i> Payer en grains (' + PLANT_BEANS_COST + ')</button>' +
+    '</div>';
+  document.getElementById('pmode-money').addEventListener('click', function() { if (state.plantPayMode !== 'money') togglePlantMode(); });
+  document.getElementById('pmode-beans').addEventListener('click', function() { if (state.plantPayMode !== 'beans') togglePlantMode(); });
+}
+
+/* ===================== MAÎTRE BARISTA ===================== */
+
+var _baristaKey = '';
+
+function buyBarista() {
+  if (state.hasBarista) return;
+  if (state.money < BARISTA_COST) { showToast('Pas assez d\'argent pour engager un Maître Barista !', 'error'); return; }
+  state.money -= BARISTA_COST;
+  state.hasBarista = true;
+  state.baristaActive = true;
+  _baristaKey = '';
+  _baristaPurchKey = '';
+  showToast('Maître Barista embauché ! Préparation et service automatiques activés.', 'success');
+  logEvent('Maître Barista embauché !', 'success');
+}
+
+function toggleBarista() {
+  if (!state.hasBarista) return;
+  state.baristaActive = !state.baristaActive;
+  _baristaKey = '';
+  showToast(state.baristaActive ? 'Maître Barista activé !' : 'Maître Barista mis en pause.', 'info');
+  logEvent(state.baristaActive ? 'Maître Barista activé' : 'Maître Barista en pause', 'info');
+}
+
+function updateBaristaUI() {
+  var key = !state.hasBarista ? 'buy' : (state.baristaActive ? 'active' : 'paused');
+  var el = document.getElementById('barista-container');
+  if (!el) return;
+
+  if (_baristaKey !== key) {
+    _baristaKey = key;
+    if (!state.hasBarista) {
+      el.innerHTML = '<div class="resource-card">' +
+        '<div class="resource-icon" style="background:rgba(212,149,106,0.12);color:var(--accent);border:1px solid rgba(212,149,106,0.25);"><i class="fas fa-mug-hot"></i></div>' +
+        '<div class="resource-info"><h4>Maître Barista</h4><p>Prépare et sert automatiquement (coût : ' + BARISTA_PREP_COST + '$/cmd)</p><span class="resource-price">' + formatNumber(BARISTA_COST) + '$</span></div>' +
+        '<button class="btn btn-accent" id="buy-barista-btn">Engager</button></div>';
+      var btn = document.getElementById('buy-barista-btn');
+      if (btn) {
+        btn.addEventListener('click', buyBarista);
+        if (state.money < BARISTA_COST) btn.disabled = true;
+      }
+    } else if (state.baristaActive) {
+      el.innerHTML = '<div class="resource-card" style="border-color:var(--success);">' +
+        '<div class="resource-icon" style="background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);"><i class="fas fa-mug-hot"></i></div>' +
+        '<div class="resource-info"><h4>Maître Barista</h4><p>Prépare et sert automatiquement (' + BARISTA_PREP_COST + '$/cmd)</p><span class="resource-price" style="color:var(--success);">Actif ✅</span></div>' +
+        '<button class="btn btn-sm btn-toggle-close" id="toggle-barista-btn">Pause</button></div>';
+      document.getElementById('toggle-barista-btn').addEventListener('click', toggleBarista);
+    } else {
+      el.innerHTML = '<div class="resource-card" style="opacity:0.6;">' +
+        '<div class="resource-icon" style="background:rgba(122,122,122,0.15);color:#7a7a7a;border:1px solid rgba(122,122,122,0.25);"><i class="fas fa-mug-hot"></i></div>' +
+        '<div class="resource-info"><h4>Maître Barista</h4><p>Prépare et sert automatiquement (' + BARISTA_PREP_COST + '$/cmd)</p><span class="resource-price" style="color:var(--text-muted);">En pause ⏸️</span></div>' +
+        '<button class="btn btn-sm btn-toggle-open" id="toggle-barista-btn">Activer</button></div>';
+      document.getElementById('toggle-barista-btn').addEventListener('click', toggleBarista);
+    }
+  } else {
+    var btnBuy = document.getElementById('buy-barista-btn');
+    if (btnBuy) btnBuy.disabled = (state.money < BARISTA_COST);
+  }
 }
 
 /* ===================== RÉPUTATION TIER BAR ===================== */
@@ -1402,9 +1719,10 @@ var _manipStates = {};
 function updateMarketManipUI() {
   var gState = (state.grainBoostTimer > 0 ? 'active' : (state.grainBoostCd > 0 ? 'cd' : 'idle'));
   var mState = (state.milkDropTimer > 0 ? 'active' : (state.milkDropCd > 0 ? 'cd' : 'idle'));
-  if (!_manipBuilt || _manipStates.grain !== gState || _manipStates.milk !== mState) {
+  var aState = (state.adTimer > 0 ? 'active' : (state.adCd > 0 ? 'cd' : 'idle'));
+  if (!_manipBuilt || _manipStates.grain !== gState || _manipStates.milk !== mState || _manipStates.ad !== aState) {
     _manipBuilt = true;
-    _manipStates = { grain: gState, milk: mState };
+    _manipStates = { grain: gState, milk: mState, ad: aState };
     buildMarketManipHTML();
   } else {
     lightUpdateMarketManip();
@@ -1434,9 +1752,19 @@ function buildMarketManipHTML() {
     h += '<div class="upgrade-card"><div class="upgrade-icon"><i class="fas fa-arrow-trend-down"></i></div><div class="upgrade-info"><h4>Prix Lait Minimum</h4><p>Fait baisser le prix du lait au minimum pendant 60s pour approvisionner pas cher.</p></div><div class="upgrade-action"><button class="btn btn-accent btn-sm" id="mbtn-milk"><i class="fas fa-coins"></i> ' + MILK_DROP_COST + '$</button></div></div>';
   }
 
+  /* Carte Publicité */
+  if (state.adTimer > 0) {
+    h += '<div class="upgrade-card" style="border-color:rgba(212,149,106,0.3);"><div class="upgrade-icon" style="background:rgba(212,149,106,0.15);color:var(--accent);border-color:rgba(212,149,106,0.3);"><i class="fas fa-bullhorn"></i></div><div class="upgrade-info"><h4>Campagne publicitaire</h4><p>Les clients arrivent 40% plus vite.</p><div class="progress-bar thin" id="mfill-ad"><div class="progress-fill" id="mfilla" style="width:100%;background:linear-gradient(90deg, var(--accent-dark), var(--accent));"></div></div></div><div class="upgrade-action"><span class="slot-timer" id="mtimer-ad" style="font-size:0.78rem;color:var(--accent);"></span></div></div>';
+  } else if (state.adCd > 0) {
+    h += '<div class="upgrade-card"><div class="upgrade-icon" style="opacity:0.4;"><i class="fas fa-bullhorn"></i></div><div class="upgrade-info"><h4>Campagne publicitaire</h4><p>Les clients arrivent 40% plus vite.</p><div class="progress-bar thin cooldown" id="mfill-ad"><div class="progress-fill" id="mfilla" style="width:0%"></div></div></div><div class="upgrade-action"><span class="slot-timer" id="mtimer-ad" style="font-size:0.78rem;color:var(--text-muted);"></span></div></div>';
+  } else {
+    h += '<div class="upgrade-card"><div class="upgrade-icon"><i class="fas fa-bullhorn"></i></div><div class="upgrade-info"><h4>Campagne publicitaire</h4><p>Attirez 40% de clients en plus pendant 60s.</p></div><div class="upgrade-action"><button class="btn btn-accent btn-sm" id="mbtn-ad"><i class="fas fa-coins"></i> ' + AD_COST + '$</button></div></div>';
+  }
+
   g.innerHTML = h;
   var gb = document.getElementById('mbtn-grain'); if (gb) { gb.addEventListener('click', buyGrainBoost); if (state.money < GRAIN_BOOST_COST) gb.disabled = true; }
   var mb = document.getElementById('mbtn-milk'); if (mb) { mb.addEventListener('click', buyMilkDrop); if (state.money < MILK_DROP_COST) mb.disabled = true; }
+  var ab = document.getElementById('mbtn-ad'); if (ab) { ab.addEventListener('click', buyAd); if (state.money < AD_COST) ab.disabled = true; }
 }
 
 function lightUpdateMarketManip() {
@@ -1449,7 +1777,19 @@ function lightUpdateMarketManip() {
     if (gcf) gcf.style.width = Math.round((state.grainBoostCd / (GRAIN_BOOST_CD + GRAIN_BOOST_DURATION)) * 100) + '%';
     if (gct) gct.textContent = 'CD ' + formatTime(state.grainBoostCd);
   } else {
-    var gbtn = document.getElementById('mbtn-grain'); if (gbtn) gbtn.disabled = (state.money < GRAIN_BOOST_COST);
+    var mbtn = document.getElementById('mbtn-milk'); if (mbtn) mbtn.disabled = (state.money < MILK_DROP_COST);
+  }
+
+  if (state.adTimer > 0) {
+    var af = document.getElementById('mfilla'), at = document.getElementById('mtimer-ad');
+    if (af) af.style.width = Math.round((state.adTimer / AD_DURATION) * 100) + '%';
+    if (at) at.textContent = formatTime(state.adTimer);
+  } else if (state.adCd > 0) {
+    var acf = document.getElementById('mfilla'), act = document.getElementById('mtimer-ad');
+    if (acf) acf.style.width = Math.round((state.adCd / (AD_CD + AD_DURATION)) * 100) + '%';
+    if (act) act.textContent = 'CD ' + formatTime(state.adCd);
+  } else {
+    var abtn = document.getElementById('mbtn-ad'); if (abtn) abtn.disabled = (state.money < AD_COST);
   }
 
   if (state.milkDropTimer > 0) {
@@ -1491,6 +1831,30 @@ function updateMilkPriceDisplay() {
   if (el) el.textContent = cost + '$';
   var btn = document.getElementById('buy-milk-btn');
   if (btn) btn.disabled = (state.money < cost);
+}
+
+var _baristaPurchKey = '';
+
+function updateBaristaPurchaseUI() {
+  var key = (state.hasBarista ? 'owned' : 'buy') + '_' + state.money;
+  if (key === _baristaPurchKey) return;
+  _baristaPurchKey = key;
+  var el = document.getElementById('barista-purchase-container');
+  if (!el) return;
+
+  if (state.hasBarista) {
+    el.innerHTML = '<div class="upgrade-card" style="border-color:rgba(107,158,80,0.3);">' +
+      '<div class="upgrade-icon" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3);"><i class="fas fa-mug-hot"></i></div>' +
+      '<div class="upgrade-info"><h4>Maître Barista</h4><p>Prépare et sert automatiquement les commandes. Coût : ' + BARISTA_PREP_COST + '$ par commande.</p></div>' +
+      '<div class="upgrade-action"><span class="maxed-text">ACQUIS</span></div></div>';
+  } else {
+    el.innerHTML = '<div class="upgrade-card">' +
+      '<div class="upgrade-icon"><i class="fas fa-mug-hot"></i></div>' +
+      '<div class="upgrade-info"><h4>Maître Barista</h4><p>Prépare et sert automatiquement les commandes. Coût d\'entretien : ' + BARISTA_PREP_COST + '$ par commande.</p></div>' +
+      '<div class="upgrade-action"><button class="btn btn-accent btn-sm" id="buy-barista-magasin-btn" ' + (state.money < BARISTA_COST ? 'disabled' : '') + '><i class="fas fa-coins"></i> ' + formatNumber(BARISTA_COST) + '$</button></div></div>';
+    var btn = document.getElementById('buy-barista-magasin-btn');
+    if (btn) btn.addEventListener('click', buyBarista);
+  }
 }
 
 function updateMagasinUI() {
@@ -1659,10 +2023,109 @@ function updateCommerceBadge() {
 }
 
 /* ===================================================
+   RÉCOLTE HORS-LIGNE
+   =================================================== */
+
+function showOfflineHarvestModal() {
+  if (!offlineHarvestData) return;
+  var data = offlineHarvestData;
+  var el = document.getElementById('offline-content');
+  if (!el) return;
+
+  var h = '';
+
+  /* Durée d'absence */
+  h += '<div class="offline-elapsed-display">';
+  h += '<span class="offline-elapsed-icon"><i class="fas fa-leaf" style="color:var(--success);"></i></span>';
+  h += '<p class="offline-elapsed-label">Vous étiez absent pendant</p>';
+  h += '<p class="offline-elapsed-value">' + formatAbsenceTime(data.elapsed) + '</p>';
+  h += '</div>';
+
+  /* Détail des récoltes */
+  h += '<div class="offline-harvest-card">';
+  h += '<p class="offline-harvest-title"><i class="fas fa-seedling"></i> ' + data.plots.length + ' caféier' + (data.plots.length > 1 ? 's' : '') + ' prêt' + (data.plots.length > 1 ? 's' : '') + ' à récolter</p>';
+  h += '<div class="offline-harvest-list">';
+  for (var i = 0; i < data.plots.length; i++) {
+    var p = data.plots[i];
+    h += '<div class="offline-harvest-row"><span>Parcelle ' + p.parcelle + ' · Empl. ' + p.slot + '</span><span>+' + p.yieldAmount + ' grains</span></div>';
+  }
+  h += '</div>';
+  h += '<div class="offline-harvest-total"><span class="offline-harvest-total-label">Total</span><span class="offline-harvest-total-value">+' + data.totalBeans + ' grains</span></div>';
+  h += '</div>';
+
+  /* Bouton récolter */
+  h += '<button class="btn btn-success" style="width:100%;" id="offline-harvest-btn"><i class="fas fa-hand-sparkles"></i> Récolter tout (' + data.plots.length + ')</button>';
+  h += '<button class="offline-skip-btn" id="offline-skip-btn">Plus tard</button>';
+
+  el.innerHTML = h;
+
+  /* Événements */
+  document.getElementById('offline-harvest-btn').addEventListener('click', function () {
+    harvestAllReadyPlots();
+    closeModal('offline-overlay');
+    offlineHarvestData = null;
+  });
+  document.getElementById('offline-skip-btn').addEventListener('click', function () {
+    closeModal('offline-overlay');
+    offlineHarvestData = null;
+  });
+  document.getElementById('offline-close-btn').addEventListener('click', function () {
+    closeModal('offline-overlay');
+    offlineHarvestData = null;
+  });
+
+  openModal('offline-overlay');
+}
+
+function harvestAllReadyPlots() {
+  var now = Date.now();
+  var totalHarvested = 0;
+  var harvestCount = 0;
+  for (var pi = 0; pi < state.parcelles.length; pi++) {
+    for (var pp = 0; pp < state.parcelles[pi].plots.length; pp++) {
+      var plot = state.parcelles[pi].plots[pp];
+      if (plot && (now - plot.plantedAt >= plot.growDuration)) {
+        totalHarvested += plot.yieldAmount;
+        harvestCount++;
+        state.parcelles[pi].plots[pp] = null;
+      }
+    }
+  }
+  if (harvestCount > 0) {
+    state.rawBeans += totalHarvested;
+    state.stats.totalHarvested += totalHarvested;
+    state.stats.totalHarvestActions += harvestCount;
+    showToast('Récolte hors-ligne : +' + totalHarvested + ' grains (' + harvestCount + ' caféiers)', 'success');
+    logEvent('Récolte hors-ligne : +' + totalHarvested + ' grains (' + harvestCount + ' caféiers)', 'success');
+    /* Forcer le rebuild des parcelles */
+    plotStates = [];
+    for (var i = 0; i < getSlots(); i++) plotStates.push('init');
+    initPlots();
+    updateUI();
+  }
+}
+
+function formatAbsenceTime(ms) {
+  var seconds = Math.floor(ms / 1000);
+  if (seconds < 60) return seconds + ' seconde' + (seconds > 1 ? 's' : '');
+  var minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return minutes + ' minute' + (minutes > 1 ? 's' : '');
+  var hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    var remMin = minutes % 60;
+    return hours + 'h' + (remMin > 0 ? ' ' + remMin + 'min' : '');
+  }
+  var days = Math.floor(hours / 24);
+  var remHours = hours % 24;
+  return days + ' jour' + (days > 1 ? 's' : '') + (remHours > 0 ? ' ' + remHours + 'h' : '');
+}
+
+/* ===================================================
    NAVIGATION
    =================================================== */
 
-var currentTab = 'plantation';
+var currentTab = 'dashboard';
+var offlineHarvestData = null;
 
 function switchTab(tabId) {
   if (tabId === currentTab) return;
@@ -1675,6 +2138,7 @@ function switchTab(tabId) {
   if (tabId === 'coffeeshop') { _recipesRendered = false; _repTierKey = ''; }
   if (tabId === 'magasin') _plantPurchKey = '';
   if (tabId === 'succes') _achievementsBuilt = false;
+  if (tabId === 'dashboard') _dashboardLogBuilt = false;
   updateUI();
 }
 
@@ -1689,6 +2153,7 @@ function gameLoop(now) {
   if (lastFrameTime === 0) lastFrameTime = now;
   var dt = Math.min(now - lastFrameTime, 500); lastFrameTime = now;
   updateGardeners();
+  updateBaristas();
   updateCustomers(dt);
   updateCommerce(dt);
   saveAcc += dt; if (saveAcc >= SAVE_INTERVAL) { saveAcc = 0; saveGame(); }
@@ -1704,6 +2169,9 @@ function gameLoop(now) {
 function init() {
   state = createFreshState();
   loadGame();
+  if (state.activityLog.length === 0) {
+    logEvent('Bienvenue dans Coffee Tycoon ! Votre aventure caf\u00e9 commence ici.', 'info');
+  }
   while (state.parcelles[state.currentParcelle].plots.length < state.parcelles[state.currentParcelle].slots) state.parcelles[state.currentParcelle].plots.push(null);
   state.counterSlots = Math.min(BASE_COUNTER_SLOTS + (state.upgrades.counter || 0), MAX_COUNTER_SLOTS);
   state.maxQueue = Math.min(BASE_QUEUE_SIZE + (state.upgrades.queue || 0) * 2, MAX_QUEUE_SIZE);
@@ -1744,6 +2212,10 @@ function init() {
 
   updateUI();
   setTimeout(checkAchievements, 500);
+  /* Afficher le modal de récolte hors-ligne si applicable */
+  if (offlineHarvestData) {
+    setTimeout(showOfflineHarvestModal, 600);
+  }
   lastFrameTime = 0;
   requestAnimationFrame(gameLoop);
   window.addEventListener('beforeunload', function() { saveGame(); });

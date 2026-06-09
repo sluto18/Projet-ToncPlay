@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
-
   <div class="bg-effects" aria-hidden="true">
     <div class="steam steam-1"></div>
     <div class="steam steam-2"></div>
@@ -19,9 +18,11 @@
   </div>
 
   <header id="game-header">
+    <a href="../../index.html" id="toncplay-logo" data-tooltip="Retourner sur ToncPlay">
+      <img src="../../images/logo.png" alt="ToncPlay">
+    </a>
     <div class="header-brand">
-      <i class="fas fa-mug-hot"></i>
-      <h1>Coffee Tycoon</h1>
+      <img src="images/logo.png" alt="Coffee Tycoon" class="header-logo">
     </div>
     <div class="header-stats">
       <div class="stat-item stat-money">
@@ -30,12 +31,12 @@
         <small>$</small>
       </div>
       <div class="stat-item stat-beans">
-        <i class="fas fa-seedling"></i>
+        <img src="images/grain.png" alt="Grains" class="stat-icon-img">
         <span id="stat-beans">0</span>
         <small>grains</small>
       </div>
       <div class="stat-item stat-milk">
-        <i class="fas fa-droplet"></i>
+        <img src="images/lait.png" alt="Lait" class="stat-icon-img">
         <span id="stat-milk">0</span>
         <small>lait</small>
       </div>
@@ -49,7 +50,11 @@
   </header>
 
   <nav id="tab-nav" role="tablist">
-    <button class="tab-btn active" data-tab="plantation" role="tab" aria-selected="true">
+    <button class="tab-btn active" data-tab="dashboard" role="tab" aria-selected="true">
+      <i class="fas fa-chart-line"></i>
+      <span>Dashboard</span>
+    </button>
+    <button class="tab-btn" data-tab="plantation" role="tab" aria-selected="false">
       <i class="fas fa-leaf"></i>
       <span>Plantation</span>
     </button>
@@ -73,8 +78,84 @@
 
   <main id="main-content">
 
+        <!-- === DASHBOARD (nouveau) === -->
+    <section id="tab-dashboard" class="tab-panel active" role="tabpanel">
+      <div class="tab-header">
+        <h2>Dashboard</h2>
+        <p>Vue d'ensemble de votre empire du café et journal d'activité en temps réel.</p>
+      </div>
+
+      <div class="dashboard-stats-grid">
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--gold);"><i class="fas fa-coins"></i></div>
+          <div class="dash-stat-value" id="dash-money">500$</div>
+          <div class="dash-stat-label">Argent</div>
+        </div>
+        <div class="dash-stat-card">
+        <div class="dash-stat-icon"><img src="images/grain.png" alt="Grains" class="dash-icon-img"></div>
+          <div class="dash-stat-value" id="dash-beans">0</div>
+          <div class="dash-stat-label">Grains</div>
+        </div>
+        <div class="dash-stat-card">
+        <div class="dash-stat-icon"><img src="images/lait.png" alt="Lait" class="dash-icon-img"></div>
+          <div class="dash-stat-value" id="dash-milk">0</div>
+          <div class="dash-stat-label">Lait</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--accent-bright);"><i class="fas fa-star"></i></div>
+          <div class="dash-stat-value" id="dash-rep">0</div>
+          <div class="dash-stat-label">Réputation</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--gold);"><i class="fas fa-award"></i></div>
+          <div class="dash-stat-value" id="dash-tier">Inconnu</div>
+          <div class="dash-stat-label">Palier actuel</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--text-muted);"><i class="fas fa-arrow-up-right-dots"></i></div>
+          <div class="dash-stat-value" id="dash-next-tier">15 rép.</div>
+          <div class="dash-stat-label">Prochain palier</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--accent);"><i class="fas fa-mug-hot"></i></div>
+          <div class="dash-stat-value" id="dash-served">0</div>
+          <div class="dash-stat-label">Cafés servis</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--success);"><i class="fas fa-wheat-awn"></i></div>
+          <div class="dash-stat-value" id="dash-harvested">0</div>
+          <div class="dash-stat-label">Total récolté</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--gold);"><i class="fas fa-sack-dollar"></i></div>
+          <div class="dash-stat-value" id="dash-earned">0$</div>
+          <div class="dash-stat-label">Total gagné</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--text-muted);"><i class="fas fa-truck"></i></div>
+          <div class="dash-stat-value" id="dash-sold">0</div>
+          <div class="dash-stat-label">Grains vendus</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-icon" style="color:var(--gold);"><i class="fas fa-trophy"></i></div>
+          <div class="dash-stat-value" id="dash-achievements">0/0</div>
+          <div class="dash-stat-label">Succès</div>
+        </div>
+      </div>
+
+      <div class="dashboard-log-section">
+        <div class="dashboard-log-header">
+          <h3><i class="fas fa-scroll"></i> Journal de l'établissement</h3>
+          <span class="dashboard-log-count" id="log-count">0 entrées</span>
+        </div>
+        <div class="activity-log-container" id="activity-log-content">
+          <p class="empty-msg" id="log-empty"><i class="fas fa-hourglass-half"></i> Aucune activité enregistrée...</p>
+        </div>
+      </div>
+    </section>
+
     <!-- PLANTATION -->
-    <section id="tab-plantation" class="tab-panel active" role="tabpanel">
+    <section id="tab-plantation" class="tab-panel" role="tabpanel">
       <!-- NOUVEAU : Conteneur de la ligne du haut en 2 colonnes -->
       <div class="plantation-top-bar">
         <div class="plantation-top-left">
@@ -96,6 +177,7 @@
               <span>Rendement : <strong id="yield-display">5-10</strong></span>
             </div>
           </div>
+          <div id="plant-mode-container"></div>
         </div>
         <div class="plantation-top-right">
           <div id="gardener-container"></div>
@@ -116,6 +198,7 @@
           <h2>Coffee Shop</h2>
           <p>Préparez et servez les commandes de vos clients. Chaque vente rapporte de l'argent et de la réputation.</p>
         </div>
+        <div id="barista-container"></div>
         <div class="shop-top-right">
           <div class="shop-status-bar">
             <div class="shop-status-info">
@@ -230,7 +313,7 @@
           </div>
         </div>
       </div>
-            <div class="magasin-section">
+      <div class="magasin-section">
         <h3><i class="fas fa-flask"></i> Améliorations</h3>
         <div id="upgrades-grid" class="upgrades-grid"></div>
       </div>
@@ -341,7 +424,21 @@
     </div>
   </div>
 
+  <!-- MODAL RÉCOLTE HORS-LIGNE -->
+  <div class="modal-overlay" id="offline-overlay" role="dialog" aria-modal="true" aria-label="Récolte hors-ligne">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3><i class="fas fa-leaf" style="color:var(--success)"></i> Récolte hors-ligne</h3>
+        <button class="modal-close-btn" id="offline-close-btn" aria-label="Plus tard"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="offline-content"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container" aria-live="polite"></div>
+  <div id="footerText">©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a></div>
   <script src="achievements.js"></script>
   <script src="script.js"></script>
 </body>

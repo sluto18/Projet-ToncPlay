@@ -135,6 +135,7 @@ function checkAchievements() {
         state.achievements.push(a.id);
         unlocked = true;
         showToast('<i class="fas fa-trophy toast-ach-icon"></i> Succès débloqué : ' + a.name, 'achievement');
+        logEvent('Succès débloqué : ' + a.name, 'money');
       }
     } catch (e) {}
   }
