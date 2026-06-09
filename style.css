@@ -1,551 +1,478 @@
-/* -------------------- RESET -------------------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+
+/* ===== VARIABLES DE DESIGN ===== */
+:root {
+--bg: #060b09;
+--bg-elevated: #0c1612;
+--card: rgba(14, 26, 20, 0.75);
+--card-solid: #0e1a14;
+--fg: #e0f2e9;
+--fg-dim: #8aaa98;
+--muted: #4a6a5a;
+--accent: #00e676;
+--accent-hover: #00c864;
+--accent-glow: rgba(0, 230, 118, 0.15);
+--border: rgba(0, 230, 118, 0.1);
+--border-hover: rgba(0, 230, 118, 0.35);
+--radius: 12px;
+--radius-sm: 8px;
+--header-h: 64px;
+--font-display: 'Space Grotesk', sans-serif;
+--font-body: 'DM Sans', sans-serif;
 }
 
-/* Scrolling fluide, si on utilise encore des ancres internes */
-html {
-  scroll-behavior: smooth;
-}
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
-/* -------------------- COULEURS GLOBALES -------------------- 
-   - Fond global : #ecf7f1 (vert très pâle)
-   - Texte : #061818 (vert très foncé)
-   - Couleur principale (hover / boutons) : #40a770 (vert clair)
-*/
 body {
-  font-family: Arial, sans-serif;
-  background-color: #ecf7f1;
-  color: #061818;
-  min-height: 100vh;
+font-family: var(--font-body);
+background: var(--bg);
+color: var(--fg);
+min-height: 100vh;
+overflow-x: hidden;
+line-height: 1.6;
+animation: bodyIn 0.5s ease;
+}
+@keyframes bodyIn { from { opacity: 0; } to { opacity: 1; } }
+
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+ul { list-style: none; }
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ===== FOND ANIMÉ ===== */
+.bg-effects {
+position: fixed; inset: 0;
+z-index: 0; pointer-events: none; overflow: hidden;
+}
+.blob {
+position: absolute; border-radius: 50%;
+filter: blur(100px); will-change: transform;
+}
+.blob-1 {
+width: 500px; height: 500px; top: -10%; left: -10%;
+background: rgba(0, 230, 118, 0.07);
+animation: blobFloat1 25s ease-in-out infinite;
+}
+.blob-2 {
+width: 400px; height: 400px; bottom: -5%; right: -8%;
+background: rgba(0, 150, 136, 0.06);
+animation: blobFloat2 30s ease-in-out infinite;
+}
+.blob-3 {
+width: 300px; height: 300px; top: 40%; left: 50%;
+background: rgba(0, 200, 83, 0.04);
+animation: blobFloat3 20s ease-in-out infinite;
+}
+@keyframes blobFloat1 {
+0%, 100% { transform: translate(0, 0) scale(1); }
+33% { transform: translate(80px, 60px) scale(1.1); }
+66% { transform: translate(-40px, 100px) scale(0.95); }
+}
+@keyframes blobFloat2 {
+0%, 100% { transform: translate(0, 0) scale(1); }
+33% { transform: translate(-60px, -80px) scale(1.05); }
+66% { transform: translate(50px, -40px) scale(0.9); }
+}
+@keyframes blobFloat3 {
+0%, 100% { transform: translate(0, 0) scale(1); }
+50% { transform: translate(-100px, 50px) scale(1.15); }
 }
 
-/* -------------------- STYLES GÉNÉRAUX H1 (pour résoudre l'avertissement) -------------------- */
-h1 {
-  font-size: 2.5rem; /* Taille de police par défaut pour les titres principaux */
-  margin-bottom: 1.5rem; /* Marge inférieure par défaut */
-  text-align: center; /* Centrer les titres principaux par défaut */
-  color: #061818; /* Couleur cohérente avec le texte du corps */
-}
-
-/* -------------------- CLASSE .HIDDEN --------------------
-   Permet de masquer une section. 
-   On l’applique quand on veut qu’une section ne soit pas affichée.
-   Pour les éléments qui doivent transitionner, on utilise max-height et opacity.
-*/
-.hidden {
-  display: none; /* Fallback for no JS or if transition is not desired */
-}
-
-/* -------------------- HEADER & MENU -------------------- */
+/* ===== HEADER ===== */
 .main-header {
   position: fixed;
   top: 0;
-  width: 100%;
-  background-color: #061818; /* Fond foncé */
-  color: #fff;
-  z-index: 999;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-.logo-container {
-  display: flex;
-  justify-content: space-between;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  background: rgba(6, 11, 9, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 0.8rem 1rem;
+  padding: 0 clamp(1rem, 4vw, 2rem);
 }
 
-/* Menu principal en grand écran : liste horizontale */
-#main-nav ul {
+/* Logo texte */
+.logo {
+font-family: var(--font-display);
+font-size: 1.4rem; font-weight: 700;
+color: var(--accent);
+letter-spacing: -0.02em;
+transition: opacity 0.2s;
+}
+.logo:hover { opacity: 0.8; }
+
+/* Navigation desktop */
+.nav-desktop {
   display: flex;
-  list-style: none;
+  gap: 0.25rem;
+  justify-self: center;   /* <-- ajouter */
+  justify-content: center; /* <-- ajouter */
+}
+.nav-desktop a {
+position: relative;
+padding: 0.5rem 1rem;
+font-family: var(--font-display);
+font-size: 0.9rem; font-weight: 500;
+color: var(--fg-dim);
+border-radius: var(--radius-sm);
+transition: color 0.25s, background 0.25s;
+}
+.nav-desktop a:hover { color: var(--fg); background: var(--accent-glow); }
+.nav-desktop a.active {
+color: var(--accent);
+}
+.nav-desktop a.active::after {
+content: ''; position: absolute;
+bottom: 4px; left: 50%; transform: translateX(-50%);
+width: 18px; height: 2px; border-radius: 1px;
+background: var(--accent);
 }
 
-#main-nav li {
-  margin-left: 1rem;
+/* Bouton burger */
+.burger {
+display: none; flex-direction: column; justify-content: center;
+gap: 5px; width: 40px; height: 40px;
+padding: 8px; border-radius: var(--radius-sm);
+transition: background 0.2s;
 }
-
-#main-nav a {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: #fff; /* Menu en blanc */
-  padding: 0.5rem 0.75rem;
-  transition: background-color 0.3s;
+.burger:hover { background: var(--accent-glow); }
+.burger span {
+display: block; width: 100%; height: 2px;
+background: var(--fg); border-radius: 1px;
+transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;
+transform-origin: center;
 }
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Hover du menu : fond vert clair */
-#main-nav a:hover {
-  background-color: #40a770;
-  border-radius: 4px;
+/* Overlay navigation mobile */
+.nav-overlay {
+position: fixed; inset: 0;
+background: rgba(6, 11, 9, 0.95);
+backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+z-index: 99;
+display: flex; align-items: center; justify-content: center;
+opacity: 0; pointer-events: none;
+transition: opacity 0.35s ease;
 }
-
-.menu-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 0.5rem;
+.nav-overlay.open { opacity: 1; pointer-events: auto; }
+.nav-overlay ul { text-align: center; }
+.nav-overlay li { overflow: hidden; }
+.nav-overlay a {
+display: block;
+font-family: var(--font-display);
+font-size: clamp(2rem, 6vw, 3rem);
+font-weight: 700;
+color: var(--fg-dim);
+padding: 0.5rem 1.5rem;
+transform: translateY(100%); opacity: 0;
+transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s, color 0.2s;
 }
-
-/* Bouton burger : caché sur grand écran, visible en mobile */
-.burger-menu {
-  display: none;
-  flex-direction: column;
-  background: transparent;
-  border: none;
-  cursor: pointer;
+.nav-overlay.open a {
+transform: translateY(0); opacity: 1;
 }
+.nav-overlay.open li:nth-child(1) a { transition-delay: 0.08s; }
+.nav-overlay.open li:nth-child(2) a { transition-delay: 0.16s; }
+.nav-overlay.open li:nth-child(3) a { transition-delay: 0.24s; }
+.nav-overlay a:hover,
+.nav-overlay a.active { color: var(--accent); }
 
-.burger-menu .bar {
-  width: 25px;
-  height: 3px;
-  background-color: #fff;
-  margin: 4px 0;
-}
-
-/* Sur mobile, si nav-closed est actif, on cache le menu */
-.nav-closed ul {
-  display: none;
-}
-
-/* -------------------- SECTION GLOBALE -------------------- */
+/* ===== CONTENU PRINCIPAL ===== */
 main {
-  margin-top: 80px; /* pour que le contenu ne soit pas caché par le header fixe */
-  padding: 1rem;
+position: relative; z-index: 1;
+padding-top: var(--header-h);
+min-height: calc(100vh - 60px);
 }
 
-/* -------------------- ACCUEIL (#accueil) -------------------- */
-#accueil {
-  text-align: center; /* Pour centrer le contenu du wrapper */
-  padding: 2rem;
+/* Transition entre sections */
+.section-page { display: none; padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem); }
+.section-page.active {
+display: block;
+animation: sectionIn 0.45s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes sectionIn {
+from { opacity: 0; transform: translateY(18px); }
+to { opacity: 1; transform: translateY(0); }
 }
 
-/* Nouvelle div pour encapsuler tout le contenu principal de l'accueil */
-.accueil-wrapper {
-  background-color: #dceee6; /* Couleur de fond comme les jeux */
-  border-radius: 8px;
-  padding: 1.5rem; /* Espacement interne */
-  box-shadow: 0 2px 6px rgba(6,24,24,0.1); /* Ombre comme les jeux */
-  max-width: 1000px; /* Largeur maximale pour le wrapper */
-  margin: 0 auto 2rem auto; /* Centre le wrapper et ajoute de la marge en bas */
+/* Titres de section */
+.section-title {
+font-family: var(--font-display);
+font-size: clamp(1.8rem, 4vw, 2.6rem);
+font-weight: 700;
+text-align: center;
+margin-bottom: 2rem;
+color: var(--fg);
 }
 
-/* Ajustement du titre h1 à l'intérieur du wrapper */
-.accueil-wrapper h1 {
-  margin-top: 0; /* Supprime la marge supérieure si elle existait */
-  margin-bottom: 0.5rem; /* Réduit la marge pour rapprocher le sous-titre */
-  text-align: center; /* S'assurer que le titre est centré dans le wrapper */
+/* ===== SECTION ACCUEIL ===== */
+.hero-card {
+max-width: 960px; margin: 0 auto;
+background: var(--card);
+backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: clamp(1.5rem, 3vw, 2.5rem);
+box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+.hero-title {
+font-family: var(--font-display);
+font-size: clamp(1.6rem, 4vw, 2.4rem);
+font-weight: 700; text-align: center;
+margin-bottom: 0.3rem;
+}
+.hero-subtitle {
+font-family: var(--font-display);
+font-size: clamp(1rem, 2.5vw, 1.35rem);
+font-weight: 400; text-align: center;
+color: var(--fg-dim);
+margin-bottom: 2rem;
+}
+.hero-content {
+display: flex; gap: 2rem; align-items: flex-start;
+}
+.hero-image-wrap {
+flex-shrink: 0; width: 340px;
+border-radius: var(--radius-sm); overflow: hidden;
+box-shadow: 0 0 30px var(--accent-glow);
+border: 1px solid var(--border);
+}
+.hero-image-wrap img {
+width: 100%; aspect-ratio: auto; object-fit: contain;  background: var(--card-solid);
+transition: transform 0.5s ease;
+}
+.hero-image-wrap:hover img { transform: scale(1.04); }
+.hero-image-caption {
+font-size: 0.8rem; color: var(--muted);
+text-align: center; padding: 0.5rem 0.75rem;
+background: var(--card-solid);
+}
+.hero-text {
+flex: 1; min-width: 0;
+font-size: 0.95rem; color: var(--fg-dim);
+line-height: 1.75;
 }
 
-/* Nouveau style pour le sous-titre de la page d'accueil */
-.accueil-subtitle {
-  font-size: 1.8rem; /* Plus petit que le h1 (2.5rem par défaut) */
-  margin-top: 0; /* Supprime la marge supérieure par default */
-  margin-bottom: 1.5rem; /* Marge sous le sous-titre */
-  text-align: center;
-  color: #061818; /* Même couleur que le texte principal */
-  font-weight: normal; /* Moins gras que le titre principal */
+/* ===== SECTION JEUX ===== */
+.games-grid {
+max-width: 1100px; margin: 0 auto;
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+gap: 1.25rem;
 }
-
-/* Conteneur Flexbox pour l'image et le texte latéral */
-.accueil-content {
-  display: flex;
-  flex-wrap: wrap; /* Permet aux éléments de s'empiler sur petits écrans */
-  justify-content: center; /* Centre le contenu quand il s'empile */
-  align-items: flex-start; /* Aligne les éléments en haut */
-  max-width: 100%; /* Prend toute la largeur du .accueil-wrapper */
-  margin: 0 auto; /* Centre le contenu à l'intérieur du wrapper */
-  gap: 2rem; /* Espacement entre l'image et le texte */
+.game-card {
+display: flex; gap: 1.25rem; align-items: center;
+background: var(--card);
+backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 1rem;
+transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+/* Animation d'entrée staggerée */
+opacity: 0; transform: translateY(16px);
 }
-
-/* Styles pour l'image de la section accueil */
-.accueil-figure {
-  flex-shrink: 0; /* Empêche l'image de rétrécir */
-  width: 400px; /* Largeur fixe pour le conteneur de l'image */
-  margin: 0; /* Réinitialise les marges précédentes */
+.game-card.revealed {
+animation: cardReveal 0.4s ease forwards;
 }
-
-.accueil-image {
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(64,167,112,0.3); /* léger halo vert */
+@keyframes cardReveal {
+to { opacity: 1; transform: translateY(0); }
 }
-
-/* Styles pour le conteneur de texte de la section accueil */
-.accueil-text-wrapper {
-  flex: 1; /* Permet au texte de prendre l'espace restant */
-  min-width: 300px; /* Largeur minimale avant que le contenu ne s'empile */
-  text-align: left; /* Aligne le texte à gauche à l'intérieur de son conteneur */
+.game-card:hover {
+transform: translateY(-4px);
+border-color: var(--border-hover);
+box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 20px var(--accent-glow);
 }
-
-/* Styles pour les paragraphes à l'intérieur du wrapper de texte */
-.accueil-text-wrapper p {
-  max-width: none; /* Annule la max-width précédente, le wrapper gère la largeur */
-  margin: 0 0 1em 0; /* Ajuste les marges des paragraphes */
-  line-height: 1.6; /* Améliore la lisibilité */
+.game-card.revealed:hover { transform: translateY(-4px); }
+.game-cover {
+flex-shrink: 0; width: 130px; height: 130px;
+border-radius: var(--radius-sm); overflow: hidden;
+border: 1px solid var(--border);
+transition: border-color 0.3s;
 }
-
-
-/* -------------------- JEUX (#jeux) -------------------- */
-#jeux {
-  padding: 2rem 0;
+.game-card:hover .game-cover { border-color: var(--border-hover); }
+.game-cover img { width: 100%; height: 100%; object-fit: cover; }
+.game-info { flex: 1; min-width: 0; }
+.game-info h2 {
+font-family: var(--font-display);
+font-size: 1.15rem; font-weight: 600;
+margin-bottom: 0.4rem;
 }
-
-/* Chaque jeu est un bloc .game-row */
-.game-row {
-  display: flex;
-  align-items: center;
-  background-color: #dceee6;  /* fond vert clair (cohérent avec #ecf7f1) */
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem; /* espace entre les jeux */
-  box-shadow: 0 2px 6px rgba(6,24,24,0.1);
+.game-info p {
+font-size: 0.88rem; color: var(--fg-dim);
+line-height: 1.5; margin-bottom: 0.75rem;
+display: -webkit-box; -webkit-line-clamp: 2;
+-webkit-box-orient: vertical; overflow: hidden;
 }
-
-/* Jaquette */
-.jaquette-cell {
-  width: 200px;
-  text-align: center;
-  margin-right: 1rem; /* écart entre jaquette et description */
+.btn-play {
+display: inline-flex; align-items: center; gap: 0.4rem;
+padding: 0.5rem 1.2rem;
+font-family: var(--font-display);
+font-size: 0.85rem; font-weight: 600;
+color: var(--bg); background: var(--accent);
+border-radius: var(--radius-sm);
+transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
 }
-
-.jaquette {
-  width: 100%;
-  max-width: 200px;
-  transition: transform 0.3s;
-  border-radius: 5px;
+.btn-play:hover {
+background: var(--accent-hover);
+box-shadow: 0 0 18px rgba(0, 230, 118, 0.3);
 }
+.btn-play:active { transform: scale(0.96); }
+.btn-play svg { width: 14px; height: 14px; }
 
-.jaquette:hover {
-  transform: scale(1.05);
+/* ===== SECTION NEWS ===== */
+.news-container {
+max-width: 760px; margin: 0 auto;
+display: flex; flex-direction: column; gap: 1rem;
 }
-
-/* Description */
-.description-cell {
-  flex: 1;  /* occupe tout l’espace restant */
+.news-card {
+background: var(--card);
+backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+overflow: hidden;
+transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
 }
-
-/* Bouton "Jouer" */
-.btn-jouer {
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #40a770; /* vert clair */
-  color: #fff;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+.news-card:hover {
+transform: translateY(-3px);
+border-color: var(--border-hover);
+box-shadow: 0 8px 30px rgba(0,0,0,0.25);
 }
-
-.btn-jouer:hover {
-  background-color: #349060; /* plus foncé au survol */
+.news-header {
+display: flex; align-items: flex-start; gap: 1rem;
+padding: 1rem 1.25rem;
+cursor: pointer;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
 }
-
-/* Responsive : empile jaquette + description */
-@media (max-width: 768px) {
-  .game-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .jaquette-cell {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 1rem;
-  }
-  .description-cell {
-    width: 100%;
-  }
+.news-thumb {
+flex-shrink: 0; width: 72px; height: 72px;
+border-radius: var(--radius-sm); overflow: hidden;
+border: 1px solid var(--border);
 }
-
-/* -------------------- NEWS (#news) -------------------- */
-#news {
-  padding: 2rem 0;
+.news-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.news-meta { flex: 1; min-width: 0; }
+.news-meta h2 {
+font-family: var(--font-display);
+font-size: 1.05rem; font-weight: 600;
+margin-bottom: 0.25rem;
+transition: color 0.2s;
 }
-
-#news .news-content {
-  margin: 0 auto; /* centre la zone actualités */
+.news-card:hover .news-meta h2 { color: var(--accent); }
+.news-meta .news-date {
+font-size: 0.8rem; color: var(--muted); font-weight: 500;
 }
-
-@media (min-width: 1000px) {
-  #news .news-content {
-    margin-left: 200px;
-    margin-right: 200px;
-  }
+.news-toggle {
+flex-shrink: 0; align-self: center;
+width: 32px; height: 32px;
+display: flex; align-items: center; justify-content: center;
+border-radius: 50%;
+background: var(--accent-glow);
+transition: background 0.2s, transform 0.3s;
 }
-
-#news-container {
-  margin-top: 1rem;
-  display: block; /* Affichage en bloc, l'un sous l'autre */
-  max-width: 800px; /* Limite la largeur du conteneur de news */
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 1rem; /* Padding pour les bords sur mobile */
+.news-toggle svg {
+width: 14px; height: 14px; color: var(--accent);
+transition: transform 0.3s;
 }
-
-.news-item {
-  position: relative;
-  background-color: #dceee6; /* Couleur de fond des jeux */
-  padding: 0.75rem; /* Réduction du padding pour un encadré plus compact */
-  border-radius: 8px; /* Coins plus arrondis */
-  box-shadow: 0 4px 10px rgba(6,24,24,0.15); /* Ombre plus prononcée */
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transitions au survol */
-  margin-bottom: 1.5rem; /* Espace entre les actualités */
-  display: flex; /* Utilisation de flexbox pour l'image et le texte */
-  flex-direction: column; /* Les éléments s'empilent verticalement par défaut */
-  align-items: flex-start; /* Alignement en haut */
-  overflow: hidden; /* TRÈS IMPORTANT pour que max-height fonctionne */
+.news-card.expanded .news-toggle { background: var(--accent); }
+.news-card.expanded .news-toggle svg {
+color: var(--bg); transform: rotate(180deg);
 }
-
-.news-item:hover {
-  transform: translateY(-5px); /* Léger soulèvement au survol */
-  box-shadow: 0 8px 15px rgba(6,24,24,0.25); /* Ombre plus intense au survol */
+.news-body {
+max-height: 0; opacity: 0; overflow: hidden;
+transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease;
 }
-
-/* Style pour la prévisualisation de la news (toujours visible) */
-.news-item-preview {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  width: 100%;
-  cursor: pointer; /* Indique que la zone est cliquable */
-  padding-bottom: 1rem; /* Espace entre le header et le contenu étendu */
-  position: relative; /* Ajouté pour positionner le bouton à l'intérieur */
+.news-card.expanded .news-body { opacity: 1; }
+.news-body-inner {
+padding: 0 1.25rem 1.25rem;
+font-size: 0.92rem; color: var(--fg-dim);
+line-height: 1.7;
+border-top: 1px solid var(--border);
+padding-top: 1rem;
 }
+.news-body-inner b { color: var(--fg); font-weight: 600; }
 
-.news-item-preview-image {
-  width: 100px; /* Taille fixe pour l'image dans la liste des news */
-  height: 100px;
-  object-fit: cover; /* Recadre l'image pour remplir le conteneur */
-  border-radius: 4px;
-  flex-shrink: 0; /* Empêche l'image de rétrécir */
-}
-
-.news-item-info {
-  flex: 1; /* Prend l'espace restant pour le texte du résumé */
-  /* Ajout de padding-right pour laisser de la place au bouton */
-  padding-right: 60px; /* Largeur approximative du bouton + marge */
-}
-
-.news-item h2 {
-  color: #061818; /* Couleur du texte foncé */
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-}
-
-.news-item p {
-  color: #40a770; /* Couleur de la date en vert clair */
-  font-size: 0.9rem;
-  font-weight: bold;
-}
-
-/* Styles pour le contenu détaillé de la news (initialement caché) */
-.news-item-detail {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.7s ease-in-out, opacity 0.5s ease-in-out;
-  width: 100%; /* S'assure qu'il prend toute la largeur disponible */
-}
-
-/* Style lorsque la news est "expanded" - max-height sera défini par JS */
-.news-item.expanded .news-item-detail {
-  opacity: 1;
-}
-
-/* Conteneur pour le texte dans le détail (l'image est supprimée) */
-.news-item-detail-content {
-    display: flex; /* Conserve flex pour la flexibilité future si besoin */
-    align-items: flex-start;
-    gap: 1rem;
-    padding-top: 1rem; /* Ajoute du padding ici */
-    padding-bottom: 1rem; /* Ajoute du padding ici */
-    white-space: pre-wrap; /* Préserve les retours à la ligne du data-details */
-    line-height: 1.6; /* Meilleure lisibilité du texte */
-    color: #333; /* Texte légèrement plus clair pour les détails */
-    font-size: 0.95rem;
-}
-
-/* L'image de détail est maintenant supprimée, donc ces styles ne sont plus utilisés */
-/*
-.news-item-detail-image {
-  width: 150px;
-  height: auto;
-  object-fit: cover;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-*/
-
-.news-item-detail-text {
-    flex: 1; /* Prend l'espace restant pour le texte */
-}
-
-/* Bouton de bascule "Lire plus/moins" */
-.toggle-news-btn { 
-  background-color: #40a770;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  
-  /* Positionnement absolu pour le placer en bas à droite de news-item-preview */
-  position: absolute;
-  bottom: 0.75rem; /* Ajusté pour être au niveau de l'image */
-  right: 0.75rem; /* Marge à droite */
-  z-index: 1; /* S'assure qu'il est au-dessus du contenu */
-}
-
-.toggle-news-btn:hover {
-  background-color: #349060;
-}
-
-/* Responsive adjustment for news-details-expanded-image */
-@media (max-width: 480px) {
-    .news-item-detail-content {
-        flex-direction: column; /* Empile l'image et le texte verticalement sur petits écrans */
-        align-items: center;
-    }
-    /* L'image de détail est supprimée, ces styles ne sont plus utilisés */
-    /*
-    .news-item-detail-image {
-        width: 100%;
-        max-width: 200px;
-        margin-bottom: 1rem;
-    }
-    */
-}
-
-/* Media query pour les écrans plus petits afin d'empiler l'image et le texte */
-@media (max-width: 768px) {
-  .accueil-content {
-    flex-direction: column; /* Empile l'image et le texte verticalement */
-    align-items: center; /* Centre les éléments quand ils sont empilés */
-  }
-  .accueil-figure {
-    width: 100%; /* L'image prend toute la largeur disponible */
-    margin-bottom: 1.5rem; /* Ajoute de l'espace en dessous de l'image */
-  }
-  .accueil-text-wrapper {
-    width: 100%; /* Le texte prend toute la largeur disponible */
-  }
-  .accueil-text-wrapper p {
-    text-align: center; /* Centre le texte sur petits écrans si désiré */
-  }
-}
-
-
-/* -------------------- FOOTER -------------------- */
+/* ===== FOOTER ===== */
 footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #061818;
-  color: #fff;
-  margin-top: 2rem;
+position: relative; z-index: 1;
+text-align: center; padding: 1.5rem 1rem;
+font-size: 0.82rem; color: var(--muted);
+border-top: 1px solid var(--border);
+margin-top: 3rem;
 }
 
-/* -------------------- RESPONSIVE DESIGN (MENU) -------------------- */
+/* ===== RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  /* Bouton burger visible sur mobile */
-  .burger-menu {
-    display: flex;
-  }
-  /* Menu en colonne au lieu de flex-row */
-  #main-nav ul {
-    flex-direction: column;
-  }
-  #main-nav li {
-    margin-left: 0;
-    margin-bottom: 1rem;
-  }
+.nav-desktop { display: none; }
+.burger {
+  display: flex;
+  justify-self: end; 
 }
 
-#jeux .games-container {
-  margin: 0 auto; /* Centre automatiquement en grand écran. 
-                     Sur mobile, ça reste lisible */
+.hero-content {
+  flex-direction: column; align-items: center;
+}
+.hero-image-wrap { width: 100%; max-width: 400px; }
+.hero-text { text-align: center; }
+
+.game-card {
+  flex-direction: column; align-items: stretch; text-align: center;
+}
+.game-cover { width: 100%; height: 180px; }
+.game-info p { -webkit-line-clamp: 3; }
+.btn-play { justify-content: center; }
+
+.games-grid {
+  grid-template-columns: 1fr;
+}
 }
 
-@media (min-width: 1000px) {
-  #jeux .games-container {
-    margin-left: 400px;
-    margin-right: 400px;
-  }
+@media (max-width: 480px) {
+.news-header { padding: 0.85rem 1rem; gap: 0.75rem; }
+.news-thumb { width: 56px; height: 56px; }
+.news-meta h2 { font-size: 0.95rem; }
 }
 
-/* Le tooltip est supprimé */
-/*
-#tooltip {
-  position: absolute;
-  background: #333;
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  pointer-events: none;
-  z-index: 9999;
+/* ===== ACCESSIBILITÉ ===== */
+@media (prefers-reduced-motion: reduce) {
+*, *::before, *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+.blob { animation: none !important; }
 }
 
-#tooltip.hidden {
-  display: none;
-}
-*/
-
-/*********************************
- * SECTION DISCORD
- *********************************/
-#discord {
-  /* On limite la largeur pour centrer le contenu 
-     et éviter qu'il s'étale sur de très grands écrans */
-  max-width: 600px;
-
-  /* On centre le bloc dans la page */
-  margin: 2rem auto;
-
-  /* Fond blanc (ou un vert très pâle si tu veux rester 
-     dans la charte globale #ecf7f1 / #dceee6) */
-  background: #fff; 
-  /* Effet "carte" : coins arrondis, ombre légère */
-  border-radius: 5px;
-  box-shadow: 0 2px 6px rgba(6,24,24,0.1);
-
-  /* Espacement intérieur */
-  padding: 2rem;
+:focus-visible {
+outline: 2px solid var(--accent);
+outline-offset: 2px;
 }
 
-#discord h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-#discord p {
-  /* Un peu de marge en bas du texte */
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-
-.btn-discord {
+/* Logo à côté du titre */
+.logo-img {
   display: inline-block;
-  background-color: #40a770;
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-  padding: 0.75rem 1.25rem;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-  margin-bottom: 1.5rem; /* Séparation du texte suivant */
+  height: 28px;
+  width: auto;
+  margin-right: 0.5rem;
+  vertical-align: middle;
 }
 
-.btn-discord:hover {
-  /* Un peu plus foncé sur hover */
-  background-color: #349060; 
-}
-
-.discord-image {
-  display: block;
-  margin: 1rem auto;
-  width: 300px;
-  height: auto;
-  border-radius: 10px;
+/* Icône dans les onglets */
+.nav-icon {
+  display: inline-block;
+  height: 18px;
+  width: auto;
+  margin-right: 0.4rem;
+  vertical-align: middle;
 }
