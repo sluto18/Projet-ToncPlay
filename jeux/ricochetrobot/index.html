@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricochet Robot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ========== MENU PRINCIPAL ========== -->
+    <div id="screen-menu" class="screen active">
+        <div class="menu-content">
+            <div class="title-container">
+                <div class="title-icon">&#9881;</div>
+                <h1 class="game-title">RICOCHET<br><span>ROBOT</span></h1>
+                <div class="title-line"></div>
+                <p class="title-sub">Le jeu de reflexion mecanique</p>
+            </div>
+            <div class="menu-buttons">
+                <button onclick="Game.showScreen('screen-levels')" class="btn btn-primary">
+                    <span class="btn-icon">&#9733;</span> Mode Aventure
+                </button>
+                <button onclick="Game.startRandom()" class="btn btn-secondary">
+                    <span class="btn-icon">&#9881;</span> Partie Aleatoire
+                </button>
+                <button onclick="Game.showModal('modal-help')" class="btn btn-outline">
+                    <span class="btn-icon">&#9432;</span> Comment Jouer
+                </button>
+            </div>
+        </div>
+        <div class="bg-pattern"></div>
+        <div class="bg-gear g1">&#9881;</div>
+        <div class="bg-gear g2">&#9881;</div>
+    </div>
+
+    <!-- ========== CARTE SERPENTIN ========== -->
+    <div id="screen-levels" class="screen">
+        <div class="levels-container">
+            <div class="levels-header">
+                <button onclick="Game.showScreen('screen-menu')" class="btn-back">
+                    <span class="back-arrow">&#8592;</span> Accueil
+                </button>
+                <h2>Mode Aventure</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="snake-scroll">
+                <div id="snake-map" class="snake-map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ECRAN DE JEU ========== -->
+    <div id="screen-game" class="screen">
+        <div id="game-container">
+            <header id="game-header">
+                <div class="header-row-top">
+                    <button onclick="Game.goHome()" class="btn-home" title="Accueil">
+                        <span class="home-icon">&#8962;</span>
+                    </button>
+                    <div id="level-title" class="level-title"></div>
+                    <button onclick="Game.showModal('modal-help-ingame')" class="btn-help-sm" title="Aide">?</button>
+                </div>
+                <div id="ui-bar">
+                    <div id="target-display">
+                        <span class="target-label">Cible :</span>
+                        <span id="target-chip" class="target-chip">
+                            <span id="target-color"></span>
+                            <span id="target-symbol"></span>
+                        </span>
+                    </div>
+                    <div id="move-counter">Coups : <span id="count">0</span></div>
+                    <div id="score-display" class="score-display" style="display:none">
+                        <span id="targets-count">0</span> cibles
+                    </div>
+                    <div class="ui-buttons">
+                        <button onclick="Game.undo()" class="btn-sm" title="Annuler (U)" id="btn-undo">&#8634; Annuler</button>
+                        <button onclick="Game.restart()" class="btn-sm" title="Recommencer" id="btn-restart">&#8635; Reset</button>
+                        <button onclick="Game.newRandomGame()" class="btn-sm btn-accent" title="Nouvelle carte" id="btn-new-game" style="display:none">+ Nouveau</button>
+                    </div>
+                </div>
+            </header>
+            <div id="board-wrapper">
+                <div id="board"></div>
+                <div id="robots-layer"></div>
+            </div>
+            <div id="game-footer">
+                <p class="hint">Cliquez un robot puis fleches / glissez / boutons pour deplacer</p>
+                <div id="arrow-controls" class="arrow-controls">
+                    <button onclick="Game.moveRobot('up')" class="arrow-btn arrow-up">&#9650;</button>
+                    <button onclick="Game.moveRobot('left')" class="arrow-btn arrow-left">&#9664;</button>
+                    <button onclick="Game.moveRobot('right')" class="arrow-btn arrow-right">&#9654;</button>
+                    <button onclick="Game.moveRobot('down')" class="arrow-btn arrow-down">&#9660;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ECRAN VICTOIRE NIVEAU ========== -->
+    <div id="screen-complete" class="screen">
+        <div class="complete-content">
+            <div class="complete-confetti"></div>
+            <h2 class="complete-title">Niveau Reussi !</h2>
+            <div id="stars-display" class="stars-display"></div>
+            <p id="complete-moves" class="complete-moves"></p>
+            <p id="complete-par" class="complete-par"></p>
+            <div class="complete-buttons">
+                <button onclick="Game.restart()" class="btn btn-outline">Recommencer</button>
+                <button onclick="Game.nextLevel()" class="btn btn-primary" id="btn-next-level">Niveau Suivant</button>
+            </div>
+            <button onclick="Game.goHome()" class="btn-back-center">Retour a l'accueil</button>
+        </div>
+    </div>
+
+    <!-- ========== MODAL D'AIDE ========== -->
+    <div id="modal-help" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-help')"></div>
+        <div class="modal-content">
+            <button onclick="Game.hideModal('modal-help')" class="modal-close">&times;</button>
+            <h2>Comment Jouer</h2>
+            <div class="help-sections">
+                <div class="help-item">
+                    <div class="help-icon" style="color:var(--robot-red)">&#9679;</div>
+                    <h3>Objectif</h3>
+                    <p>Deplacez le robot de la bonne couleur jusqu'a la cible correspondante (meme couleur et symbole). Le robot noir n'a pas de cible propre mais peut etre deplace pour servir d'obstacle.</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="color:var(--robot-blue)">&#10132;</div>
+                    <h3>Deplacement</h3>
+                    <p>Les robots glissent en ligne droite jusqu'a rencontrer un mur, le bloc central ou un autre robot. Dès que le robot de la bonne couleur atteint sa cible, il s'y arrete automatiquement !</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="color:var(--robot-green)">&#9733;</div>
+                    <h3>Etoiles</h3>
+                    <p>Moins de 10 coups = 3 etoiles, 10 a 15 coups = 2 etoiles, 15 a 20 coups = 1 etoile. Au-dela de 20 coups, pas d'etoile mais le niveau suivant est debloque !</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="color:var(--robot-yellow)">&#8634;</div>
+                    <h3>Commandes</h3>
+                    <p>Fleches / ZQSD : deplacer &bull; Tab : changer de robot &bull; U : annuler &bull; Escape : deselectionner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal aide en jeu -->
+    <div id="modal-help-ingame" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-help-ingame')"></div>
+        <div class="modal-content">
+            <button onclick="Game.hideModal('modal-help-ingame')" class="modal-close">&times;</button>
+            <h2>Rappel</h2>
+            <div class="help-sections">
+                <div class="help-item">
+                    <h3>Deplacement</h3>
+                    <p>Cliquez un robot, puis fleches/glissez. Les robots glissent jusqu'a un mur ou un autre robot. Le robot de la bonne couleur s'arrete sur sa cible. Le robot noir sert d'obstacle mobile.</p>
+                </div>
+                <div class="help-item">
+                    <h3>Commandes</h3>
+                    <p>Fleches/ZQSD : deplacer &bull; Tab : robot suivant &bull; U : annuler &bull; Esc : deselectionner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== TOAST ========== -->
+    <div id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
