@@ -4,6 +4,12 @@
   ============================================================ */
 const GAMES = [
 {
+  img: 'jaquette/sliderobot.png',
+  title: 'Slide Robot',
+  desc: 'Jeu de réflexion mécanique.',
+  link: 'jeux/sliderobot/index.html'
+},
+{
   img: 'jaquette/cafetycoon.png',
   title: 'Café Tycoon',
   desc: 'Cultivez, Préparez, Progressez !',
@@ -63,6 +69,12 @@ const GAMES = [
   DONNÉES — Actualités
   ============================================================ */
 const NEWS = [
+{
+  img: 'jaquette/sliderobot.png',
+  title: 'Sortie de Slide Robot !',
+  date: '17/06/2026',
+  text: 'Sortie de Slide Robot : un jeu de réflexion mécanique et stratégique où la logique est votre seule alliée, même si, à un moment donné, on a tous juste envie de cliquer partout en espérant que ça passe.'
+},
 {
   img: 'jaquette/cafetycoon.png',
   title: 'Sortie de Café Tycoon',
