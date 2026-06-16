@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Robot</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+</head>
+<body>
+
+    <!-- ========== MENU PRINCIPAL ========== -->
+    <div id="screen-menu" class="screen active">
+        <div class="menu-content">
+            <div class="title-container">
+                <img src="images/logo.png" alt="Slide Robot" class="logo-img">
+            </div>
+            <div class="menu-buttons">
+                <button onclick="SoundManager.play('niveau'); Game.showScreen('screen-levels')" class="btn btn-primary">
+                    <span class="btn-icon"><img src="images/star.png" alt="" class="btn-icon-img"></span> Mode Aventure
+                </button>
+                <button onclick="SoundManager.play('niveau'); Game.startRandom()" class="btn btn-secondary">
+                    <span class="btn-icon"><img src="images/star.png" alt="" class="btn-icon-img"></span> Partie Aleatoire
+                </button>
+                <button onclick="SoundManager.play('niveau'); Game.showModal('modal-help')" class="btn btn-outline">
+                    <span class="btn-icon"><img src="images/parametre.png" alt="" class="btn-icon-img"></span> Comment Jouer
+                </button>
+                <!-- BOUTON PARAMETRES -->
+                <button onclick="SoundManager.play('niveau'); Game.showSettings()" class="btn btn-outline">
+                    <span class="btn-icon"><img src="images/parametre.png" alt="" class="btn-icon-img"></span> Parametres
+                </button>
+            </div>
+            <div id="footerText">©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a></div>
+        </div>
+        <div class="bg-pattern"></div>
+        <div class="bg-gear g1">&#9881;</div>
+        <div class="bg-gear g2">&#9881;</div>
+    </div>
+
+    <!-- ========== CARTE SERPENTIN ========== -->
+    <div id="screen-levels" class="screen">
+        <div class="levels-container">
+            <div class="levels-header">
+                <button onclick="SoundManager.play('annuler'); Game.showScreen('screen-menu')" class="btn-back">
+                    <span class="back-arrow">&#8592;</span> Accueil
+                </button>
+                <h2>Mode Aventure</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="snake-scroll">
+                <div id="snake-map" class="snake-map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ECRAN DE JEU ========== -->
+    <div id="screen-game" class="screen">
+        <div id="game-container">
+            <header id="game-header">
+                <div class="header-row-top">
+                    <button onclick="SoundManager.play('annuler'); Game.goHome()" class="btn-home" title="Accueil">
+                        <span class="home-icon">&#8962;</span>
+                    </button>
+                    <div id="level-title" class="level-title"></div>
+                    <button onclick="SoundManager.play('niveau'); Game.showModal('modal-help-ingame')" class="btn-help-sm" title="Aide">?</button>
+                </div>
+                <div id="ui-bar">
+                    <div id="target-display">
+                        <span class="target-label">Cible :</span>
+                        <span id="target-chip" class="target-chip">
+                            <span id="target-color"></span>
+                            <span id="target-symbol"></span>
+                        </span>
+                    </div>
+                    <div id="move-counter">Coups : <span id="count">0</span></div>
+                    <div id="score-display" class="score-display" style="display:none">
+                        <span id="targets-count">0</span> cibles
+                    </div>
+                    <div id="timer-display" class="timer-display" style="display:none">
+                        <span id="timer-value">00:00</span>
+                    </div>
+                    <div class="ui-buttons">
+                        <button onclick="Game.undo()" class="btn-sm" title="Annuler (U)" id="btn-undo">&#8634; Annuler</button>
+                        <button onclick="Game.confirmRestart()" class="btn-sm" title="Recommencer" id="btn-restart">&#8635; Reset</button>
+                        <button onclick="Game.confirmNewGame()" class="btn-sm btn-accent" title="Nouvelle carte" id="btn-new-game" style="display:none">+ Nouveau</button>
+                    </div>
+                </div>
+            </header>
+            <div id="board-wrapper">
+                <div id="board"></div>
+                <div id="robots-layer"></div>
+            </div>
+            <div id="game-footer">
+                <p class="hint">Cliquez un robot puis fleches / glissez / boutons pour deplacer</p>
+                <div id="arrow-controls" class="arrow-controls">
+                    <button onclick="Game.moveRobot('up')" class="arrow-btn arrow-up">&#9650;</button>
+                    <button onclick="Game.moveRobot('left')" class="arrow-btn arrow-left">&#9664;</button>
+                    <button onclick="Game.moveRobot('right')" class="arrow-btn arrow-right">&#9654;</button>
+                    <button onclick="Game.moveRobot('down')" class="arrow-btn arrow-down">&#9660;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ECRAN VICTOIRE NIVEAU ========== -->
+    <div id="screen-complete" class="screen">
+        <div class="complete-content">
+            <div class="complete-confetti"></div>
+            <h2 class="complete-title">Niveau Reussi !</h2>
+            <div id="stars-display" class="stars-display"></div>
+            <p id="complete-moves" class="complete-moves"></p>
+            <p id="complete-par" class="complete-par"></p>
+            <div class="complete-buttons">
+                <button onclick="Game.restart()" class="btn btn-outline">Recommencer</button>
+                <button onclick="Game.nextLevel()" class="btn btn-primary" id="btn-next-level">Niveau Suivant</button>
+            </div>
+            <button onclick="SoundManager.play('annuler'); Game.goHome()" class="btn-back-center">Retour a l'accueil</button>
+        </div>
+    </div>
+
+    <!-- ========== MODAL D'AIDE ========== -->
+    <div id="modal-help" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-help')"></div>
+        <div class="modal-content">
+            <button onclick="Game.hideModal('modal-help')" class="modal-close">&times;</button>
+            <h2>Comment Jouer</h2>
+            <div class="help-sections">
+                <div class="help-item">
+                    <div class="help-icon"><img src="images/robotrouge.png" class="help-robot-img"></div>
+                    <h3>Objectif</h3>
+                    <p>Deplacez le robot de la bonne couleur jusqu'a la cible correspondante (meme couleur et symbole). Le robot noir n'a pas de cible propre mais peut etre deplace pour servir d'obstacle.</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon"><img src="images/robotbleu.png" class="help-robot-img"></div>
+                    <h3>Deplacement</h3>
+                    <p>Les robots glissent en ligne droite jusqu'a rencontrer un mur, le bloc central ou un autre robot. Des que le robot de la bonne couleur atteint sa cible, il s'y arrete automatiquement !</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon"><img src="images/robotvert.png" class="help-robot-img"></div>
+                    <h3>Etoiles</h3>
+                    <p>Moins de 10 coups = 3 etoiles, 10 a 15 coups = 2 etoiles, 15 a 20 coups = 1 etoile. Au-dela de 20 coups, pas d'etoile mais le niveau suivant est debloque !</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon"><img src="images/robotjaune.png" class="help-robot-img"></div>
+                    <h3>Commandes</h3>
+                    <p>Fleches / ZQSD : deplacer &bull; Tab : changer de robot &bull; U : annuler &bull; Escape : deselectionner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal aide en jeu -->
+    <div id="modal-help-ingame" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-help-ingame')"></div>
+        <div class="modal-content">
+            <button onclick="Game.hideModal('modal-help-ingame')" class="modal-close">&times;</button>
+            <h2>Rappel</h2>
+            <div class="help-sections">
+                <div class="help-item">
+                    <div class="help-icon"><img src="images/robotbleu.png" class="help-robot-img"></div>
+                    <h3>Deplacement</h3>
+                    <p>Cliquez un robot, puis fleches/glissez. Les robots glissent jusqu'a un mur ou un autre robot. Le robot de la bonne couleur s'arrete sur sa cible. Le robot noir sert d'obstacle mobile.</p>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon"><img src="images/robotjaune.png" class="help-robot-img"></div>
+                    <h3>Commandes</h3>
+                    <p>Fleches/ZQSD : deplacer &bull; Tab : robot suivant &bull; U : annuler &bull; Esc : deselectionner</p>
+                </div>
+            </div>
+            <div class="setting-item">
+                <h3>Volume des bruitages</h3>
+                <div class="volume-control">
+                    <span class="vol-icon">🔈</span>
+                    <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider" oninput="SoundManager.setVolume(this.value / 100); document.getElementById('vol-value').textContent = this.value + '%';">
+                    <span class="vol-icon">🔊</span>
+                </div>
+                <span id="vol-value" class="vol-value">50%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL INFO NIVEAU ========== -->
+    <div id="modal-level-info" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-level-info')"></div>
+        <div class="modal-content modal-level-info-content">
+            <button onclick="Game.hideModal('modal-level-info')" class="modal-close">&times;</button>
+            <div id="level-info-icon" class="level-info-icon"></div>
+            <h2 id="level-info-title"></h2>
+            <div id="level-info-details" class="level-info-details"></div>
+            <div id="level-info-stars" class="level-info-stars"></div>
+            <div id="level-info-record" class="level-info-record"></div>
+            <div class="level-info-buttons">
+                <button onclick="Game.hideModal('modal-level-info')" class="btn btn-outline" id="btn-level-close">Fermer</button>
+                <button onclick="Game.launchLevelFromInfo()" class="btn btn-primary" id="btn-level-play">Jouer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL CONFIRMATION RESET ========== -->
+    <div id="modal-confirm-restart" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-confirm-restart')"></div>
+        <div class="modal-content modal-confirm">
+            <h2>Recommencer ?</h2>
+            <p class="confirm-text">Voulez-vous vraiment recommencer ce niveau depuis le debut ? Votre progression actuelle sur ce niveau sera perdue.</p>
+            <div class="confirm-buttons">
+                <button onclick="Game.hideModal('modal-confirm-restart')" class="btn btn-outline">Annuler</button>
+                <button onclick="Game.doRestart()" class="btn btn-primary">Recommencer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL CONFIRMATION NOUVEAU ========== -->
+    <div id="modal-confirm-new" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-confirm-new')"></div>
+        <div class="modal-content modal-confirm">
+            <h2>Nouvelle partie ?</h2>
+            <p class="confirm-text">Voulez-vous vraiment generer une nouvelle carte aleatoire ? Votre progression actuelle et votre chronometre seront reinitialises.</p>
+            <div class="confirm-buttons">
+                <button onclick="Game.hideModal('modal-confirm-new')" class="btn btn-outline">Annuler</button>
+                <button onclick="Game.doNewGame()" class="btn btn-primary">Nouvelle carte</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- ========== ECRAN PARAMETRES ========== -->
+    <div id="screen-settings" class="screen">
+        <div class="settings-container">
+            <div class="settings-header">
+                <button onclick="SoundManager.play('annuler'); Game.showScreen('screen-menu')" class="btn-back">
+                    <span class="back-arrow">&#8592;</span> Accueil
+                </button>
+                <h2>Parametres</h2>
+                <div class="spacer"></div>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <h3>Volume des bruitages</h3>
+                    <div class="volume-control">
+                        <span class="vol-icon">🔈</span>
+                        <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider" oninput="SoundManager.setVolume(this.value / 100); document.getElementById('vol-value').textContent = this.value + '%';">
+                        <span class="vol-icon">🔊</span>
+                    </div>
+                    <span id="vol-value" class="vol-value">50%</span>
+                </div>
+                
+                <div class="setting-item danger-zone">
+                    <h3>Zone Dangereuse</h3>
+                    <p class="setting-desc">Supprimer toute progression, etoiles et records.</p>
+                    <button onclick="Game.showModal('modal-confirm-reset-game')" class="btn btn-danger">Reinitialiser la partie</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL CONFIRMATION RESET PARTIE ========== -->
+    <div id="modal-confirm-reset-game" class="modal">
+        <div class="modal-overlay" onclick="Game.hideModal('modal-confirm-reset-game')"></div>
+        <div class="modal-content modal-confirm">
+            <h2>Reinitialiser ?</h2>
+            <p class="confirm-text">Voulez-vous vraiment supprimer TOUTE votre progression ? Cette action est irreversible.</p>
+            <div class="confirm-buttons">
+                <button onclick="Game.hideModal('modal-confirm-reset-game')" class="btn btn-outline">Annuler</button>
+                <button onclick="Game.doResetGame()" class="btn btn-danger">Reinitialiser</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== TOAST ========== -->
+    <div id="toast"></div>
+    <script src="levels.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
