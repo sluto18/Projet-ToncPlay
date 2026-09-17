@@ -4,6 +4,12 @@
   ============================================================ */
 const GAMES = [
 {
+  img: 'jaquette/donjonbaluchon.png',
+  title: 'Donjon & Baluchon',
+  desc: 'Oublie les dragons ! Ta mission : pousser tes baluchons aux bons endroits du donjon.',
+  link: 'jeux/donjonbaluchon/index.html'
+},
+{
   img: 'jaquette/sliderobot.png',
   title: 'Slide Robot',
   desc: 'Jeu de réflexion mécanique.',
@@ -69,6 +75,12 @@ const GAMES = [
   DONNÉES — Actualités
   ============================================================ */
 const NEWS = [
+{
+  img: 'jaquette/donjonbaluchon.png',
+  title: 'Sortie de Donjon & Baluchon!',
+  date: '17/09/2026',
+  text: 'Donjon & Baluchon est enfin disponible ! Oubliez les dragons : incarnez un chevalier, poussez vos sacs à travers 25 donjons et créez vos propres casse-têtes grâce à l éditeur inclus.'
+},
 {
   img: 'jaquette/sliderobot.png',
   title: 'Sortie de Slide Robot !',
