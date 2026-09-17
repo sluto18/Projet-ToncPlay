@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Donjon & Baluchon</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ ACCUEIL ============ -->
+  <div id="screen-home" class="screen active">
+    <div class="home-bg-shapes">
+      <div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div>
+      <div class="shape s4"></div><div class="shape s5"></div><div class="shape s6"></div>
+    </div>
+    <div class="home-content">
+      <img src="images/titre.png" alt="Donjon & Baluchon" class="home-title-img">
+      <p class="home-subtitle">Devenez le maître du donjon… et du rangement de baluchons !</p>
+      <div class="home-stats">
+        <div class="stat-badge">
+          <img src="images/symbolecontinuer.png" class="badge-icon" alt="Missions">
+          <span id="stat-levels">0/10</span>
+        </div>
+        <div class="stat-badge">
+          <img src="images/symboleetoile.png" class="badge-icon" alt="Étoiles">
+          <span id="stat-stars">0/30</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="showScreen('menuPlay')">
+        <img src="images/symboleplay.png" class="btn-icon-img" alt="Jouer">
+        Jouer
+      </button>
+      <button class="btn btn-outline" onclick="continueGame()">
+        <img src="images/symbolecontinuer.png" class="btn-icon-img" alt="Continuer">
+        Continuer
+      </button>
+      <button class="btn btn-outline" onclick="openSettings()">
+        <img src="images/symboleparametre.png" class="btn-icon-img" alt="Paramètres">
+        Paramètres
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SELECTION NIVEAUX ============ -->
+  <div id="screen-levelSelect" class="screen">
+    <div class="home-bg-shapes">
+      <div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div>
+      <div class="shape s4"></div><div class="shape s5"></div><div class="shape s6"></div>
+    </div>
+    <div class="ls-container">
+      <div class="ls-header">
+        <button class="btn-icon" onclick="showScreen('menuPlay')" aria-label="Retour">
+          <img src="images/symbolefleche.png" class="btn-icon-img rotate-left" alt="Retour">
+        </button>
+        <div>
+          <h2 class="ls-title">Niveaux</h2>
+          <p class="ls-count" id="ls-completed-text">0/10 complétés</p>
+        </div>
+      </div>
+      <div class="ls-grid" id="ls-grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ JEU ============ -->
+  <div id="screen-game" class="screen">
+    <div class="game-hud">
+      <button class="btn-icon" onclick="backToLevels()" aria-label="Retour">
+        <img src="images/symbolefleche.png" class="btn-icon-img rotate-left" alt="Retour">
+      </button>
+      <div class="hud-center">
+        <h2 class="hud-title" id="hud-level-name">Niveau 1</h2>
+        <div class="hud-stats">
+          <span class="hud-stat">
+            <img src="images/symbolepas.png" class="hud-icon-img" alt="Pas">
+            <span id="hud-moves">0</span>
+          </span>
+          <span class="hud-stat">
+            <img src="images/symbolehorloge.png" class="hud-icon-img" alt="Temps">
+            <span id="hud-time">0:00</span>
+          </span>
+          <span class="hud-stat hud-par">Par: <span id="hud-par">0</span></span>
+        </div>
+      </div>
+      <div class="hud-actions">
+        <button class="btn-icon" onclick="undoMove()" title="Annuler (U)">
+          <img src="images/symboleannuler.png" class="btn-icon-img" alt="Annuler">
+        </button>
+        <button class="btn-icon" onclick="resetLevel()" title="Réinitialiser (R)">
+          <img src="images/symbolereinit.png" class="btn-icon-img" alt="Réinitialiser">
+        </button>
+        <button class="btn-icon" onclick="openSettings()" title="Paramètres">
+          <img src="images/symboleparametre.png" class="btn-icon-img" alt="Paramètres">
+        </button>
+      </div>
+    </div>
+    <div class="game-canvas-wrap">
+      <canvas id="game-canvas"></canvas>
+      
+      <!-- Parchemin de fin (Niveau 25) superposé au canvas -->
+      <div id="endgame-parchment-wrap" style="display:none;">
+        <div id="endgame-parchment">
+          <img src="images/joueurfacefixe.png" alt="Chevalier">
+          <p>Preux chevalier, vous avez rangé avec brio tous les baluchons égarés dans nos donjons !<br><strong>Merci d'avoir joué !</strong></p>
+        </div>
+      </div>
+
+      <button class="dpad-btn dpad-up" data-dir="up" aria-label="Haut"><img src="images/symbolefleche.png" class="dpad-icon-img" alt="Haut"></button>
+      <button class="dpad-btn dpad-down" data-dir="down" aria-label="Bas"><img src="images/symbolefleche.png" class="dpad-icon-img rotate-180" alt="Bas"></button>
+      <button class="dpad-btn dpad-left" data-dir="left" aria-label="Gauche"><img src="images/symbolefleche.png" class="dpad-icon-img rotate-left" alt="Gauche"></button>
+      <button class="dpad-btn dpad-right" data-dir="right" aria-label="Droite"><img src="images/symbolefleche.png" class="dpad-icon-img rotate-right" alt="Droite"></button>
+    </div>
+    <p class="game-keyboard-hint">Flèches / ZQSD &bull; U = annuler &bull; R = réinitialiser</p>
+  </div>
+
+  <!-- ============ TUTORIEL NIVEAU 1 ============ -->
+<div id="tutorial-overlay" class="tutorial-overlay" style="display:none;">
+  <div class="tutorial-parchment">
+    <div class="tutorial-dots" id="tutorial-dots"></div>
+    <img class="tutorial-img" id="tutorial-img" src="" alt="">
+    <p class="tutorial-text" id="tutorial-text"></p>
+    <div class="tutorial-buttons">
+      <button class="btn btn-ghost tutorial-skip-btn" onclick="skipTutorial()">Passer</button>
+      <button class="btn btn-primary tutorial-next-btn" id="tutorial-next" onclick="nextTutorialStep()">Continuer</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ============ VICTOIRE ============ -->
+  <div id="screen-victory" class="screen">
+    <div class="victory-particles" id="victory-particles"></div>
+    <div class="victory-content">
+      <div class="victory-knight">
+        <img src="images/joueurfacefixe.png" alt="Chevalier victorieux">
+      </div>
+      <h2 class="victory-title">Quête accomplie !</h2>
+      <p class="victory-level" id="victory-level-name"></p>
+      <div class="victory-stars" id="victory-stars"></div>
+      <div class="victory-stats-card">
+        <div class="vs-item"><span class="vs-label" id="victory-label-moves">Nombres Pas</span><span class="vs-value" id="victory-moves">0</span></div>
+        <div class="vs-divider"></div>
+        <div class="vs-item"><span class="vs-label">Temps</span><span class="vs-value" id="victory-time">0:00</span></div>
+        <div class="vs-divider"></div>
+        <div class="vs-item"><span class="vs-label" id="victory-label-par">Réalisable en</span><span class="vs-value vs-par" id="victory-par">0</span></div>
+      </div>
+      <div class="victory-actions">
+        <button class="btn btn-primary" id="btn-next-level" onclick="nextLevel()">
+          Donjon suivant
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+        <button class="btn btn-outline" onclick="replayLevel()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Rejouer
+        </button>
+        <button class="btn btn-ghost" id="btn-back-to-list">Retour à la carte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ AIDE ============ -->
+  <div id="screen-help" class="screen">
+    <div class="help-container">
+      <div class="help-header">
+        <button class="btn-icon" onclick="showScreen('home')" aria-label="Retour">
+          <img src="images/symbolefleche.png" class="btn-icon-img rotate-left" alt="Retour">
+        </button>
+        <h2 class="help-title">Comment jouer</h2>
+      </div>
+      <div class="help-content">
+        <div class="help-section">
+          <img src="images/joueurfacefixe.png" class="help-img" alt="Chevalier">
+          <div class="help-text">
+            <h3>Le Chevalier</h3>
+            <p>Vous incarnez un preux chevalier. Déplacez-le avec les flèches du clavier ou ZQSD. Sur mobile, utilisez le pad tactile. Sa quête ? Ranger les baluchons de son butin !</p>
+          </div>
+        </div>
+        <div class="help-section">
+          <img src="images/baluchon1.png" class="help-img" alt="Baluchon">
+          <div class="help-text">
+            <h3>Les Baluchons</h3>
+            <p>Vos précieux <strong>baluchons</strong> doivent être placés sur les <strong>emplplacements sacrés</strong> (le parquet). Une fois bien placé, le baluchon est sécurisé.</p>
+          </div>
+        </div>
+        <div class="help-section">
+          <img src="images/baluchon3.png" class="help-img" alt="Baluchon posé">
+          <div class="help-text">
+            <h3>Pousser un baluchon</h3>
+            <p>Marchez vers un baluchon pour le pousser. Vous ne pouvez en pousser qu'un seul à la fois, et seulement si l'espace derrière lui est libre.</p>
+          </div>
+        </div>
+        <div class="help-section">
+          <img src="images/mur1.jpg" class="help-img" alt="Mur">
+          <div class="help-text">
+            <h3>Les murs du donjon</h3>
+            <p>Impossible de tirer les baluchons vers vous. Réfléchissez bien avant de pousser ! Si vous coincez un baluchon contre un mur, utilisez le bouton <strong>Annuler</strong> (touche U).</p>
+          </div>
+        </div>
+        <div class="help-section">
+          <img src="images/parquet1.jpg" class="help-img" alt="Emplacement">
+          <div class="help-text">
+            <h3>Condition de victoire</h3>
+            <p>Placez tous les baluchons sur les emplacements sacrés pour terminer le niveau. Moins vous utilisez de pas, plus vous gagnez d'étoiles (jusqu'à 3) !</p>
+          </div>
+        </div>
+        <div class="help-section help-controls-section">
+          <div class="help-text">
+            <h3>Récapitulatif des contrôles</h3>
+            <ul class="help-controls-list">
+              <li><span class="key-badge">↑ ↓ ← →</span> / <span class="key-badge">ZQSD</span> Déplacer le chevalier</li>
+              <li><span class="key-badge">U</span> Annuler le dernier coup</li>
+              <li><span class="key-badge">R</span> Réinitialiser le niveau</li>
+            </ul>
+          </div>
+        </div>
+        <button class="btn btn-primary help-close-btn" onclick="showScreen('home')">
+          Retour à l'accueil
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <!-- ============ MENU JOUER ============ -->
+  <div id="screen-menuPlay" class="screen">
+    <div class="home-bg-shapes">
+      <div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div>
+      <div class="shape s4"></div><div class="shape s5"></div><div class="shape s6"></div>
+    </div>
+    <div class="menu-play-container">
+      <div class="mp-header">
+        <button class="btn-icon" onclick="showScreen('home')" aria-label="Retour">
+          <img src="images/symbolefleche.png" class="btn-icon-img rotate-left" alt="Retour">
+        </button>
+        <h2 class="mp-title">Sélection niveaux</h2>
+      </div>
+      <div class="mp-cards">
+        <button class="mp-card" onclick="showScreen('levelSelect')">
+          <div class="mp-card-icon">
+            <img src="images/symbolecontinuer.png" class="mp-card-img" alt="Niveaux Officiels">
+          </div>
+          <div class="mp-card-text">
+            <h3>Niveaux Officiels</h3>
+            <p>Aventurez-vous dans les donjons pré-conçus</p>
+          </div>
+        </button>
+        <button class="mp-card" onclick="openEditor()">
+          <div class="mp-card-icon">
+            <img src="images/symboleedit.png" class="mp-card-img" alt="Éditeur de Niveau">
+          </div>
+          <div class="mp-card-text">
+            <h3>Éditeur de Niveau</h3>
+            <p>Créez vos propres cartes de donjon</p>
+          </div>
+        </button>
+        <button class="mp-card" onclick="showScreen('customLevels')">
+          <div class="mp-card-icon">
+            <img src="images/symboleeditperso.png" class="mp-card-img" alt="Niveaux Perso">
+          </div>
+          <div class="mp-card-text">
+            <h3>Niveaux Perso</h3>
+            <p>Jouez et partagez vos créations</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- ============ ÉDITEUR DE NIVEAU ============ -->
+<div id="screen-editor" class="screen">
+  <div class="editor-container">
+    <div class="editor-header">
+      <button class="btn-icon" onclick="showScreen('menuPlay')" aria-label="Retour">
+        <img src="images/symbolefleche.png" class="btn-icon-img rotate-left" alt="Retour">
+      </button>
+      <h2 class="editor-title">Éditeur de Niveau</h2>
+      <button class="btn-icon" onclick="newEditorLevel()" title="Nouveau">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+
+    <div class="editor-body">
+      <div class="editor-left">
+        <div class="editor-section">
+          <h4>Infos niveau</h4>
+          <input type="text" id="editor-name" placeholder="Nom du niveau" class="editor-input">
+          <input type="number" id="editor-par" placeholder="Réalisable en" min="1" class="editor-input">
+          <label class="editor-dim-label">Dimensions de la grille</label>
+          <div class="editor-dimension-row">
+            <span class="ed-label">Largeur</span>
+            <div class="stepper">
+              <button class="stepper-btn" onclick="adjustGridSize('cols', -1)" tabindex="-1" aria-label="Réduire largeur">−</button>
+              <input type="number" id="editor-cols" min="1" max="20" value="10" onchange="onSizeInputChange()" onblur="onSizeInputChange()">
+              <button class="stepper-btn" onclick="adjustGridSize('cols', 1)" tabindex="-1" aria-label="Augmenter largeur">+</button>
+            </div>
+          </div>
+          <div class="editor-dimension-row">
+            <span class="ed-label">Hauteur</span>
+            <div class="stepper">
+              <button class="stepper-btn" onclick="adjustGridSize('rows', -1)" tabindex="-1" aria-label="Réduire hauteur">−</button>
+              <input type="number" id="editor-rows" min="1" max="20" value="10" onchange="onSizeInputChange()" onblur="onSizeInputChange()">
+              <button class="stepper-btn" onclick="adjustGridSize('rows', 1)" tabindex="-1" aria-label="Augmenter hauteur">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="editor-section">
+          <h4>Actions</h4>
+          <div class="editor-actions-grid">
+            <button class="btn btn-outline btn-small" onclick="testEditorLevel()">Tester</button>
+            <button class="btn btn-primary btn-small" onclick="saveEditorLevel()">Sauvegarder</button>
+            <button class="btn btn-outline btn-small" onclick="exportEditorLevel()">Copier le code</button>
+            <button class="btn btn-outline btn-small" onclick="openImportModal()">Importer</button>
+          </div>
+          <button class="btn btn-danger btn-small editor-clear-action" onclick="clearAllEditor()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Effacer tout
+          </button>
+        </div>
+      </div>
+
+      <div class="editor-right">
+        <div class="editor-toolbar">
+          <button class="editor-tool" data-tool="wall" onclick="selectEditorTool('wall')" title="1">
+            <span class="et-swatch et-wall"></span><span>Mur</span>
+          </button>
+          <button class="editor-tool" data-tool="floor" onclick="selectEditorTool('floor')" title="2">
+            <span class="et-swatch et-floor"></span><span>Sol</span>
+          </button>
+          <button class="editor-tool" data-tool="goal" onclick="selectEditorTool('goal')" title="3">
+            <span class="et-swatch et-goal"></span><span>Cible</span>
+          </button>
+          <button class="editor-tool" data-tool="block" onclick="selectEditorTool('block')" title="4">
+            <span class="et-swatch et-block"></span><span>Sac</span>
+          </button>
+          <button class="editor-tool" data-tool="blockOnGoal" onclick="selectEditorTool('blockOnGoal')" title="5">
+            <span class="et-swatch et-blockongoal"></span><span>Cible/Sac</span>
+          </button>
+          <button class="editor-tool" data-tool="player" onclick="selectEditorTool('player')" title="6">
+            <span class="et-swatch et-player"></span><span>Joueur</span>
+          </button>
+          <button class="editor-tool" data-tool="eraser" onclick="selectEditorTool('eraser')" title="7">
+            <span class="et-swatch et-eraser"></span><span>Gomme</span>
+          </button>
+        </div>
+        <div class="editor-canvas-wrap">
+          <canvas id="editor-canvas"></canvas>
+        </div>
+        <div id="editor-validation" class="editor-validation">Vérification...</div>
+        <div id="editor-message" class="editor-message"></div>
+        <textarea id="editor-export-text" class="editor-export-text" style="display:none;" readonly></textarea>
+        <p class="editor-hint">1-7 : sélectionner un outil • Glissez pour peindre</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NIVEAUX PERSO ============ -->
+<div id="screen-customLevels" class="screen">
+  <div class="home-bg-shapes">
+    <div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div>
+    <div class="shape s4"></div><div class="shape s5"></div><div class="shape s6"></div>
+  </div>
+  <div class="cl-container">
+    <div class="cl-header">
+      <button class="btn-icon" onclick="showScreen('menuPlay')" aria-label="Retour">
+        <img src="images/symbolefleche.png" class="btn-icon-img rotate-left" alt="Retour">
+      </button>
+      <div>
+        <h2 class="cl-title">Niveaux Perso</h2>
+        <p class="cl-count" id="cl-count">0 niveau créé</p>
+      </div>
+    </div>
+    <button class="btn btn-primary cl-import-btn" onclick="openImportModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Importer un niveau
+    </button>
+    <div id="cl-grid" class="cl-grid"></div>
+  </div>
+</div>
+
+  <!-- ============ MODALE IMPORT ============ -->
+  <div id="modal-import" class="modal-overlay" onclick="if(event.target===this)closeImportModal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Importer un niveau</h2>
+        <button class="btn-icon" onclick="closeImportModal()" aria-label="Fermer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="import-desc">Collez le code d'un niveau, puis choisissez l'action :</p>
+        <textarea id="import-textarea" placeholder='{"name":"Mon niveau","data":"#####\n#@$.#\n#####","par":5}' class="import-textarea"></textarea>
+        <p id="import-error" class="import-error"></p>
+        <div class="import-actions">
+          <button class="btn btn-outline" onclick="importLevelFromText()">Ajouter à mes niveaux</button>
+          <button class="btn btn-primary" onclick="importIntoEditorFromModal()">Charger dans l'éditeur</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODALE PARAMÈTRES ============ -->
+  <div id="modal-settings" class="modal-overlay" onclick="if(event.target===this)closeSettings()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Paramètres</h2>
+        <button class="btn-icon" onclick="closeSettings()" aria-label="Fermer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-group">
+          <div class="setting-row">
+            <div class="setting-label">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>Musique</span>
+            </div>
+            <div class="setting-control">
+              <input type="range" min="0" max="100" value="50" id="vol-music" oninput="updateMusicVolume(this.value)">
+              <span class="setting-value" id="vol-music-val">50%</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span>Effets sonores</span>
+            </div>
+            <div class="setting-control">
+              <input type="range" min="0" max="100" value="50" id="vol-sfx" oninput="updateSfxVolume(this.value)">
+              <span class="setting-value" id="vol-sfx-val">50%</span>
+            </div>
+          </div>
+        </div>
+        <div class="setting-divider"></div>
+        <button class="btn btn-outline setting-action-btn" onclick="showHelp()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          Aide au jeu
+        </button>
+        <button class="btn btn-danger setting-action-btn" onclick="showResetConfirm()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Réinitialiser la progression
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODALE CONFIRMATION RESET ============ -->
+  <div id="modal-reset-confirm" class="modal-overlay" onclick="if(event.target===this)closeResetConfirm()">
+    <div class="modal-content modal-small">
+      <div class="modal-body">
+        <div class="reset-warning-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3 class="reset-title">Réinitialiser la progression ?</h3>
+        <p class="reset-desc">Tous vos scores, étoiles et niveaux débloqués seront définitivement supprimés. Cette action est irréversible.</p>
+        <div class="reset-actions">
+          <button class="btn btn-ghost" onclick="closeResetConfirm()">Annuler</button>
+          <button class="btn btn-danger" onclick="resetProgress()">Réinitialiser</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============ FOOTER toncplay ============ -->
+  <footer id="global-footer">
+    <p>©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a></p>
+  </footer>
+
+  <script src="editor.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

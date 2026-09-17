@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Éditeur de Niveaux Sokoban Pro</title>
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --panel: #2a2a2a;
+      --accent: #ffbb5b;
+      --text: #ffffff;
+      --border: #444;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    h1 { margin: 0; font-size: 1.8rem; color: var(--accent); }
+
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 1300px;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Panneau de gauche : Réglages */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 300px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label { font-size: 0.85rem; color: #ccc; }
+
+    input[type="text"] {
+      background: #333;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    /* Contrôles + / - */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stepper input {
+      width: 50px;
+      text-align: center;
+      background: #333;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 0;
+      border-radius: 4px;
+      font-weight: bold;
+      -moz-appearance: textfield;
+    }
+    .stepper input::-webkit-outer-spin-button,
+    .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    .step-btn {
+      background: #444;
+      color: #fff;
+      border: 1px solid var(--border);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .step-btn:hover { background: #555; }
+
+    /* Zone Centrale : Éditeur */
+    .editor-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+      min-width: 400px;
+    }
+
+    /* Palette Alignée au-dessus */
+    .palette-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .tool-btn {
+      background: #333;
+      border: 2px solid transparent;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .tool-btn:hover { background: #444; }
+    .tool-btn.active { border-color: var(--accent); background: #3d3525; }
+
+    .tool-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    canvas {
+      border: 2px solid var(--border);
+      background-color: #000;
+      cursor: crosshair;
+      border-radius: 4px;
+    }
+
+    .validation-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .valid { background: #2e7d32; color: #fff; }
+    .invalid { background: #c62828; color: #fff; }
+
+    /* Panneau de Droite : Output & Import */
+    .code-view {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      background: #111;
+      color: #a6e22e;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .action-btn {
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .action-btn:hover { opacity: 0.9; }
+
+    /* Nouveautés : option génération + infos */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #ccc;
+      cursor: pointer;
+      user-select: none;
+    }
+    .check-row input { accent-color: #9b59b6; cursor: pointer; }
+
+    .gen-info {
+      font-size: 0.75rem;
+      color: #8f8f8f;
+      text-align: center;
+      min-height: 1.1em;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🛠️ Éditeur de Niveaux Sokoban Pro</h1>
+
+  <div class="main-container">
+
+    <!-- 1. Réglages Gauche -->
+    <div class="card sidebar">
+      <div class="form-group">
+        <label>ID du Niveau</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="levelId" data-step="-1">-</button>
+          <input type="number" id="levelId" value="14" readonly>
+          <button class="step-btn" data-target="levelId" data-step="1">+</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nom du Niveau</label>
+        <input type="text" id="levelName" value="Niveau Custom">
+      </div>
+
+      <div class="form-group">
+        <label>Difficulté (1 à 5)</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="levelDiff" data-step="-1">-</button>
+          <input type="number" id="levelDiff" value="5" readonly>
+          <button class="step-btn" data-target="levelDiff" data-step="1">+</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Par (Mouvements estimé)</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="levelPar" data-step="-5">-</button>
+          <input type="number" id="levelPar" value="80" readonly>
+          <button class="step-btn" data-target="levelPar" data-step="5">+</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Dimensions Grille (Lignes / Colonnes)</label>
+        <div style="display: flex; gap: 10px;">
+          <div class="stepper">
+            <button class="step-btn" data-target="gridRows" data-step="-1">-</button>
+            <input type="number" id="gridRows" value="8" readonly>
+            <button class="step-btn" data-target="gridRows" data-step="1">+</button>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" data-target="gridCols" data-step="-1">-</button>
+            <input type="number" id="gridCols" value="8" readonly>
+            <button class="step-btn" data-target="gridCols" data-step="1">+</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="action-btn" id="btnRandom" style="background: #9b59b6; color: #fff;">🎲 Générer Map Aléatoire</button>
+      <label class="check-row"><input type="checkbox" id="keepDims"> Garder les dimensions actuelles</label>
+      <div class="gen-info" id="genInfo"></div>
+      <button class="action-btn" id="btnClear" style="background: #555; color: #fff;">Effacer le plateau</button>
+    </div>
+
+    <!-- 2. Zone Éditeur / Canvas -->
+    <div class="card editor-view">
+
+      <!-- Palette alignée au-dessus -->
+      <div class="palette-row">
+        <button class="tool-btn active" data-type="#">
+          <span class="tool-icon" style="background: #5b5530;"></span> Mur (#)
+        </button>
+        <button class="tool-btn" data-type="$">
+          <span class="tool-icon" style="background: #ffbb5b;"></span> Caisse ($)
+        </button>
+        <button class="tool-btn" data-type=".">
+          <span class="tool-icon" style="background: #914430;"></span> Cible (.)
+        </button>
+        <button class="tool-btn" data-type="@">
+          <span class="tool-icon" style="background: #000; border: 1px solid #fff;"></span> Joueur (@)
+        </button>
+        <button class="tool-btn" data-type="*">
+          <span class="tool-icon" style="background: #ba6a15;"></span> Caisse/Cible (*)
+        </button>
+        <button class="tool-btn" data-type=" ">
+          <span class="tool-icon" style="background: #ded6ae; border: 1px dashed #888;"></span> Gomme
+        </button>
+      </div>
+
+      <canvas id="editorCanvas"></canvas>
+      <div id="statusBadge" class="validation-badge invalid">Vérification...</div>
+    </div>
+
+    <!-- 3. Output & Import (Droite) -->
+    <div class="card code-view">
+      <div class="form-group">
+        <label><strong>Code JS généré (1 ligne) :</strong></label>
+        <textarea id="outputJs" readonly style="height: 120px;"></textarea>
+        <button class="action-btn" id="btnCopy">Copier le code JS</button>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border); width: 100%;">
+
+      <div class="form-group">
+        <label><strong>Importer un niveau existant :</strong></label>
+        <textarea id="importJs" placeholder="Colle la ligne { id: ..., data: ... } ici" style="height: 100px;"></textarea>
+        <button class="action-btn" id="btnImport" style="background: #4a90e2; color: #fff;">Charger le niveau</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const GRID_SIZE = 40;
+    let rows = 8;
+    let cols = 8;
+    let currentTool = '#';
+    let isMouseDown = false;
+    let grid = [];
+
+    const canvas = document.getElementById('editorCanvas');
+    const ctx = canvas.getContext('2d');
+
+    /* ============================================================
+       GÉNÉRATEUR PROCÉDURAL v2 — tirage inversé (garanti jouable)
+       Principe : on construit une salle + les cibles, on pose les
+       caisses RÉSOLUES sur les cibles, puis on mélange en TIRANT
+       les caisses (mouvements inversés). Rejouée à l'envers, la
+       séquence correspond exactement à des poussées valides : le
+       niveau généré est donc TOUJOURS résoluble.
+       ============================================================ */
+    /* ===== PURE-GEN-START ===== */
+
+    // ─── PRNG déterministe (mulberry32) ──────────────────────────
+    function mulberry32(seed) {
+      let a = seed >>> 0;
+      return function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const key = (r, c) => r + ',' + c;
+    const inInterior = (R, C, r, c) => r > 0 && r < R - 1 && c > 0 && c < C - 1;
+
+    // ─── Banque de noms procéduraux (avec accords masculin/féminin) ──
+    const NAME_DATABASE = {
+      prefixesM: ["Le", "Un", "Le Grand", "Le Vieux", "Le Dernier"],
+      prefixesF: ["La", "Une", "La Grande", "La Vieille", "La Dernière"],
+      nouns: [
+        ["Labyrinthe", 0], ["Corridor", 0], ["Cloître", 0], ["Pivot", 0],
+        ["Ring", 0], ["Passage", 0], ["Temple", 0], ["Nœud", 0],
+        ["Sanctuaire", 0], ["Défilé", 0], ["Carrefour", 0], ["Aiguillage", 0],
+        ["Vestibule", 0], ["Donjon", 0], ["Bastion", 0], ["Bunker", 0],
+        ["Dépôt", 0], ["Canyon", 0], ["Silo", 0], ["Réseau", 0],
+        ["Dédale", 0], ["Dôme", 0], ["Entrepôt", 0], ["Chantier", 0],
+        ["Méandre", 0], ["Gouffre", 0],
+        ["Crypte", 1], ["Fourrière", 1], ["Écluse", 1],
+        ["Antichambre", 1], ["Salle", 1]
+      ],
+      adjectives: [
+        ["Oublié", "Oubliée"], ["Étroit", "Étroite"], ["Sacré", "Sacrée"],
+        ["Obscur", "Obscure"], ["Tournant", "Tournante"], ["Fermé", "Fermée"],
+        ["Inversé", "Inversée"], ["Gordien", "Gordienne"],
+        ["Silencieux", "Silencieuse"], ["Profond", "Profonde"],
+        ["Caché", "Cachée"], ["Perdu", "Perdue"], ["Astral", "Astrale"],
+        ["Millénaire", "Millénaire"], ["Escarpé", "Escarpée"],
+        ["Intense", "Intense"], ["Compartimenté", "Compartimentée"],
+        ["Asymétrique", "Asymétrique"], ["Souterrain", "Souterraine"],
+        ["Sécurisé", "Sécurisée"], ["Renversé", "Renversée"],
+        ["Emmêlé", "Emmêlée"], ["Vertigineux", "Vertigineuse"]
+      ]
+    };
+
+    function generateRandomName(rand) {
+      const R = rand || Math.random;
+      const ri = (n) => Math.floor(R() * n);
+      const [noun, fem] = NAME_DATABASE.nouns[ri(NAME_DATABASE.nouns.length)];
+      const [adjM, adjF] = NAME_DATABASE.adjectives[ri(NAME_DATABASE.adjectives.length)];
+      const adj = fem ? adjF : adjM;
+      const isVowel = /^[AEIOUYÉÈÊÔ]/.test(noun);
+      if (isVowel) return `L'${noun} ${adj}`;
+      const prefixes = fem ? NAME_DATABASE.prefixesF : NAME_DATABASE.prefixesM;
+      return `${prefixes[ri(prefixes.length)]} ${noun} ${adj}`;
+    }
+
+    // ─── Plateau vide avec bordure fermée ────────────────────────
+    function buildEmptyGrid(R, C) {
+      const g = [];
+      for (let r = 0; r < R; r++) {
+        const row = [];
+        for (let c = 0; c < C; c++)
+          row.push((r === 0 || r === R - 1 || c === 0 || c === C - 1) ? '#' : ' ');
+        g.push(row);
+      }
+      return g;
+    }
+
+    // ─── Styles d'architecture intérieure (8 variantes) ──────────
+    const WALL_STYLES = {
+      // Salle ouverte : aucun mur intérieur
+      open() {},
+
+      // Piliers isolés (1x1 ou 2x2)
+      pillars(g, R, C, diff, rnd) {
+        const ri = (n) => Math.floor(rnd() * n);
+        const n = 1 + ri(2) + Math.floor(diff / 2);
+        for (let i = 0; i < n; i++) {
+          const h = (R > 8 && rnd() < 0.3) ? 2 : 1;
+          const w = (C > 8 && rnd() < 0.3) ? 2 : 1;
+          const r0 = 1 + ri(Math.max(1, R - 1 - h));
+          const c0 = 1 + ri(Math.max(1, C - 1 - w));
+          for (let r = r0; r < r0 + h; r++)
+            for (let c = c0; c < c0 + w; c++)
+              if (inInterior(R, C, r, c)) g[r][c] = '#';
+        }
+      },
+
+      // Éboulis : murs dispersés aléatoirement (densité selon difficulté)
+      scatter(g, R, C, diff, rnd) {
+        const density = 0.08 + diff * 0.022 + rnd() * 0.07;
+        for (let r = 1; r < R - 1; r++)
+          for (let c = 1; c < C - 1; c++)
+            if (rnd() < density) g[r][c] = '#';
+      },
+
+      // Cloisons : murs séparateurs avec ouvertures (1 ou 2 cloisons)
+      rooms(g, R, C, diff, rnd) {
+        const ri = (n) => Math.floor(rnd() * n);
+        const two = (diff >= 3 && rnd() < 0.55);
+        const firstV = rnd() < 0.5;
+        const build = (vertical) => {
+          const wide = rnd() < 0.4;
+          if (vertical) {
+            const c = 2 + ri(Math.max(1, C - 4));
+            const gap = 1 + ri(R - 2);
+            for (let r = 1; r < R - 1; r++)
+              if (r !== gap && !(wide && r === gap + 1 && gap + 1 <= R - 2)) g[r][c] = '#';
+          } else {
+            const r = 2 + ri(Math.max(1, R - 4));
+            const gap = 1 + ri(C - 2);
+            for (let c = 1; c < C - 1; c++)
+              if (c !== gap && !(wide && c === gap + 1 && gap + 1 <= C - 2)) g[r][c] = '#';
+          }
+        };
+        build(firstV);
+        if (two) build(!firstV);
+      },
+
+      // Couloirs : murs parallèles avec passages décalés (peigne)
+      comb(g, R, C, diff, rnd) {
+        const ri = (n) => Math.floor(rnd() * n);
+        const horizontal = rnd() < 0.5;
+        const spacing = rnd() < 0.5 ? 2 : 3;
+        if (horizontal) {
+          for (let a = 2; a < R - 1; a += spacing) {
+            const gap = 1 + ri(C - 2);
+            const gap2 = rnd() < 0.35 ? 1 + ri(C - 2) : -1;
+            for (let b = 1; b < C - 1; b++)
+              if (b !== gap && b !== gap2) g[a][b] = '#';
+          }
+        } else {
+          for (let a = 2; a < C - 1; a += spacing) {
+            const gap = 1 + ri(R - 2);
+            const gap2 = rnd() < 0.35 ? 1 + ri(R - 2) : -1;
+            for (let b = 1; b < R - 1; b++)
+              if (b !== gap && b !== gap2) g[b][a] = '#';
+          }
+        }
+      },
+
+      // Bloc central (avec parfois un bras qui s'étire)
+      center(g, R, C, diff, rnd) {
+        const ri = (n) => Math.floor(rnd() * n);
+        const mr = Math.floor(R / 2), mc = Math.floor(C / 2);
+        const h = 1 + ri(2), w = 1 + ri(2);
+        const r0 = mr - (h === 2 ? 1 : 0), c0 = mc - (w === 2 ? 1 : 0);
+        for (let r = r0; r < r0 + h; r++)
+          for (let c = c0; c < c0 + w; c++)
+            if (inInterior(R, C, r, c)) g[r][c] = '#';
+        if (diff >= 3 && rnd() < 0.5) {
+          const [dr, dc] = DIRS[ri(4)];
+          let r = mr + dr, c = mc + dc;
+          for (let s = 0, len = 1 + ri(2); s < len; s++) {
+            if (inInterior(R, C, r, c)) g[r][c] = '#';
+            r += dr; c += dc;
+          }
+        }
+      },
+
+      // Croisée : deux murs perpendiculaires avec doubles ouvertures
+      cross(g, R, C, diff, rnd) {
+        const ri = (n) => Math.floor(rnd() * n);
+        const mr = Math.floor(R / 2), mc = Math.floor(C / 2);
+        const openH = 1 + ri(C - 2);
+        const openV = 1 + ri(R - 2);
+        for (let c = 1; c < C - 1; c++)
+          if (c !== openH && c !== openH + 1) g[mr][c] = '#';
+        for (let r = 1; r < R - 1; r++)
+          if (r !== openV && r !== openV + 1) g[r][mc] = '#';
+      },
+
+      // Amas : petits murs en L / en zigzag
+      blocks(g, R, C, diff, rnd) {
+        const ri = (n) => Math.floor(rnd() * n);
+        const n = 2 + ri(3);
+        for (let i = 0; i < n; i++) {
+          let r = 1 + ri(R - 2), c = 1 + ri(C - 2);
+          let [dr, dc] = DIRS[ri(4)];
+          for (let s = 0, len = 2 + ri(3); s < len; s++) {
+            if (inInterior(R, C, r, c)) g[r][c] = '#';
+            r += dr; c += dc;
+          }
+          const turn = rnd() < 0.5 ? [dc, dr] : [-dc, -dr];
+          [dr, dc] = turn;
+          for (let s = 0, len = 1 + ri(3); s < len; s++) {
+            if (inInterior(R, C, r, c)) g[r][c] = '#';
+            r += dr; c += dc;
+          }
+        }
+      }
+    };
+
+    const STYLE_LABELS = {
+      open: "Salle ouverte", pillars: "Piliers", scatter: "Éboulis",
+      rooms: "Cloisons", comb: "Couloirs", center: "Bloc central",
+      cross: "Croisée", blocks: "Amas en L"
+    };
+
+    // ─── Symétrie décorative (une chance sur deux) ───────────────
+    function applySymmetry(g, R, C, rnd) {
+      const roll = rnd();
+      if (roll < 0.5) return;
+      const mode = roll < 0.72 ? 'h' : roll < 0.92 ? 'v' : 'quad';
+      for (let r = 1; r < R - 1; r++)
+        for (let c = 1; c < C - 1; c++)
+          if (g[r][c] === '#') {
+            if (mode === 'h' || mode === 'quad') g[r][C - 1 - c] = '#';
+            if (mode === 'v' || mode === 'quad') g[R - 1 - r][c] = '#';
+            if (mode === 'quad') g[R - 1 - r][C - 1 - c] = '#';
+          }
+    }
+
+    // ─── Connectivité : ferme les poches isolées ─────────────────
+    function fixConnectivity(g, R, C) {
+      let start = null;
+      for (let r = 1; r < R - 1 && !start; r++)
+        for (let c = 1; c < C - 1 && !start; c++)
+          if (g[r][c] !== '#') start = [r, c];
+      if (!start) return 0;
+      const seen = new Set([key(start[0], start[1])]);
+      const queue = [start];
+      while (queue.length) {
+        const [r, c] = queue.pop();
+        for (const [dr, dc] of DIRS) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < R && nc >= 0 && nc < C &&
+              g[nr][nc] !== '#' && !seen.has(key(nr, nc))) {
+            seen.add(key(nr, nc));
+            queue.push([nr, nc]);
+          }
+        }
+      }
+      for (let r = 1; r < R - 1; r++)
+        for (let c = 1; c < C - 1; c++)
+          if (g[r][c] !== '#' && !seen.has(key(r, c))) g[r][c] = '#';
+      return seen.size;
+    }
+
+    function listFloors(g, R, C) {
+      const floors = [];
+      for (let r = 1; r < R - 1; r++)
+        for (let c = 1; c < C - 1; c++)
+          if (g[r][c] !== '#') floors.push([r, c]);
+      return floors;
+    }
+
+    // ─── Placement des cibles : 4 motifs variés ──────────────────
+    // Échantillonnage "loin les unes des autres"
+    function pickSpread(cells, n, rnd) {
+      const ri = (n2) => Math.floor(rnd() * n2);
+      const chosen = [cells[ri(cells.length)]];
+      while (chosen.length < n && chosen.length < cells.length) {
+        let best = null, bestD = -1;
+        for (const f of cells) {
+          if (chosen.includes(f)) continue;
+          let d = Infinity;
+          for (const ch of chosen)
+            d = Math.min(d, Math.abs(f[0] - ch[0]) + Math.abs(f[1] - ch[1]));
+          if (d > bestD) { bestD = d; best = f; }
+        }
+        chosen.push(best);
+      }
+      return chosen;
+    }
+
+    // Recherche de lignes droites de n cases libres
+    function findLineRuns(floors, n, R, C) {
+      const set = new Set(floors.map((f) => key(f[0], f[1])));
+      const cands = [];
+      for (let r = 1; r < R - 1; r++)
+        for (let c = 1; c + n - 1 <= C - 2; c++) {
+          let ok = true;
+          for (let k = 0; k < n; k++) if (!set.has(key(r, c + k))) { ok = false; break; }
+          if (ok) cands.push(Array.from({ length: n }, (_, k) => [r, c + k]));
+        }
+      for (let c = 1; c < C - 1; c++)
+        for (let r = 1; r + n - 1 <= R - 2; r++) {
+          let ok = true;
+          for (let k = 0; k < n; k++) if (!set.has(key(r + k, c))) { ok = false; break; }
+          if (ok) cands.push(Array.from({ length: n }, (_, k) => [r + k, c]));
+        }
+      return cands;
+    }
+
+    function placeGoals(g, R, C, floors, n, rnd) {
+      const ri = (n2) => Math.floor(rnd() * n2);
+      if (floors.length < n) return null;
+      const roll = ri(10);
+      let goals;
+
+      if (roll < 4) {
+        // Dispersées aux quatre coins de la zone
+        goals = pickSpread(floors, n, rnd);
+      } else if (roll < 6) {
+        // En ligne droite (horizontale ou verticale)
+        const cands = findLineRuns(floors, n, R, C);
+        goals = cands.length ? cands[ri(cands.length)] : pickSpread(floors, n, rnd);
+      } else if (roll < 8) {
+        // Zone de stockage serrée dans un coin
+        const corners = [[1, 1], [1, C - 2], [R - 2, 1], [R - 2, C - 2]];
+        const corner = corners[ri(4)];
+        const sorted = floors.slice().sort((a, b) =>
+          (Math.abs(a[0] - corner[0]) + Math.abs(a[1] - corner[1])) -
+          (Math.abs(b[0] - corner[0]) + Math.abs(b[1] - corner[1])));
+        goals = sorted.slice(0, n);
+      } else {
+        // Alignées le long d'un mur
+        const top = floors.filter((f) => f[0] === 1);
+        const side = floors.filter((f) => f[1] === 1);
+        const band = top.length >= n ? top : (side.length >= n ? side : null);
+        goals = band ? pickSpread(band, n, rnd) : pickSpread(floors, n, rnd);
+      }
+      return goals;
+    }
+
+    // ─── Mélange par tractions inversées (cœur du générateur) ────
+    // Départ : caisses POSÉES sur les cibles (état résolu).
+    // Le joueur recule en tirant une caisse vers lui : chaque
+    // traction correspond exactement à une poussée valide dans
+    // l'autre sens → la séquence inversée EST une solution.
+    function scramble(g, R, C, goals, start, budget, rnd) {
+      const ri = (n) => Math.floor(rnd() * n);
+      const goalSet = new Set(goals.map((p) => key(p[0], p[1])));
+      let player = start.slice();
+      const boxes = new Set(goals.map((p) => key(p[0], p[1])));
+      const history = [];
+      let moves = 0;
+
+      const isFloor = (r, c) => r >= 0 && r < R && c >= 0 && c < C && g[r][c] !== '#';
+      const isBox = (r, c) => boxes.has(key(r, c));
+      const offGoal = () => {
+        let off = 0;
+        for (const b of boxes) if (!goalSet.has(b)) off++;
+        return off;
+      };
+
+      // Directions où le joueur peut reculer en tirant la caisse derrière lui
+      const pullDirs = () => {
+        const opts = [];
+        for (const [dr, dc] of DIRS) {
+          if (isFloor(player[0] + dr, player[1] + dc) &&
+              !isBox(player[0] + dr, player[1] + dc) &&
+              isBox(player[0] - dr, player[1] - dc)) opts.push([dr, dc]);
+        }
+        return opts;
+      };
+      const walkDirs = () => DIRS.filter(([dr, dc]) =>
+        isFloor(player[0] + dr, player[1] + dc) && !isBox(player[0] + dr, player[1] + dc));
+      // Distance (en cases) à la caisse la plus proche, pour une marche ciblée
+      const nearestBoxDist = (r, c) => {
+        let d = Infinity;
+        for (const b of boxes) {
+          const [br, bc] = b.split(',').map(Number);
+          d = Math.min(d, Math.abs(r - br) + Math.abs(c - bc));
+        }
+        return d;
+      };
+
+      const offGoalMin = Math.max(1, Math.ceil(boxes.size * 0.6));
+      const maxIter = budget * 8;
+
+      for (let i = 0; i < maxIter; i++) {
+        if (moves >= budget && offGoal() >= offGoalMin) break;
+        if (moves >= budget * 2.5) break; // garde-fou : évite les mélanges interminables
+        if (rnd() < 0.72) {
+          const pulls = pullDirs();
+          if (pulls.length) {
+            const [dr, dc] = pulls[ri(pulls.length)];
+            boxes.delete(key(player[0] - dr, player[1] - dc)); // la caisse derrière…
+            boxes.add(key(player[0], player[1]));              // …vient sous le joueur
+            player = [player[0] + dr, player[1] + dc];         // le joueur recule
+            moves++; history.push({ t: 'P', dr, dc });
+            continue;
+          }
+        }
+        // Sinon : marche (repositionnement). Une marche sur deux est
+        // ciblée vers la caisse la plus proche pour trouver des tractions.
+        const walks = walkDirs();
+        if (walks.length) {
+          let step = walks[ri(walks.length)];
+          if (rnd() < 0.5) {
+            let bestD = Infinity;
+            for (const w of walks) {
+              const d = nearestBoxDist(player[0] + w[0], player[1] + w[1]);
+              if (d < bestD) { bestD = d; step = w; }
+            }
+          }
+          player = [player[0] + step[0], player[1] + step[1]];
+          moves++; history.push({ t: 'W', dr: step[0], dc: step[1] });
+          if (rnd() < 0.35) {
+            const w2 = walkDirs();
+            if (w2.length) {
+              const [dr2, dc2] = w2[ri(w2.length)];
+              player = [player[0] + dr2, player[1] + dc2];
+              moves++; history.push({ t: 'W', dr: dr2, dc: dc2 });
+            }
+          }
+        }
+      }
+
+      // Le joueur ne doit pas finir sur une cible : le format '@'
+      // ne compte pas la cible située sous le joueur
+      let guard = 0;
+      while (goalSet.has(key(player[0], player[1])) && guard++ < 40) {
+        const walks = walkDirs();
+        if (!walks.length) return null;
+        const [dr, dc] = walks[ri(walks.length)];
+        player = [player[0] + dr, player[1] + dc];
+        moves++; history.push({ t: 'W', dr, dc });
+      }
+      if (goalSet.has(key(player[0], player[1]))) return null;
+      if (offGoal() === 0) return null; // niveau encore résolu : on retente
+
+      return { player, boxes, moves, history };
+    }
+
+    // ─── Une tentative de génération complète ────────────────────
+    function generateAttempt(diff, rnd, forceStyle, fixedDims) {
+      const ri = (n) => Math.floor(rnd() * n);
+      const pick = (arr) => arr[ri(arr.length)];
+
+      // Dimensions variées, croissantes avec la difficulté
+      let R, C;
+      if (fixedDims) {
+        R = Math.max(5, Math.min(20, fixedDims[0]));
+        C = Math.max(5, Math.min(20, fixedDims[1]));
+      } else {
+        const base = 7 + Math.floor(diff * 0.6) + ri(2);
+        R = Math.min(13, Math.max(6, base));
+        C = Math.min(15, Math.max(6, base + pick([-2, -1, 0, 1, 2])));
+      }
+
+      const g = buildEmptyGrid(R, C);
+
+      // Style d'architecture (plus simple aux basses difficultés)
+      let style = forceStyle || pick(Object.keys(WALL_STYLES));
+      if (!forceStyle && diff <= 2 && rnd() < 0.6)
+        style = pick(["open", "pillars", "rooms", "center"]);
+      WALL_STYLES[style](g, R, C, diff, rnd);
+      applySymmetry(g, R, C, rnd);
+      fixConnectivity(g, R, C);
+      const floors = listFloors(g, R, C);
+
+      // Nombre de caisses : adapté à la surface ET à la difficulté
+      const maxByArea = Math.max(1, Math.floor((floors.length - 6) / 7));
+      const desired = 2 + Math.floor(diff * 0.7 + rnd() * 2);
+      const boxCount = Math.max(1, Math.min(6, maxByArea, desired));
+      if (floors.length < 6 + boxCount * 3) return null;
+
+      const goals = placeGoals(g, R, C, floors, boxCount, rnd);
+      if (!goals || goals.length < boxCount) return null;
+      for (const [r, c] of goals) g[r][c] = '.';
+
+      // Départ du joueur sur une case libre
+      const free = floors.filter(([r, c]) => g[r][c] === ' ');
+      if (!free.length) return null;
+      const start = pick(free);
+
+      // Mélange inversé → solvabilité garantie
+      const budget = 30 + diff * 28 + boxCount * 15;
+      const res = scramble(g, R, C, goals, start, budget, rnd);
+      if (!res) return null;
+
+      // Peinture finale : caisses puis joueur
+      for (const b of res.boxes) {
+        const [r, c] = b.split(',').map(Number);
+        g[r][c] = (g[r][c] === '.') ? '*' : '$';
+      }
+      g[res.player[0]][res.player[1]] = '@';
+
+      return {
+        rows: R, cols: C, grid: g, diff, boxCount, style, budget,
+        moves: res.moves, history: res.history,
+        goalsStart: goals, playerStart: start
+      };
+    }
+
+    // ─── Génération d'un niveau complet (meilleure des tentatives) ──
+    function generateLevel(diff, seed, fixedDims) {
+      const rnd = mulberry32(seed != null ? seed
+        : (Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0);
+      const d = (diff != null) ? diff : 1 + Math.floor(rnd() * 5);
+
+      let best = null, bestScore = -1;
+      for (let attempt = 0; attempt < 14; attempt++) {
+        const force = (attempt >= 11) ? "open" : null; // garde-fou anti-échec
+        const res = generateAttempt(d, rnd, force, fixedDims || null);
+        if (!res) continue;
+        const score = res.moves + res.boxCount * 12 + (res.style !== "open" ? 8 : 0);
+        if (score > bestScore) { best = res; bestScore = score; }
+        if (best.moves >= best.budget * 0.8) break; // suffisamment mélangé
+      }
+      if (!best) best = generateAttempt(d, rnd, "open", fixedDims || null);
+      if (!best) return null;
+
+      return {
+        rows: best.rows, cols: best.cols, grid: best.grid,
+        diff: d,
+        par: Math.max(10, Math.round(best.moves / 5) * 5),
+        boxCount: best.boxCount,
+        styleLabel: STYLE_LABELS[best.style] || best.style,
+        moves: best.moves,
+        name: generateRandomName(rnd)
+      };
+    }
+    /* ===== PURE-GEN-END ===== */
+
+    // ─── Initialisation Grille ───────────────────────────────────
+    function initGrid() {
+      rows = parseInt(document.getElementById('gridRows').value);
+      cols = parseInt(document.getElementById('gridCols').value);
+      grid = [];
+      for (let r = 0; r < rows; r++) {
+        let row = [];
+        for (let c = 0; c < cols; c++) {
+          if (r === 0 || r === rows - 1 || c === 0 || c === cols - 1) row.push('#');
+          else row.push(' ');
+        }
+        grid.push(row);
+      }
+      resizeCanvas();
+      draw();
+    }
+
+    function resizeCanvas() {
+      canvas.width = cols * GRID_SIZE;
+      canvas.height = rows * GRID_SIZE;
+    }
+
+    // ─── Dessin Canvas ───────────────────────────────────────────
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = c * GRID_SIZE;
+          const y = r * GRID_SIZE;
+          const cell = grid[r]?.[c] || ' ';
+
+          // Sol
+          ctx.fillStyle = '#ded6ae';
+          ctx.fillRect(x, y, GRID_SIZE, GRID_SIZE);
+
+          // Mur
+          if (cell === '#') {
+            ctx.fillStyle = '#5b5530';
+            ctx.fillRect(x, y, GRID_SIZE, GRID_SIZE);
+            ctx.strokeStyle = '#3a361e';
+            ctx.strokeRect(x, y, GRID_SIZE, GRID_SIZE);
+          }
+          // Caisse
+          if (cell === '$' || cell === '*') {
+            ctx.fillStyle = cell === '$' ? '#ffbb5b' : '#ba6a15';
+            ctx.fillRect(x + 4, y + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+            ctx.strokeStyle = '#000';
+            ctx.strokeRect(x + 4, y + 4, GRID_SIZE - 8, GRID_SIZE - 8);
+          }
+          // Cible
+          if (cell === '.' || cell === '*') {
+            ctx.fillStyle = '#914430';
+            ctx.beginPath();
+            ctx.arc(x + GRID_SIZE / 2, y + GRID_SIZE / 2, 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          // Joueur
+          if (cell === '@' || cell === '+') {
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x + GRID_SIZE / 2, y + GRID_SIZE / 3, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(x + GRID_SIZE / 2 - 2, y + GRID_SIZE / 3, 4, GRID_SIZE / 2);
+          }
+
+          ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+          ctx.strokeRect(x, y, GRID_SIZE, GRID_SIZE);
+        }
+      }
+      updateOutput();
+    }
+
+    // ─── Application Outil ───────────────────────────────────────
+    function applyTool(r, c) {
+      if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+      if (!currentTool) return; // Aucune sélection
+
+      if (currentTool === '@') {
+        for (let i = 0; i < rows; i++) {
+          for (let j = 0; j < cols; j++) {
+            if (grid[i][j] === '@') grid[i][j] = ' ';
+          }
+        }
+      }
+
+      grid[r][c] = currentTool;
+      draw();
+    }
+
+    function deselectTool() {
+      currentTool = null;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    // Événements Souris / Clavier pour Annulation Sélection
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') deselectTool();
+    });
+
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      deselectTool();
+    });
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        r: Math.floor((e.clientY - rect.top) / GRID_SIZE),
+        c: Math.floor((e.clientX - rect.left) / GRID_SIZE)
+      };
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 0) { // Clic gauche uniquement
+        isMouseDown = true;
+        const { r, c } = getCoords(e);
+        applyTool(r, c);
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isMouseDown) {
+        const { r, c } = getCoords(e);
+        applyTool(r, c);
+      }
+    });
+
+    window.addEventListener('mouseup', () => isMouseDown = false);
+
+    // Sélection Outil Palette
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTool = btn.dataset.type;
+      });
+    });
+
+    // ─── Boutons Stepper + / - ───────────────────────────────────
+    document.querySelectorAll('.step-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const step = parseInt(btn.dataset.step);
+        const input = document.getElementById(targetId);
+        let val = parseInt(input.value) + step;
+
+        if (targetId === 'levelDiff') val = Math.max(1, Math.min(5, val));
+        if (targetId === 'levelId') val = Math.max(1, val);
+        if (targetId === 'levelPar') val = Math.max(5, val);
+        if (targetId === 'gridRows' || targetId === 'gridCols') val = Math.max(5, Math.min(20, val));
+
+        input.value = val;
+
+        if (targetId === 'gridRows' || targetId === 'gridCols') initGrid();
+        else updateOutput();
+      });
+    });
+
+    document.getElementById('levelName').addEventListener('input', updateOutput);
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+          grid[r][c] = (r === 0 || r === rows - 1 || c === 0 || c === cols - 1) ? '#' : ' ';
+      draw();
+    });
+
+    // ─── Bouton 🎲 : Génération aléatoire garantie jouable ───────
+    document.getElementById('btnRandom').addEventListener('click', () => {
+      const keep = document.getElementById('keepDims').checked;
+      const result = generateLevel(null, null, keep ? [rows, cols] : null);
+      if (!result) { alert("Génération impossible avec ces dimensions — réessayez."); return; }
+
+      rows = result.rows;
+      cols = result.cols;
+      grid = result.grid;
+
+      document.getElementById('gridRows').value = rows;
+      document.getElementById('gridCols').value = cols;
+      document.getElementById('levelDiff').value = result.diff;
+      document.getElementById('levelPar').value = result.par;
+      document.getElementById('levelName').value = result.name;
+      document.getElementById('genInfo').textContent =
+        `Architecture : ${result.styleLabel} · ${result.boxCount} caisse(s) · mélange ${result.moves} mv`;
+
+      resizeCanvas();
+      draw();
+    });
+
+    // ─── Importation de niveau ───────────────────────────────────
+    function importLevelCode(rawCode) {
+      try {
+        const idMatch = rawCode.match(/id:\s*(\d+)/);
+        const nameMatch = rawCode.match(/name:\s*["']([^"']+)["']/);
+        const diffMatch = rawCode.match(/diff:\s*(\d+)/);
+        const parMatch = rawCode.match(/par:\s*(\d+)/);
+
+        if (idMatch) document.getElementById('levelId').value = idMatch[1];
+        if (nameMatch) document.getElementById('levelName').value = nameMatch[1];
+        if (diffMatch) document.getElementById('levelDiff').value = diffMatch[1];
+        if (parMatch) document.getElementById('levelPar').value = parMatch[1];
+
+        const dataMatch = rawCode.match(/data:\s*([\s\S]+?)(?=\s*\}|$)/);
+        if (!dataMatch) throw new Error("Format data introuvable");
+
+        let rawData = dataMatch[1].trim();
+        rawData = rawData.replace(/"\s*\+\s*"/g, '').replace(/^["']|["']$/g, '');
+
+        let lines = rawData.split(/\\n|\n/);
+        lines = lines.map(line => line.replace(/[^#\$\.\*@\+ ]/g, ' '));
+
+        rows = lines.length;
+        cols = Math.max(...lines.map(l => l.length));
+
+        document.getElementById('gridRows').value = rows;
+        document.getElementById('gridCols').value = cols;
+
+        grid = [];
+        for (let r = 0; r < rows; r++) {
+          grid.push((lines[r] || '').padEnd(cols, ' ').split(''));
+        }
+
+        resizeCanvas();
+        draw();
+      } catch (err) {
+        alert("Erreur d'importation : vérifiez la syntaxe du code fourni !");
+      }
+    }
+
+    // ─── Génération Output & Badge ───────────────────────────────
+    function updateOutput() {
+      let boxCount = 0, goalCount = 0, playerCount = 0;
+
+      const rawRows = grid.map(rowArray => {
+        let line = rowArray.join('');
+        for (let ch of line) {
+          if (ch === '$') boxCount++;
+          if (ch === '.') goalCount++;
+          if (ch === '*') { boxCount++; goalCount++; }
+          if (ch === '@' || ch === '+') playerCount++;
+          if (ch === '+') goalCount++; // '+' = joueur sur cible (cible comptée)
+        }
+        return line;
+      });
+
+      const singleLineData = rawRows.join('\\n');
+      const id = document.getElementById('levelId').value;
+      const name = document.getElementById('levelName').value;
+      const diff = document.getElementById('levelDiff').value;
+      const par = document.getElementById('levelPar').value;
+
+      document.getElementById('outputJs').value = `  { id: ${id}, name: "${name}", diff: ${diff}, par: ${par}, data: "${singleLineData}" }`;
+
+      const badge = document.getElementById('statusBadge');
+      if (playerCount === 1 && boxCount > 0 && boxCount === goalCount) {
+        badge.textContent = `Validé : 1 Joueur | ${boxCount} Caisse(s) / ${goalCount} Cible(s)`;
+        badge.className = 'validation-badge valid';
+      } else {
+        let error = [];
+        if (playerCount !== 1) error.push("1 Joueur requis (@)");
+        if (boxCount !== goalCount) error.push(`Déséquilibre Caisses/Cibles (${boxCount}/${goalCount})`);
+        if (boxCount === 0) error.push("Aucune caisse");
+        badge.textContent = `Invalide : ` + error.join(' | ');
+        badge.className = 'validation-badge invalid';
+      }
+    }
+
+    // Actions Boutons
+    document.getElementById('btnCopy').addEventListener('click', async () => {
+      const out = document.getElementById('outputJs');
+      try {
+        await navigator.clipboard.writeText(out.value);
+        alert('Code du niveau copié dans le presse-papier !');
+      } catch (e) {
+        // Repli pour les contextes non sécurisés (fichier local)
+        out.select();
+        document.execCommand('copy');
+        alert('Code du niveau copié !');
+      }
+    });
+
+    document.getElementById('btnImport').addEventListener('click', () => {
+      const code = document.getElementById('importJs').value;
+      if (code.trim()) importLevelCode(code);
+    });
+
+    // Lancement
+    initGrid();
+  </script>
+</body>
+</html>
