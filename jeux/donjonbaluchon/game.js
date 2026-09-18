@@ -9,7 +9,7 @@ const LEVELS = [
     data:"#####\n#.###\n# $ #\n# @ #\n#####" },
   { id:2, name: "Le Nœud Obscur", diff: 1, par: 9, data: "######\n#  $.#\n#    #\n#  $@#\n#.   #\n#    #\n######" },
   { id: 3, name: "Petit Effort", diff: 2, par: 18, data: "#######\n##   ##\n## $ ##\n# . ###\n#.$  ##\n#   *@#\n#######" },
-  { id: 4, name: "L'Encre", diff: 2, par: 25, data: "#########\n#      ##\n#  $#$ ##\n#   #   #\n# #.#.#$#\n#* # #  #\n#   @  .#\n#########\n#########" },
+  { id: 4, name: "L'Encre", diff: 2, par: 30, data: "#########\n#      ##\n#  $#$ ##\n#   #   #\n# #.#.#$#\n#* # #  #\n#   @  .#\n#########\n#########" },
   { id: 5, name: "Serpentin", diff: 2, par: 14, data: "########\n##.#####\n##$#   #\n#@*    #\n##$#####\n##.#####\n########" },
   { id: 6, name: "L'entrepot", diff: 3, par: 39, data: "########\n#.    .#\n## $$ ##\n#.$ $ .#\n#.$ $ .#\n##    ##\n#.$@ $.#\n########" },
   { id: 7, name: "Le Croisement", diff: 3, par: 35, data: "########\n#      #\n# $    #\n#   $  #\n# $   .#\n#@#   .#\n##   .*#\n########" },
