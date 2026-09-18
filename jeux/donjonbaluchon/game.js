@@ -945,6 +945,52 @@ document.querySelectorAll('.dpad-btn[data-dir]').forEach(btn => {
   btn.addEventListener('mousedown', handler);
 });
 
+// ─── Déplacement par clic/toucher sur la grille ───────────
+const gameCanvas = document.getElementById('game-canvas');
+if (gameCanvas) {
+  const handleGridTap = (e) => {
+    // On n'agit que si on est sur l'écran de jeu
+    if (currentScreen !== 'game') return;
+    // On ignore si le jeu est gagné ou si le tuto/fin est ouvert
+    if (gameWon) return;
+    const tutEl = document.getElementById('tutorial-overlay');
+    if (tutEl && tutEl.style.display !== 'none') return;
+    
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+
+    // Calculer la case cliquée en tenant compte de la taille d'affichage du canvas
+    const rect = gameCanvas.getBoundingClientRect();
+    const scaleX = gameCanvas.width / rect.width;
+    const scaleY = gameCanvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+
+    const col = Math.floor(x / GRID);
+    const row = Math.floor(y / GRID);
+
+    // Vérifier si la case cliquée est juste à côté du joueur (haut, bas, gauche, droite)
+    const dr = row - playerPos.row;
+    const dc = col - playerPos.col;
+
+    // La somme des valeurs absolues doit être 1 pour être une case adjacente (pas de diagonale)
+    if (Math.abs(dr) + Math.abs(dc) === 1) {
+      tryMove(dr, dc);
+      e.preventDefault(); // Empêche le zoom/double tap sur mobile
+    }
+  };
+
+  // Écouteurs pour le tactile et la souris
+  gameCanvas.addEventListener('touchstart', handleGridTap, { passive: false });
+  gameCanvas.addEventListener('mousedown', handleGridTap);
+}
+
 // ─── Resize ──────────────────────────────────────────────────
 let resizeTimeout = null;
 window.addEventListener('resize', () => {
