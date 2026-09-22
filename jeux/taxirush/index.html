@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TAXI RUSH — course de taxi arcade 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- #stage : toute l'application. Méthode sticky footer (flexbox) :
+     ce bloc prend tout l'espace disponible (flex:1), le <footer> reste
+     collé en bas quoi qu'il arrive. -->
+<div id="stage">
+
+  <div id="scene"></div>
+
+  <!-- ============================ HUD ============================ -->
+  <div id="hud" class="hidden">
+    <div class="checker-bar top"></div>
+
+    <div class="hud-item hud-money">
+      <span class="hud-label">Recette</span>
+      <span class="hud-value" id="hud-money">$0</span>
+      <span class="hud-sub" id="hud-rides">0 course</span>
+    </div>
+
+    <div class="hud-item hud-time">
+      <span class="hud-label" id="hud-time-label">Chrono</span>
+      <span class="hud-value" id="hud-time">60</span>
+    </div>
+
+    <div class="hud-item hud-speed">
+      <span class="hud-value"><span id="hud-speed">0</span><span class="unit">km/h</span></span>
+    </div>
+
+    <div id="course-card" class="hidden">
+      <span class="cc-head">Course en cours</span>
+      <span class="cc-fare" id="cc-fare">$0</span>
+      <div class="cc-tip"><span>Pourboire</span><b id="cc-tip" class="good">+$0</b></div>
+      <div id="cc-pops"></div>
+      <div class="cc-time"><span id="cc-time">0</span><div class="course-bar"><div id="cc-bar"></div></div></div>
+    </div>
+
+    <div id="compass">
+      <span id="compass-label">CLIENT</span>
+      <svg viewBox="0 0 100 100">
+        <circle class="cp-face" cx="50" cy="50" r="45"/>
+        <rect x="48.5" y="4"  width="3" height="9" rx="1"/>
+        <rect x="48.5" y="87" width="3" height="9" rx="1"/>
+        <rect x="4"  y="48.5" width="9" height="3" rx="1"/>
+        <rect x="87" y="48.5" width="9" height="3" rx="1"/>
+        <g id="compass-needle"><path id="needle-path" d="M50 13 L63 55 L50 47 L37 55 Z"/></g>
+      </svg>
+      <span id="compass-dist">—</span>
+    </div>
+
+    <div id="pickup" class="hidden">
+      <div id="cp-box" class="hidden">
+        <b id="cp-name">Course normale</b>
+        <span id="cp-info">—</span>
+      </div>
+      <svg viewBox="0 0 80 80">
+        <circle class="pk-track" cx="40" cy="40" r="30"/>
+        <circle class="pk-prog" id="pickup-prog" cx="40" cy="40" r="30"/>
+      </svg>
+      <span id="pickup-label">Arrêtez-vous dans le cercle</span>
+    </div>
+
+    <div id="toasts"></div>
+
+    <div id="hint">ZQSD / Flèches — conduire&nbsp;&nbsp;·&nbsp;&nbsp;ESPACE — frein à main&nbsp;&nbsp;·&nbsp;&nbsp;H — klaxon&nbsp;&nbsp;·&nbsp;&nbsp;ÉCHAP — menu</div>
+
+    <button id="btn-mute" title="Couper le son">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/>
+        <path class="wave" d="M16 8.5a5 5 0 0 1 0 7"/>
+        <path class="wave" d="M18 6a8.5 8.5 0 0 1 0 12"/>
+        <line class="cross" x1="16" y1="8" x2="22" y2="16"/>
+      </svg>
+    </button>
+
+    <!-- ============ Contrôles tactiles (uniquement sur écran tactile) ============ -->
+    <div id="touch-ui" class="hidden">
+      <div id="joy-zone">
+        <div id="joy-base"><div id="joy-stick"></div></div>
+      </div>
+      <div id="touch-btns">
+        <button class="tbtn" id="tb-hb">DRIFT</button>
+        <button class="tbtn" id="tb-horn">KLAXON</button>
+      </div>
+      <button id="tb-menu">MENU</button>
+    </div>
+
+    <div class="checker-bar bottom"></div>
+  </div>
+
+  <!-- ========================= MENU PRINCIPAL ========================= -->
+  <div id="menu">
+    <div class="panel">
+      <div class="checker-strip"></div>
+
+      <div class="mpage" id="pg-main">
+        <h1><img src="titre.png" alt="TAXI RUSH"></h1>
+        <p class="tag">La ville ne dort jamais, et votre chrono non plus.</p>
+        <div class="menu-buttons">
+          <button class="mbtn" id="m-arcade"><b>ARCADE</b><span>Choisir un type de service</span></button>
+          <button class="mbtn" id="m-options"><b>OPTIONS</b><span>Chronos, trafic, volumes</span></button>
+          <button class="mbtn" id="m-stats"><b>STATISTIQUES</b><span>Votre carnet de bord</span></button>
+        </div>
+      </div>
+
+      <div class="mpage hidden" id="pg-arcade">
+        <h2>CHOISIR LE SERVICE</h2>
+        <button class="mode-btn" data-mode="classic">
+          <b>ARCADE CLASSIQUE</b>
+          <span>Chrono de départ réglable. Chaque livraison à temps rapporte des secondes.</span>
+        </button>
+        <button class="mode-btn" data-mode="180">
+          <b>SERVICE 3 MINUTES</b>
+          <span>Trois minutes sur le compteur : un maximum de clients, aucun temps bonus.</span>
+        </button>
+        <button class="mode-btn" data-mode="300">
+          <b>SERVICE 5 MINUTES</b>
+          <span>Même mission, cinq minutes pour battre votre record.</span>
+        </button>
+        <button class="mode-btn" data-mode="600">
+          <b>SERVICE 10 MINUTES</b>
+          <span>Le grand service. Endurance, frôlements et gros pourboires.</span>
+        </button>
+        <button class="btn-back">← RETOUR</button>
+      </div>
+
+      <div class="mpage hidden" id="pg-options">
+        <h2>OPTIONS</h2>
+        <label class="opt-row">
+          <span class="opt-name">Temps de départ <i>chronomètre du mode Arcade classique</i></span>
+          <span class="opt-val" id="ov-start">60 s</span>
+          <input type="range" id="opt-start" min="30" max="180" step="5">
+        </label>
+        <label class="opt-row">
+          <span class="opt-name">Difficulté temps <i>temps alloué pour chaque course</i></span>
+          <span class="opt-val" id="ov-tmult">100 %</span>
+          <input type="range" id="opt-tmult" min="60" max="200" step="5">
+        </label>
+        <label class="opt-row">
+          <span class="opt-name">Trafic (voitures &amp; piétons) <i>circulation, voitures garées et passants</i></span>
+          <span class="opt-val" id="ov-traffic">55 %</span>
+          <input type="range" id="opt-traffic" min="0" max="100" step="5">
+        </label>
+        <label class="opt-row">
+          <span class="opt-name">Volume général</span>
+          <span class="opt-val" id="ov-vm">80 %</span>
+          <input type="range" id="opt-vm" min="0" max="100" step="5">
+        </label>
+        <label class="opt-row">
+          <span class="opt-name">Volume moteur</span>
+          <span class="opt-val" id="ov-ve">55 %</span>
+          <input type="range" id="opt-ve" min="0" max="100" step="5">
+        </label>
+        <label class="opt-row">
+          <span class="opt-name">Volume effets</span>
+          <span class="opt-val" id="ov-vf">85 %</span>
+          <input type="range" id="opt-vf" min="0" max="100" step="5">
+        </label>
+        <button class="btn-back">← RETOUR</button>
+      </div>
+
+      <div class="mpage hidden" id="pg-stats">
+        <h2>STATISTIQUES</h2>
+        <div class="stats-list" id="stats-list"></div>
+        <div class="row-btns">
+          <button id="btn-wipe">EFFACER LES STATISTIQUES</button>
+          <button class="btn-back">← RETOUR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= ÉCRAN GAME OVER ======================= -->
+  <div class="screen hidden" id="scr-over">
+    <div class="panel">
+      <div class="checker-strip"></div>
+      <h1 class="over">SERVICE<span>TERMINÉ</span></h1>
+      <p class="tag" id="over-mode">—</p>
+      <div class="stats">
+        <div><b id="stat-money">$0</b><span>recette totale</span></div>
+        <div><b id="stat-rides">0</b><span>courses livrées</span></div>
+        <div><b id="stat-dist">0 km</b><span>distance parcourue</span></div>
+        <div><b id="stat-time">0 s</b><span>temps en service</span></div>
+      </div>
+      <div class="row-btns">
+        <button class="btn-main" id="btn-replay">REJOUER</button>
+        <button class="btn-main ghost" id="btn-menu">MENU</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#stage -->
+
+<!-- Sticky footer : toujours visible en bas, au-dessus des menus (z-index 40) -->
+<footer id="site-footer">
+  ©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="game.js"></script>
+<script src="touch.js"></script>
+</body>
+</html>
