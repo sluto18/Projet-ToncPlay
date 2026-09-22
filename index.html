@@ -1,118 +1,175 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ToncPlay - Le plaisir du jeu</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="images/favicon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projet ToncPlay — Jeux gratuits</title>
+<meta name="description" content="Le QG digital du Projet ToncPlay : des jeux gratuits, bricolés avec des pixels et beaucoup trop de café.">
+<link rel="icon" href="images/logo.png">
+
+<!-- Polices -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Fond animé -->
-  <div class="bg-effects" aria-hidden="true">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
+<!-- ===== FOND ANIMÉ ===== -->
+<div class="bg-effects" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="noise"></div>
+</div>
 
-  <!-- Header -->
-  <header class="main-header">
-    <a href="#" class="logo" data-section="accueil">
-      <img src="images/logo.png" alt="" class="logo-img">
-      ToncPlay
-    </a>
-    <nav class="nav-desktop" aria-label="Navigation principale">
-      <a href="#" data-section="accueil" class="active">
-        <img src="images/logo.png" alt="" class="nav-icon">
-        Accueil
-      </a>
-      <a href="#" data-section="jeux">
-        <img src="images/logo.png" alt="" class="nav-icon">
-        Jeux
-      </a>
-      <a href="#" data-section="news">
-        <img src="images/logo.png" alt="" class="nav-icon">
-        Actualités
-      </a>
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="header-inner">
+
+    <button type="button" class="logo" data-nav="accueil" aria-label="Retour à l'accueil">
+      <img src="images/logo.png" alt="">
+      <span>Tonc<b>Play</b></span>
+    </button>
+
+    <nav class="nav-pill" id="desktopNav" aria-label="Navigation principale">
+      <span class="nav-pill-slider" id="navSlider" aria-hidden="true" hidden></span>
+      <!-- boutons générés par js/app.js -->
     </nav>
-    <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false">
+
+    <button type="button" class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
-  </header>
 
-  <!-- Navigation mobile overlay -->
-  <nav class="nav-overlay" id="navOverlay" aria-label="Navigation mobile">
-    <ul>
-      <li><a href="#" data-section="accueil" class="active">
-            <img src="images/logo.png" alt="" class="nav-icon">
-            Accueil
-          </a></li>
-      <li><a href="#" data-section="jeux">
-            <img src="images/logo.png" alt="" class="nav-icon">
-            Jeux
-          </a></li>
-      <li><a href="#" data-section="news">
-            <img src="images/logo.png" alt="" class="nav-icon">
-            Actualités
-          </a></li>
-    </ul>
-  </nav>
+  </div>
+</header>
 
-  <!-- Contenu principal -->
-  <main>
-    <!-- Accueil -->
-    <section id="accueil" class="section-page active">
-      <div class="hero-card">
-        <h1 class="hero-title">Bienvenue sur le Projet ToncPlay</h1>
-        <p class="hero-subtitle">Fabriqué artisanalement à partir de pixels élevés en plein air.</p>
-        <div class="hero-content">
-          <figure class="hero-image-wrap">
-            <img src="images/toncplay.jpg" alt="Illustration ToncPlay" loading="lazy">
-            <figcaption class="hero-image-caption">Plongez dans l'univers de ToncPlay !</figcaption>
-          </figure>
-          <div class="hero-text">
-            <p>
-              Un jour, on a regardé une IA droit dans les yeux et on lui a dit : « Fais-nous un jeu en HTML, s'il te plaît, ô machine toute-puissante ! »<br><br>
-              Il a cligné des... circuits ? Et paf, il nous a pondu un Snake. C'était simple, mais étonnamment fun. On s'est dit : « D'accord, on part là-dessus Roger. »<br><br>
-              C'est ainsi qu'est né le Projet ToncPlay, une vieille utopie qui traînait dans ma tête et qui s'est concrétisée grâce à l'IA. Depuis, Roger (l'IA) est devenue ma consultante officielle. Elle ne prend pas de pause café, alors on avance vite.<br><br>
-              Des mini-jeux faits maison, sans prise de tête, rassemblés au même endroit. Juste le fruit d'une bonne dose de curiosité et d'un « on verra bien » bien senti. Alors, clique, joue, et si tu ne rigoles pas… eh bien, tu auras au moins participé à une belle aventure humaine en cliquant.
-            </p>
+<!-- ===== MENU MOBILE ===== -->
+<div class="nav-overlay" id="navOverlay">
+  <nav id="mobileNav" aria-label="Menu mobile"><!-- généré par js/app.js --></nav>
+</div>
+
+<main>
+
+  <!-- ===== ACCUEIL ===== -->
+  <section class="page" id="page-accueil">
+    <div class="hero">
+
+      <p class="hero-eyebrow hero-in"><span class="rule"></span>PROJET<span class="rule"></span></p>
+
+      <h1 class="hero-title hero-in" style="animation-delay:.1s">TONC<span class="title-glow">PLAY</span></h1>
+
+      <p class="hero-sub hero-in" style="animation-delay:.2s">
+        Des jeux gratuits, bricolés avec des pixels, de l'humour douteux et beaucoup trop de café.
+      </p>
+
+      <div class="hero-art hero-in" style="animation-delay:.32s">
+        <div class="hero-float">
+          <div class="hero-tilt" id="heroTilt">
+            <div class="hero-frame">
+              <img src="images/logo.png" alt="Logo du Projet ToncPlay" draggable="false">
+            </div>
+            <span class="corner corner-tl"></span>
+            <span class="corner corner-tr"></span>
+            <span class="corner corner-bl"></span>
+            <span class="corner corner-br"></span>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Jeux (rempli dynamiquement par JS) -->
-    <section id="jeux" class="section-page">
-      <h1 class="section-title">Nos Jeux</h1>
-      <div id="games-grid" class="games-grid"></div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Actualités (rempli dynamiquement par JS) -->
-    <section id="news" class="section-page">
-      <h1 class="section-title">Actualités</h1>
-      <div id="news-container" class="news-container"></div>
-    </section>
-  </main>
+  <!-- ===== JEUX ===== -->
+  <section class="page" id="page-jeux" hidden>
+    <div class="container">
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; Sluto — Projet ToncPlay — Tous droits réservés</p>
-  </footer>
+      <header class="page-head">
+        <p class="page-kicker">// Ludothèque</p>
+        <h2>Nos <span class="accent">jeux</span></h2>
+        <p class="page-sub" id="gamesCount"></p>
+      </header>
 
-  <!-- Icône SVG play (réutilisable) -->
-  <template id="icon-play">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-  </template>
-  <!-- Icône chevron bas -->
-  <template id="icon-chevron">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-  </template>
+      <div class="toolbar">
 
-  <script src="script.js"></script>
+        <div class="toolbar-row">
+          <!-- Recherche (compacte) -->
+          <div class="search">
+            <span class="search-icon" data-icon="search" data-size="14"></span>
+            <input type="text" id="searchInput" placeholder="Rechercher…" aria-label="Rechercher un jeu">
+            <button type="button" class="search-clear" id="searchClear" aria-label="Effacer la recherche" hidden></button>
+            <kbd id="searchKbd">/</kbd>
+          </div>
+
+          <div class="toolbar-right">
+            <!-- Jeu aléatoire -->
+            <button type="button" class="btn-random" id="randomGame" title="Lancer un jeu au hasard">
+              <span data-icon="dice" data-size="14"></span>
+              <span class="btn-random-label">Jeu Aléatoire</span>
+            </button>
+            <!-- Tri -->
+            <div class="select-wrap">
+              <span class="select-icon" data-icon="sort" data-size="12"></span>
+              <select id="sortSelect" aria-label="Trier les jeux">
+                <option value="recent">Plus récents</option>
+                <option value="old">Plus anciens</option>
+                <option value="az">A → Z</option>
+                <option value="za">Z → A</option>
+                <option value="genre">Par genre</option>
+              </select>
+              <span class="select-chevron" data-icon="chevron" data-size="10"></span>
+            </div>
+
+            <!-- Bascule grille / liste -->
+            <div class="view-toggle" role="group" aria-label="Mode d'affichage">
+              <button type="button" id="viewGrid" class="active" aria-label="Vue grille" title="Vue grille"></button>
+              <button type="button" id="viewList" aria-label="Vue liste" title="Vue liste"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtres par genre (générés par js/app.js) -->
+        <div class="genre-row" id="genreRow"></div>
+
+        <p class="result-count" id="resultCount"></p>
+      </div>
+
+      <div id="gamesResults">
+        <div id="gamesGrid" class="games-grid"></div>
+        <div id="gamesEmpty" class="empty" hidden></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== ACTUALITÉS ===== -->
+  <section class="page" id="page-actus" hidden>
+    <div class="container container-narrow">
+
+      <header class="page-head">
+        <p class="page-kicker">// Journal de bord</p>
+        <h2>Actuali<span class="accent">tés</span></h2>
+        <p class="page-sub">Tout ce qui se trame dans les coulisses du Projet ToncPlay.</p>
+      </header>
+
+      <div class="news-list" id="newsList"></div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p class="footer-line">© Sluto — Projet ToncPlay</p>
+  <p class="footer-sub">Des pixels, de l'amour, et probablement un bug ou deux (offerts).</p>
+</footer>
+
+<!-- ===== DONNÉES (jeux & news) — inchangé ===== -->
+<script src="js/data.js"></script>
+<!-- ===== APPLICATION ===== -->
+<script src="js/app.js"></script>
 </body>
 </html>
