@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivez le Guide - Éditeur de niveau</title>
+<link rel="stylesheet" href="editeur.css">
+</head>
+<body>
+<div id="stage">
+
+  <header>
+    <h1>ÉDITEUR DE NIVEAU</h1>
+    <div class="hgroup">
+      <button id="btnNew" class="ctl danger">NOUVEAU</button>
+      <button id="btnUndo" class="ctl" disabled>ANNULER</button>
+      <button id="btnRedo" class="ctl" disabled>RÉTABLIR</button>
+      <button id="btnGrid" class="ctl on" title="Grille + aimant 10 px (G)">GRILLE</button>
+      <button id="btnFall" class="ctl on" title="Analyse des chutes">CHUTES</button>
+    </div>
+  </header>
+
+  <div id="toolbar" class="panel">
+    <div class="tools">
+      <button class="tool on" data-tool="earth"   title="Touche 1"><i class="sw sw-earth"></i>TERRE</button>
+      <button class="tool" data-tool="stone"  title="Touche 2"><i class="sw sw-stone"></i>PIERRE</button>
+      <button class="tool" data-tool="brush"  title="Touche 3"><i class="sw sw-brush"></i>PINCEAU</button>
+      <button class="tool" data-tool="carve"  title="Touche 4"><i class="sw sw-carve"></i>FOSSE</button>
+      <button class="tool" data-tool="erase"  title="Touche 5"><i class="sw sw-erase"></i>GOMME</button>
+      <button class="tool" data-tool="hatch"  title="Touche 6"><i class="sw sw-hatch"></i>TRAPPE</button>
+      <button class="tool" data-tool="exit"   title="Touche 7"><i class="sw sw-exit"></i>SORTIE</button>
+      <button class="tool" data-tool="measure" title="Touche 8"><i class="sw sw-measure"></i>MÈTRE</button>
+    </div>
+    <div class="brushgroup wide">
+      <span class="lbl">MATIÈRE</span>
+      <select id="selStyle"></select>
+    </div>
+    <label class="fld-inline">TAILLE
+      <input type="range" id="brushSize" min="4" max="36" value="12"><b id="brushVal">12</b>
+    </label>
+    <label class="chk"><input type="checkbox" id="optGrass" checked> COUVERTURE DU SOL</label>
+  </div>
+
+  <div id="gameWrap">
+    <canvas id="game" width="800" height="450"></canvas>
+  </div>
+
+  <input type="range" id="camScroll" min="0" max="0" step="1" value="0" title="Défilement horizontal (ou flèches ← →)">
+
+  <div id="status">
+    <span id="stCoords">x: — · y: —</span>
+    <span id="stHint"></span>
+  </div>
+
+  <div id="legend">
+    <span><i class="lg lg-ok"></i>chute survécue (≤ 70 px)</span>
+    <span><i class="lg lg-warn"></i>limite (71–75 px)</span>
+    <span><i class="lg lg-dead"></i>mortelle (&gt; 75 px) ou sans fond</span>
+    <span><i class="lg lg-hatch"></i>chute depuis la trappe</span>
+  </div>
+
+  <div class="panelrow">
+    <div class="panel">
+      <h2>NIVEAU</h2>
+      <label class="fld">NOM
+        <input type="text" id="pName" maxlength="24" value="MON NIVEAU">
+      </label>
+      <label class="fld">ATMOSPHÈRE
+        <select id="pTheme">
+          <option value="night">NUIT ÉTOILÉE</option>
+          <option value="dawn">AUBE DÉSERTIQUE</option>
+          <option value="cave">CAVERNE AUX CRISTAUX</option>
+          <option value="volcano">VOLCAN</option>
+          <option value="ice">BANQUISE</option>
+        </select>
+      </label>
+      <div class="fldrow">
+        <label class="fld">LEMMINGS<input type="number" id="pTotal" min="1" max="99" value="20"></label>
+        <label class="fld">OBJECTIF<input type="number" id="pGoal" min="0" max="99" value="15"></label>
+        <label class="fld">LARGEUR<input type="number" id="pWidth" min="800" max="3200" step="100" value="800"></label>
+      </div>
+      <div class="fld">DIRECTION DE SORTIE DE TRAPPE
+        <div class="seg" id="segDir">
+          <button type="button" data-dir="-1">GAUCHE</button><button type="button" data-dir="1" class="on">DROITE</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>KIT DE COMPÉTENCES</h2>
+      <div id="skillGrid">
+        <label>BLOQUEUR<input type="number" id="skBlock" min="0" max="99" value="4"></label>
+        <label>CREUSEUR<input type="number" id="skDig" min="0" max="99" value="3"></label>
+        <label>PARACHUTISTE<input type="number" id="skFloat" min="0" max="99" value="8"></label>
+        <label>GRIMPEUR<input type="number" id="skClimb" min="0" max="99" value="1"></label>
+        <label>FOREUR<input type="number" id="skBash" min="0" max="99" value="3"></label>
+        <label>BÂTISSEUR<input type="number" id="skBuild" min="0" max="99" value="1"></label>
+        <label>MINEUR<input type="number" id="skMine" min="0" max="99" value="1"></label>
+        <label>EXPLOSIF<input type="number" id="skBomb" min="0" max="99" value="5"></label>
+      </div>
+    </div>
+
+    <div class="panel wide">
+      <h2>VALIDATION</h2>
+      <ul id="valid"></ul>
+    </div>
+  </div>
+
+  <div class="panel" id="codePanel">
+    <h2>CODE DU NIVEAU</h2>
+    <p class="dim">Générez, copiez, puis collez l'entrée dans le tableau LEVELS de script.js —
+       n'oubliez pas la virgule entre deux entrées. « CHARGER DEPUIS LE CODE » relit une entrée
+       (le même code) pour la modifier.</p>
+    <textarea id="code" spellcheck="false"></textarea>
+    <div class="hgroup">
+      <button id="btnGen" class="big">GÉNÉRER LE CODE</button>
+      <button id="btnCopy" class="ctl">COPIER</button>
+      <button id="btnLoad" class="ctl">CHARGER DEPUIS LE CODE</button>
+      <span id="codeMsg"></span>
+    </div>
+  </div>
+
+  <footer>
+    Éditeur hommage à <i>Lemmings</i> — même moteur de rendu que le jeu (terrain, trappe, sortie),
+    analyse des chutes selon la limite létale de 75 px, sauvegarde automatique locale.
+  </footer>
+</div>
+<script src="editeur.js"></script>
+</body>
+</html>

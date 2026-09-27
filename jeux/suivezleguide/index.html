@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivez le Guide</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+
+  <header>
+    <canvas id="logo" width="350" height="40"></canvas>
+    <div id="mission">
+      <span class="lvl" id="lvlName">NIVEAU 01</span>
+      <span class="goal" id="lvlGoal">OBJECTIF — SAUVER 15 LEMMINGS SUR 20</span>
+    </div>
+    <button id="btnMenu" class="ctl" title="Ouvrir les options">OPTIONS</button>
+    <button id="btnSound" class="ctl icononly" title="Son (M)">
+      <canvas id="icoSound" width="22" height="22"></canvas>
+    </button>
+  </header>
+
+  <div id="gameWrap">
+    <canvas id="game" width="800" height="450"></canvas>
+
+    <div id="home" class="overlay">
+      <div class="homeBox">
+
+        <canvas id="homeBanner" width="560" height="130"></canvas>
+
+        <div id="hmMain" class="hsec">
+          <button id="hPlay" class="hbtn big">JOUER</button>
+          <button id="hLevels" class="hbtn">SÉLECTION NIVEAU</button>
+          <button id="hScores" class="hbtn">MEILLEUR SCORE</button>
+          <button id="hOptions" class="hbtn">OPTIONS</button>
+          <p class="dim">« Ils vous font confiance. Quelle erreur. »</p>
+        </div>
+
+        <div id="hmLevels" class="hsec hidden">
+          <div class="secHead">
+            <button class="hbtn mini back" data-back="main" title="Retour à l'accueil">←</button>
+            <h2>SÉLECTION DU NIVEAU</h2>
+            <span class="secSpacer"></span>
+          </div>
+          <div id="lvlList"></div>
+          <button class="hbtn back" data-back="main">RETOUR</button>
+        </div>
+
+        <div id="hmScores" class="hsec hidden">
+          <div class="secHead">
+            <button class="hbtn mini back" data-back="main" title="Retour à l'accueil">←</button>
+            <h2>MEILLEURS SCORES</h2>
+            <span class="secSpacer"></span>
+          </div>
+          <div id="scoreBody" class="scoreGroups"></div>
+          <button class="hbtn back" data-back="main">RETOUR</button>
+        </div>
+
+        <div id="hmOptions" class="hsec hidden">
+          <h2>OPTIONS</h2>
+          <div class="optRow">
+            <label for="optSfx">VOLUME SONS</label>
+            <input type="range" id="optSfx" min="0" max="100" value="80">
+            <b id="optSfxVal">80%</b>
+          </div>
+          <div class="optRow">
+            <label for="optMus">VOLUME MUSIQUE</label>
+            <input type="range" id="optMus" min="0" max="100" value="50">
+            <b id="optMusVal">50%</b>
+          </div>
+          <div class="optRow">
+            <label for="optFx">EFFETS VISUELS</label>
+            <input type="range" id="optFx" min="0" max="100" value="100">
+            <b id="optFxVal">100%</b>
+          </div>
+          <button id="optHelp" class="hbtn">AIDE</button>
+          <button id="optReset" class="hbtn danger">RÉINITIALISER LA PARTIE</button>
+          <button class="hbtn back" data-back="main">RETOUR</button>
+        </div>
+
+        <div id="hmHelp" class="hsec hidden">
+          <h2>AIDE</h2>
+          <div id="helpBody"></div>
+          <button class="hbtn back" data-back="options">RETOUR</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="end" class="overlay hidden">
+      <div class="dialog">
+        <h1 id="endTitle">NIVEAU TERMINÉ</h1>
+        <p id="endStats"></p>
+        <div class="endBtns">
+          <button id="btnRetry" class="big">REJOUER</button>
+          <button id="btnNext" class="big hidden">NIVEAU SUIVANT</button>
+          <button id="btnHomeEnd" class="big">ACCUEIL</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tutorialCoach" class="tutorialCoach hidden" role="button" tabindex="0" aria-live="polite">
+      <strong id="tutorialTitle"></strong>
+      <span id="tutorialText"></span>
+      <small>CLIQUE POUR CONTINUER</small>
+    </div>
+
+    <div id="gameOptions" class="overlay gameOptionsOverlay hidden">
+      <div class="homeBox gameOptionsBox">
+        <h2>OPTIONS</h2>
+        <div class="optRow">
+          <label for="gameOptSfx">VOLUME SONS</label>
+          <input type="range" id="gameOptSfx" min="0" max="100" value="80">
+          <b id="gameOptSfxVal">80%</b>
+        </div>
+        <div class="optRow">
+          <label for="gameOptMus">VOLUME MUSIQUE</label>
+          <input type="range" id="gameOptMus" min="0" max="100" value="50">
+          <b id="gameOptMusVal">50%</b>
+        </div>
+        <div class="optRow">
+          <label for="gameOptFx">EFFETS VISUELS</label>
+          <input type="range" id="gameOptFx" min="0" max="100" value="100">
+          <b id="gameOptFxVal">100%</b>
+        </div>
+        <button id="gameOptReturn" class="hbtn">RETOUR À LA PARTIE</button>
+        <button id="gameOptMenu" class="hbtn">RETOUR MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toolbar">
+    <div class="toolbarTop">
+      <div class="panel counters">
+        <div class="counter"><span>APPARUS</span><b><span id="cOut">0</span><small id="cOutTotal">/20</small></b></div>
+        <div class="counter ok"><span>SAUVÉS</span><b id="cIn">0</b></div>
+        <div class="counter ko"><span>PERDUS</span><b id="cLost">0</b></div>
+        <div class="counter"><span>EN VIE</span><b id="cAlive">0</b></div>
+        <div class="counter"><span>TEMPS</span><b id="cTime">0:00</b></div>
+      </div>
+
+      <div class="panel controls">
+        <button id="btnPause" class="ctl icononly" title="Pause (Espace)">
+          <canvas id="icoPause" width="22" height="22"></canvas>
+        </button>
+        <div class="seg" id="speedSeg" title="Vitesse du jeu">
+          <button data-sp="1" class="on">×1</button><button data-sp="2">×2</button><button data-sp="4">×4</button>
+        </div>
+        <button id="btnNuke" class="ctl danger" title="Faire tout exploser">NUKE</button>
+        <canvas id="icoNuke" width="22" height="22"></canvas>
+        <button id="btnUndo" class="ctl undoBtn" type="button" title="Annuler la dernière compétence (Z)" aria-label="Annuler la dernière compétence" disabled>↶</button>
+        <div class="spawn">
+          <label for="spawnRate">TRAPPE</label>
+          <input type="range" id="spawnRate" min="40" max="600" step="10" value="240">
+          <b id="spawnVal">2.4s</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbarActions">
+      <div class="panel skills" id="skills"></div>
+      <div class="panel actionHints"><span><kbd>R</kbd> RECOMMENCER LE NIVEAU</span><span><kbd>Z</kbd> ANNULER LA DERNIÈRE ACTION</span></div>
+    </div>
+  </div>
+
+  <footer>
+    ©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a>
+    Prototype hommage à <i>Lemmings</i> (DMA Design · 1991)
+  </footer>
+</div>
+<script src="audio.js"></script>
+<script src="ui.js"></script>
+<script src="levels.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
