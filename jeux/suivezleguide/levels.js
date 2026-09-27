@@ -13,7 +13,7 @@ const LEVELS = [
       { x: 0, y: 330, w: 800, h: 120, style: 'night.groundA', grass: true },
       { x: 500, y: 270, w: 50, h: 60, style: 'night.wallA' }
     ],
-    skills: { block: 0, dig: 0, float: 0, climb: 0, bash: 1, build: 0, mine: 0, bomb: 0 }
+    skills: { block: 0, dig: 0, float: 0, climb: 0, bash: 2, build: 0, mine: 0, bomb: 0 }
   },
   // niveau 2
   {
