@@ -1,3 +1,4 @@
+<img src="images/logo.png" alt="Logo Projet ToncPlay" width="120">
 Projet ToncPlay 🎮
 
 Le délire de fabriquer des jeux en JavaScript avec 3 fois rien — et de les partager gratuitement.
