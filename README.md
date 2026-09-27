@@ -14,22 +14,16 @@
 
 ## 🕹️ Les jeux
 
-- 🚕 **Suivez le guide - Taxi Rush**
-- 🎒 **Donjon & Baluchon**
-- 🤖 **Slide Robot**
-- ☕ **Café Tycoon**
-- 🧟 **Dead Zone Bastion**
-- 🐍 **Neon Snake**
-- 🧪 **Le Blob**
-- 🦘 **Rasta Jump**
-- 💀 **Surviv'Hordes**
-- 🚀 **Galactic Defender**
-- 📦 **Carton Game**
-- 💡 **Luminescence**
+| | | |
+| :--- | :--- | :--- |
+| 🚕 **Suivez le guide** | 🧟 **Dead Zone Bastion** | 💀 **Surviv'Hordes** |
+| 🚖 **Taxi Rush** | 🐍 **Neon Snake** | 🚀 **Galactic Defender** |
+| 🎒 **Donjon & Baluchon** | 🧪 **Le Blob** | 📦 **Carton Game** |
+| 🤖 **Slide Robot** | 🦘 **Rasta Jump** | 💡 **Luminescence** |
+| ☕ **Café Tycoon** | | |
 
 ---
 
 ## 🚀 Lancement local
 
 Aucune dépendance. Développé en **JavaScript vanilla**, le projet fonctionne directement en ouvrant `index.html` dans un navigateur.
-
