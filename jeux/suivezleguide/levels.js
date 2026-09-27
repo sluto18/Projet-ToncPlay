@@ -132,7 +132,9 @@ const LEVELS = [
       { x: 440, y: 260, w: 200, h: 40, style: 'ice.groundA', grass: true },
       { x: 0, y: 330, w: 800, h: 120, style: 'ice.groundA', grass: true },
       { x: 380, y: 270, w: 22, h: 60, style: 'ice.wallA' },
-      { x: 230, y: 270, w: 22, h: 60, style: 'ice.wallA' }
+      { x: 230, y: 270, w: 22, h: 60, style: 'ice.wallA' },
+      { x: 240, y: 200, w: 10, h: 10, style: 'ice.groundA', grass: true },
+      { x: 440, y: 250, w: 10, h: 10, style: 'ice.groundA', grass: true }
     ],
     carves: [
       { x: 680, y: 330, w: 70, h: 120 }
