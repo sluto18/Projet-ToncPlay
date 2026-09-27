@@ -33,24 +33,65 @@
    ============================================================ */
 const GAMES = [
   {
+     img:   'jaquette/suivezleguide.jpg',
+     title: 'Suivez le Guide', 
+     desc: "Inspiré des Lemmings : creuse, construis et sauve ces bons hommes du suicide collectif !",
+     link:  'jeux/suivezleguide/index.html',    
+     genre: 'Réflexion', 
+     tags:  ['Réflexion', 'Plateforme'],
+     date:  '27/09/2026', 
+     iso:   '2026-09-27',
+       // page fiche
+     descLong: `<b>Le Pitch :</b><br>
+     Ils sont mignons, extrêmement obéissants, mais ils ont le sens de l'orientation d'une huître en vacances. Dans <i>Suivez le Guide</i>, vous prenez les commandes d'une tribu de petits bonshommes qui avancent droit devant eux... même si cela signifie sauter d'une falaise ou foncer tête baissée dans un piège mortel !<br><br>
+     <b>Votre Mission :</b><br>
+     Devenez le chef de chantier suprême ! Distribuez les rôles au bon moment (creuseur, bâtisseur, bloqueur, parachutiste) pour sécuriser le parcours et guider un maximum de survivants jusqu'à la Porte de la Liberté. Un mauvais timing et c'est l'hécatombe garantie.<br><br>
+     <b>Ce qui vous attend :</b><br>
+     • Des dizaines de niveaux tactiques remplis de pièges vicieux et de casse-têtes.<br>
+     • Un hommage vibrant aux grands classiques du jeu de réflexion rétro.<br>
+     • Une seule règle d'or : <i>C'est vous le chef, chef ! Ne les laissez pas faire n'importe quoi !</i>`,
+     screens: [
+      'screens/monjeu/1.png',
+      'screens/monjeu/2.png',
+      'screens/monjeu/3.png',
+    ],
+   },
+  {
     img: 'jaquette/taxirush.jpg',
     title: 'Taxi Rush',
     desc: "C'est comme Crazy Taxi, mais en moins bien et avec le permis B obtenu au bénéfice du doute.",
     link: 'jeux/taxirush/index.html',
     genre: 'Arcade',
-    tags: ['Course', '3D', 'Livraison'],
+    tags: ['Arcade', 'Course', '3D'],
     date: '22/09/2026',
     iso: '2026-09-22',
-  },
+    descLong: `<b>Le Pitch :</b><br>
+    C'est comme Crazy Taxi, mais dans un monde taillé à la serpe et monté sur blocs ! Prenez le volant d'un taxi aussi carré que sa conduite et devenez le chauffeur le plus rapide (et le moins prudent) de la ville.<br><br>
+    <b>Votre Mission :</b><br>
+    Faites monter des clients cubiques au bord de la route, suivez la boussole et emmenez-les à destination avant que le chrono ne s'épuise. Esquivez la circulation, slalomez entre les immeubles rectangulaires et accumulez les recettes.<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Une conduite arcade nerveuse et prise en main immédiate.<br>
+    • Un style visuel rétro tout en blocs et angles droits.<br>
+    • De la déception, certainement !</i>`,
+      },
   {
     img: 'jaquette/donjonbaluchon.png',
     title: 'Donjon & Baluchon',
     desc: "Oublie les dragons ! Ta mission : pousser tes baluchons aux bons endroits du donjon.",
     link: 'jeux/donjonbaluchon/index.html',
     genre: 'Réflexion',
-    tags: ['Casse-tête', 'Sokoban', 'Éditeur'],
+    tags: ['Réflexion', 'Casse-tête'],
     date: '17/09/2026',
     iso: '2026-09-17',
+    descLong: `<b>Le Pitch :</b><br>
+    Oubliez les dragons et les princesses à sauver ! Dans <i>Donjon & Baluchon</i>, vous incarnez un brave chevalier confronté au défi ultime du Moyen Âge : la logistique et le rangement.<br><br>
+    <b>Votre Mission :</b><br>
+    Poussez méthodiquement vos sacs et baluchons sur les dalles de parquet désignées à travers les salles du donjon. Mais attention : un mouvement mal calculé et votre sac se retrouvera coincé contre un mur en pierre sans possibilité de reculer !<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un gameplay de réflexion pur façon Sokoban en pixel art Soigné.<br>
+    • Des casse-têtes tactiques où chaque déplacement doit être anticipé.<br>
+    • Des commandes simples avec options d'annulation (Touche U) et de réinitialisation rapide (Touche R).<br>
+    • Une seule règle d'or : <i>Un vrai héros ne tire jamais ses sacs, il les pousse avec honneur !</i>`,
   },
   {
     img: 'jaquette/sliderobot.png',
@@ -58,9 +99,18 @@ const GAMES = [
     desc: 'Jeu de réflexion mécanique.',
     link: 'jeux/sliderobot/index.html',
     genre: 'Réflexion',
-    tags: ['Logique', 'Mécanique', 'Stratégie'],
+    tags: ['Réflexion', 'Logique', 'Stratégie'],
     date: '17/06/2026',
     iso: '2026-06-17',
+    descLong: `<b>Le Pitch :</b><br>
+    Retrouvez les sensations du célèbre jeu de plateau directement dans votre navigateur ! Dans <i>Slide Robot</i>, vos robots ont un petit problème de freins : une fois lancés, ils glissent en ligne droite jusqu'à rencontrer un obstacle ou un mur.<br><br>
+    <b>Votre Mission :</b><br>
+    Guidez le robot de la bonne couleur vers sa cible correspondante. Utilisez les obstacles du plateau et les autres robots comme rebords pour stopper vos courses et trouver le chemin le plus rapide et le plus efficace.<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Une adaptation fidèle du jeu de réflexion et de trajectoires culte.<br>
+    • Des parties aléatoires pour faire chauffer vos méninges à l'infini.<br>
+    • Un compteur de coups et un chrono pour mesurer vos meilleures performances.<br>
+    • Une seule règle d'or : <i>Dans le doute, faites sauter un robot contre un mur, ça finit toujours par passer !</i>`,
   },
   {
     img: 'jaquette/cafetycoon.png',
@@ -68,9 +118,17 @@ const GAMES = [
     desc: 'Cultivez, Préparez, Progressez !',
     link: 'jeux/cafetycoon/index.html',
     genre: 'Gestion',
-    tags: ['Simulation', 'Idle', 'Café'],
+    tags: ['Gestion', 'Simulation', 'Idle'],
     date: '09/06/2026',
     iso: '2026-06-09',
+    descLong: `<b>Le Pitch :</b><br>
+    Bâtissez votre propre empire du grain ! Dans <i>Café Tycoon</i>, prenez le contrôle de toute la chaîne de production : de la plantation de caféiers jusqu'au service au comptoir de votre Coffee Shop.<br><br>
+    <b>Votre Mission :</b><br>
+    Cultivez vos parcelles pour récolter des grains bruts, débloquez des recettes gourmandes (Espresso, Latte, Cappuccino et le fameux Café ToncPlay) et servez vos clients en file d'attente. Automatisez votre affaire en engageant un jardinier et un Maître Barista pour faire tourner le business même pendant votre pause café !<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un jeu de gestion incremental / idle addictif et complet.<br>
+    • Une vraie stratégie commerciale : plantation, préparation et commerce.<br>
+    • Une seule règle d'or : <i>Si le client commande un café... servez-le vite, parce qu'après ça va couper !</i>`,
   },
   {
     img: 'jaquette/deadzonebastion.jpg',
@@ -78,9 +136,17 @@ const GAMES = [
     desc: "Des zombies, du pixel et du tir. Plus simple que d'expliquer à mamie comment vider son cache !",
     link: 'jeux/deadzonebastion/index.html',
     genre: 'Action',
-    tags: ['Zombies', 'Upgrades', 'Pixels'],
+    tags: ['Action', 'Zombies', 'TD'],
     date: '25/01/2026',
     iso: '2026-01-25',
+    descLong: `<b>Le Pitch :</b><br>
+    Seul au milieu d'un désert aride rempli d'autobus rouillés, votre bastion constitue le dernier rempart de l'humanité face aux hordes d'infectés ! Dans ce Tower Defense acharné en pixel art, préparez-vous à essuyer des vagues de zombies de plus en plus agressives.<br><br>
+    <b>Votre Mission :</b><br>
+    Survivez jour après jour en éliminant les envahisseurs. Accumulez des pièces pendant les combats pour améliorer vos compétences en direct (dégâts, portée, tir multiple) ou déchaîner des sorts dévastateurs. Entre deux assauts, passez par le Laboratoire pour débloquer des améliorations permanentes grâce à vos diamants !<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un Tower Defense rétro intense mêlant stratégie en temps réel et progression permanente.<br>
+    • Un arbre de compétences complet : renforcez votre Bastion, votre Santé, votre Économie et vos Sorts.<br>
+    • Une seule règle d'or : <i>Un bon zombie est un zombie qui se prend un tir critique dans le désert... Prenez un chewing-gum et feu à volonté !</i>`,
   },
   {
     img: 'jaquette/neonsnake.png',
@@ -88,9 +154,17 @@ const GAMES = [
     desc: "Le serpent rétro en version néon. On a gardé la seule vraie règle : manger sans se mordre !",
     link: 'jeux/neonsnake/index.html',
     genre: 'Arcade',
-    tags: ['Classique', 'Rétro', 'Néon'],
+    tags: ['Arcade', 'Rétro'],
     date: '06/01/2026',
     iso: '2026-01-06',
+    descLong: `<b>Le Pitch :</b><br>
+    Le grand classique des mobiles des années 90 fait son retour, mais cette fois sous des stroboscopes ! Dans <i>Neon Snake</i>, oubliez les pixels grisâtres : préparez-vous à une décharge visuelle électrisante et rétro-futuriste.<br><br>
+    <b>Votre Mission :</b><br>
+    Guidez votre serpent lumineux à travers la grille, dévorez les orbes d'énergie pour grandir et battez votre propre record. Mais attention : plus vous rallongez, plus l'espace se réduit et la moindre collision avec les murs ou votre propre queue vous sera fatale !<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un gameplay intemporel et ultra-addictif avec un style graphique synthwave / néon.<br>
+    • Des commandes réactives pour des réflexes mis à rude épreuve.<br>
+    • Une seule règle d'or : <i>Si vous commencez à vous mordre la queue... ce n'est pas un concept philosophique, c'est juste la fin de la partie !</i>`,
   },
   {
     img: 'jaquette/leblob.png',
@@ -98,9 +172,19 @@ const GAMES = [
     desc: "Un Blob glissant en quête de flocons d'avoine. Une quête pas très épique, mais nourrissante.",
     link: 'jeux/leblob/index.html',
     genre: 'Plateforme',
-    tags: ['Collecte', 'Aventure', 'Glissant'],
+    tags: ['Plateforme', 'Aventure', 'Glitch'],
     date: '06/08/2025',
     iso: '2025-08-06',
+    descLong: `<b>Le Pitch :</b><br>
+    Incarnez une petite gelée verte particulièrement gourmande dans <i>Le Blob</i> ! Ce jeu de plateforme rétro en pixel art vous met dans la peau d'un organisme unicellulaire en quête permanente de son encas préféré : les flocons d'avoine.<br><br>
+    <b>Votre Mission :</b><br>
+    Traversez les niveaux, sautez de plateforme en plateforme, esquivez les monstres volants et ramassez jusqu'au dernier flocon pour valider votre progression.<br><br>
+    <b>Mode bonus - Le Jump :</b><br>
+    Envie de tester vos réflexes ? Découvrez le mode Jump ! Grimpez le plus haut possible dans un défi vertical où les plateformes disparaissent immédiatement après que vous avez sauté dessus. Pas le temps de réfléchir, il faut foncer !<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Une aventure de plateforme colorée et attachante.<br>
+    • Deux modes de jeu distincts pour varier les plaisirs et les défis.<br>
+    • Une seule règle d'or : <i>Si une plateforme s'effondre sous vos pieds... c'est le moment de sauter, pas de prendre un chewing-gum !</i>`,
   },
   {
     img: 'jaquette/rastajump.png',
@@ -108,9 +192,17 @@ const GAMES = [
     desc: "Un rasta qui saute. Voilà. La vie est parfois une histoire simple.",
     link: 'jeux/rastajump/index.html',
     genre: 'Plateforme',
-    tags: ['Saut', 'Arcade', 'Chill'],
+    tags: ['Plateforme', 'Arcade'],
     date: '15/06/2025',
     iso: '2025-06-15',
+    descLong: `<b>Le Pitch :</b><br>
+    Oubliez le dinosaure gris du navigateur quand internet plante ! Dans <i>Rasta Jump</i>, vous incarnez un rasta lancé dans une course folle à travers le désert, rythmé par le son et les bons vibes.<br><br>
+    <b>Votre Mission :</b><br>
+    Gardez le rythme et enchaînez les sauts au millimètre près ! Esquivez tous les obstacles qui se dressent sur votre route : pieds de weed, feuilles de cannabis traîtresses, enceintes Sound System et cactus isolés. Un faux pas et la musique s'arrête net.<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un runner infini ultra-addictif et nerveux, idéal pour tester vos réflexes.<br>
+    • Une ambiance décalée et colorée inspirée de la culture reggae.<br>
+    • Une seule règle d'or : <i>Restez zen, sautez au bon moment... et souvenez-vous que le réseau n'a pas besoin de couper pour prendre du bon temps !</i>`,
   },
   {
     img: 'jaquette/survivhordes.jpg',
@@ -118,9 +210,17 @@ const GAMES = [
     desc: "« Vous les entendez. Il en vient de partout ! » Des zombies. Beaucoup de zombies. On vous a prévenus.",
     link: 'jeux/survivhordes/index.html',
     genre: 'Survie',
-    tags: ['Roguelike', 'Zombies', 'Vagues'],
+    tags: ['Survie', 'Zombies', 'Roguelite'],
     date: '19/12/2024',
     iso: '2024-12-19',
+    descLong: `<b>Le Pitch :</b><br>
+    L'Outre-Monde n'a jamais été aussi hostile ! Hommage vibrant au mythique jeu de survie de Motion Twin (Hordes), <i>Surviv'Hordes</i> plonge votre citoyen au milieu du désert face à une marée inépuisable de morts-vivants dans un gameplay addictif façon <i>Vampire Survivors</i>.<br><br>
+    <b>Votre Mission :</b><br>
+    Explorez les terres arides, massacrez des vagues de zombies et gagnez de l'expérience pour débloquer et améliorer vos équipements (béquilles, chiens hargneux, objets de chantier). Chaque seconde compte : plus le temps passe, plus la horde se fait nombreuse et affamée !<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Une fusion parfaite entre l'univers culte de Hordes et le genre du roguelite d'action.<br>
+    • Des synergies d'armes et d'objets iconiques pour créer le build de survie ultime.<br>
+    • N'oubliez pas : <i>Dans le désert, personne ne vous entendra crier... Essayez juste de ne pas mourir dès la première minute !</i>`,
   },
   {
     img: 'jaquette/galacticdefender.png',
@@ -128,9 +228,17 @@ const GAMES = [
     desc: "Shoot 'em up explosif ! Si vous aimez les météorites et les boss coriaces, c'est pour vous.",
     link: 'jeux/galacticdefender/index.html',
     genre: 'Action',
-    tags: ["Shoot'em up", 'Espace', 'Boss'],
+    tags: ['Action', "Shoot'em up", 'Espace'],
     date: '21/11/2024',
     iso: '2024-11-21',
+    descLong: `<b>Le Pitch :</b><br>
+    Toute grande histoire a ses débuts, et voici un des premiers projet historique de la plateforme ! Dans <i>Galactic Defender</i>, embarquez pour un Shoot 'em up spatial à l'ancienne, brut de décoffrage et plein de nostalgie.<br><br>
+    <b>Votre Mission :</b><br>
+    Pilotez votre vaisseau au milieu d'un champ d'étoiles, tirez sur tout ce qui bouge et esquivez la flotte ennemie. Pas de fioritures ni de mécaniques complexes : du shoot pur, un compteur de score et trois petites vies pour tenter de survivre.<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • L'expérience authentique (et sans filtre) d'un des tout premiers jeux développés pour le site.<br>
+    • Un gameplay arcade rétro, simple, direct et instantané.<br>
+    • <i>C'est peut-être pas du Star Wars, mais hé... ça tire du laser et ça fait 'piou piou', c'est l'essentiel !</i>`,
   },
   {
     img: 'jaquette/cartongame.png',
@@ -138,9 +246,17 @@ const GAMES = [
     desc: "Cliquez, optimisez, vendez. Devenez le magnat du carton, la matière la plus excitante depuis le papier bulle.",
     link: 'jeux/cartongame/index.html',
     genre: 'Gestion',
-    tags: ['Clicker', 'Idle', 'Business'],
+    tags: ['Gestion', 'Clicker', 'Idle'],
     date: '29/10/2024',
     iso: '2024-10-29',
+    descLong: `<b>Le Pitch :</b><br>
+    Bienvenue dans le monde fascinant, impitoyable et hautement stratégique de l'emballage ! Dans <i>Carton Game</i>, transformez vos clics et votre papier en un véritable empire de la boîte en carton.<br><br>
+    <b>Votre Mission :</b><br>
+    Produisez des cartons à la chaîne, surveillez les cours du marché pour vendre au prix fort et profitez des événements spéciaux pour liquider vos stocks avec des marges indécentes. Investissez vos profits pour automatiser votre production et devenir le baron incontesté du pliage.<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un mélange addictif d'Idle/Clicker et de spéculation boursière cartonnière.<br>
+    • Des événements aléatoires pour pimenter vos ventes au meilleur moment.<br>
+    • Une seule règle d'or : <i>Achetez le papier, vendez le carton, et surtout... gardez-en un sous le coude, au cas où ça va couper !</i>`,
   },
   {
     img: 'jaquette/luminescence.jpg',
@@ -148,9 +264,17 @@ const GAMES = [
     desc: "Notre tout premier jeu. On ramasse des orbes et on évite des obstacles. C'est pas ouf, mais c'est notre bébé.",
     link: 'jeux/luminescence/index.html',
     genre: 'Arcade',
-    tags: ['Collecte', 'Réflexes', 'First'],
+    tags: ['Arcade', 'Collecte', 'Réflexe'],
     date: '28/09/2024',
     iso: '2024-09-28',
+    descLong: `<b>Le Pitch :</b><br>
+    Voici la relique, le Big Bang, la Genèse ! <i>Luminescence</i> est officiellement le tout premier jeu jamais développé pour le projet ToncPlay. Alors oui, c'est moche, c'est sommaire, mais c'est là que tout a commencé !<br><br>
+    <b>Votre Mission :</b><br>
+    Guidez votre orbe lumineuse à travers le vide, récoltez les orbes amicales pour faire grimper votre score, et évitez à tout prix les orbes rouges méchantes et les bords du terrain. Rien de plus, rien de moins.<br><br>
+    <b>Ce qui vous attend :</b><br>
+    • Un morceau d'histoire vidéoludique (à notre échelle) conservé dans son jus original.<br>
+    • Un gameplay d'esquive ultra-épuré pour tester votre précision.<br>
+    • Une seule règle d'or : <i>Soyez indulgents... il faut bien un premier pas avant de décrocher la lune !</i>`,
   },
 ];
 
@@ -176,6 +300,12 @@ const GAMES = [
    • tout le reste     → badge ÉVÉNEMENT (bleu)
    ============================================================ */
 const NEWS = [
+  {
+     img:   'jaquette/suivezleguide.jpg',
+     title: 'Sortie de Suivez le Guide',
+     date:  '27/09/2026',
+     text: `<b>Ils sont mignons, ils sont obéissants... mais ils sont très bêtes.</b><br><br>Découvrez notre nouveau jeu de réflexion rétro ! Vous devez gérer une tribu de petits suicidaires ambulants. Distribuez les rôles : le creuseur, le bâtisseur, le bloqueur. Un seul mauvais choix et c'est la compote collective.<br><br><i>Bref, c'est vous le chef, chef. Ne les laissez pas faire n'importe quoi !</i>`,
+  },
   {
     img: 'jaquette/taxirush.jpg',
     title: 'Sortie de Taxi Rush',

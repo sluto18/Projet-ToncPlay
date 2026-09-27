@@ -60,6 +60,10 @@
     sort:     '<path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>',
     calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
     reset:    '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    image:       '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+    arrowLeft:   '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+    chevronRight:'<path d="m9 18 6-6-6-6"/>',
     dice: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/>',
   };
   const icon = (name, size) =>
@@ -68,8 +72,9 @@
   /* ============================================================
      4. ÉTAT GLOBAL
      ============================================================ */
-  const state = { section: 'accueil', query: '', genre: 'Tous', sort: 'recent', view: 'grid', openNews: 0 };
+  const state = { section: 'accueil', query: '', genre: 'Tous', sort: 'recent', view: 'grid', openNews: 0, detailGame: null, gamesScrollY: 0, skipGamesAnim: false, newsPage: 0 };
   let lastAnimKey = ''; /* mémorise genre|view pour savoir quand relancer le stagger */
+  let lightbox = null; /* état de la visionneuse de screenshots */
 
   const NAV_ITEMS = [
     { id: 'accueil', label: 'Accueil',    icon: 'home'    },
@@ -95,14 +100,15 @@
       const b = document.createElement('button');
       b.type = 'button';
       b.dataset.nav = it.id;
-      b.innerHTML = icon(it.icon, 26) + `<span>${it.label}</span>`;
+      b.innerHTML = icon(it.icon, 16) + `<span>${it.label}</span>`;
       mobile.appendChild(b);
     });
   }
 
   function updateNavStates() {
     $$('[data-nav]').forEach(btn => {
-      const active = btn.dataset.nav === state.section;
+      const activeNav = state.section === 'detail' ? 'jeux' : state.section;
+      const active = btn.dataset.nav === activeNav;
       btn.classList.toggle('active', active);
       if (active) btn.setAttribute('aria-current', 'page');
       else btn.removeAttribute('aria-current');
@@ -140,38 +146,48 @@
     moveNavPill();
 
     /* Relance le stagger des cartes à chaque visite de la page Jeux */
-    if (id === 'jeux') renderGames(true);
+    if (id === 'jeux') renderGames(!state.skipGamesAnim);
+    state.skipGamesAnim = false;
   }
 
-  /* ===== Menu burger mobile ===== */
-  let burgerEl = null, overlayEl = null;
+/* ===== Menu burger mobile (déroulant compact) ===== */
+let burgerEl = null, dropdownEl = null;
 
-  function closeMenu() {
-    if (!burgerEl) return;
-    burgerEl.classList.remove('open');
-    overlayEl.classList.remove('open');
-    burgerEl.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
+function closeMenu() {
+  if (!burgerEl) return;
+  burgerEl.classList.remove('open');
+  dropdownEl.classList.remove('open');
+  burgerEl.setAttribute('aria-expanded', 'false');
+}
 
-  function initMenu() {
-    burgerEl = $('#burger');
-    overlayEl = $('#navOverlay');
+function initMenu() {
+  burgerEl = $('#burger');
+  dropdownEl = $('#navDropdown');
 
-    burgerEl.addEventListener('click', () => {
-      if (overlayEl.classList.contains('open')) {
-        closeMenu();
-      } else {
-        burgerEl.classList.add('open');
-        overlayEl.classList.add('open');
-        burgerEl.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
-      }
-    });
+  burgerEl.addEventListener('click', e => {
+    e.stopPropagation(); /* ce clic ne doit pas être vu comme un clic « extérieur » */
+    if (dropdownEl.classList.contains('open')) {
+      closeMenu();
+    } else {
+      burgerEl.classList.add('open');
+      dropdownEl.classList.add('open');
+      burgerEl.setAttribute('aria-expanded', 'true');
+    }
+  });
 
-    overlayEl.addEventListener('click', e => { if (!e.target.closest('button')) closeMenu(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
-  }
+  /* Ferme le menu si on clique ailleurs sur la page */
+  document.addEventListener('click', e => {
+    if (!dropdownEl.classList.contains('open')) return;
+    if (e.target.closest('#burger') || e.target.closest('#navDropdown')) return;
+    closeMenu();
+  });
+
+  /* Échap ferme le menu */
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+  /* Passage en desktop (redimensionnement) : referme le menu resté ouvert */
+  window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
+}
 
   /* ============================================================
      6. HÉROS — tilt 3D de l'image
@@ -206,7 +222,7 @@
 
     /* ----- Vue liste ----- */
     if (state.view === 'list') {
-      return `<article class="game-card row spot-card${reveal}" style="${delay}">
+      return `<article class="game-card row spot-card${reveal}" style="${delay}" data-game="${g.title}" role="button" tabindex="0" aria-label="Voir la fiche de ${g.title}">
         <div class="cover-list"><img src="${g.img}" alt="${g.title}" loading="lazy" decoding="async"></div>
         <div class="card-main">
           <div class="title-row"><h3>${g.title}</h3>${genreBadgeHTML(g.genre, true)}</div>
@@ -218,7 +234,7 @@
     }
 
     /* ----- Vue grille ----- */
-    return `<article class="game-card spot-card${reveal}" style="${delay}">
+    return `<article class="game-card spot-card${reveal}" style="${delay}" data-game="${g.title}" role="button" tabindex="0" aria-label="Voir la fiche de ${g.title}">
       <div class="cover">
         <img src="${g.img}" alt="${g.title}" loading="lazy" decoding="async">
         <span class="cover-shade"></span>
@@ -368,6 +384,20 @@
     results.addEventListener('animationend', e => {
       if (e.animationName === 'revealUp') e.target.classList.add('done');
     });
+        /* Clic sur une carte → fiche du jeu (le bouton « Jouer » garde son comportement) */
+    results.addEventListener('click', e => {
+      if (e.target.closest('a')) return; /* lien Jouer : le lien fait son travail */
+      const card = e.target.closest('.game-card');
+      if (card) openGameDetail(card.dataset.game);
+    });
+
+    /* Clavier : Entrée / Espace sur une carte → fiche du jeu */
+    results.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.target.closest('a')) return;
+      const card = e.target.closest('.game-card');
+      if (card) { e.preventDefault(); openGameDetail(card.dataset.game); }
+    });
   }
 
   /* ===== Jeu aléatoire ===== */
@@ -383,63 +413,289 @@ function initRandomGame() {
   });
 }
 
-  /* ============================================================
-     8. PAGE ACTUALITÉS
-     ============================================================ */
-  function renderNews() {
-    $('#newsList').innerHTML = NEWS.map((n, i) => {
-      const b = getNewsBadge(n.title);
-      const open = state.openNews === i;
-      return `<article class="news-card reveal${open ? ' open' : ''}" style="animation-delay:${Math.min(i, 8) * 0.05}s">
-        <div class="news-head" role="button" tabindex="0" data-news="${i}" aria-expanded="${open}">
-          <span class="news-thumb"><img src="${n.img}" alt="" loading="lazy" decoding="async"></span>
-          <span class="news-meta">
-            <span class="news-title-row">
-              <span class="news-badge" style="color:${b.color};background:${b.bg};border-color:${b.border}">${b.label}</span>
-              <h3>${n.title}</h3>
-            </span>
-            <span class="news-date">${icon('calendar', 11)}${n.date}</span>
+/* ============================================================
+   PAGE FICHE JEU
+   ============================================================ */
+function openGameDetail(title) {
+  const g = GAMES.find(x => x.title === title);
+  if (!g) return;
+
+  /* Mémorise la position de scroll de la grille pour le retour */
+  if (state.section === 'jeux') state.gamesScrollY = window.scrollY;
+
+  state.section = 'detail';
+  state.detailGame = title;
+  renderDetail(g);
+
+  $$('.page').forEach(p => { p.hidden = p.id !== 'page-detail'; });
+  const page = $('#page-detail');
+  page.classList.remove('section-anim');
+  void page.offsetWidth;
+  page.classList.add('section-anim');
+
+  window.scrollTo(0, 0);
+  updateNavStates();
+}
+
+function closeDetail() {
+  state.skipGamesAnim = true;              /* pas d'animation au retour */
+  switchSection('jeux');
+  window.scrollTo(0, state.gamesScrollY);  /* restaure la position dans la grille */
+}
+
+function renderDetail(g) {
+  const s = genreStyle(g.genre);
+  const screens = (g.screens && g.screens.length) ? g.screens : null;
+  state.detailScreens = screens;
+  const desc = g.descLong || g.desc;
+
+  /* News liées : le titre de la news mentionne le titre du jeu */
+  const relatedNews = NEWS.map((n, i) => ({ n, i }))
+    .filter(o => norm(o.n.title).includes(norm(g.title)));
+
+  /* Galerie : screenshots ou placeholder */
+  const shotsHTML = screens
+    ? `<div class="shots">${screens.map((src, i) =>
+        `<button type="button" class="shot" data-shot="${i}" aria-label="Agrandir la capture ${i + 1}">
+           <img src="${src}" alt="Capture d'écran ${i + 1} de ${g.title}" loading="lazy">
+         </button>`).join('')}</div>`
+    : `<div class="shots-empty">
+         <div class="shots-empty-icon">${icon('image', 24)}</div>
+         <p class="shots-empty-title">Screenshots bientôt disponibles</p>
+         <p class="shots-empty-sub">Les rushs sont encore au montage. Revenez vite, ça va clignoter.</p>
+       </div>`;
+
+  /* Journal du jeu (section masquée si aucune news liée) */
+  const journalHTML = relatedNews.length ? `
+    <section class="detail-section">
+      <p class="detail-kicker">// Journal du jeu</p>
+      <h3>Ça s'est passé ici</h3>
+      <div class="journal-list">
+        ${relatedNews.map(({ n, i }) => {
+          const b = getNewsBadge(n.title);
+          return `<button type="button" class="journal-item" data-open-news="${i}">
+            <span class="news-badge" style="color:${b.color};background:${b.bg};border-color:${b.border}">${b.label}</span>
+            <span class="journal-date">${n.date}</span>
+            <span class="journal-title">${n.title}</span>
+            <span class="journal-arrow">${icon('chevronRight', 14)}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </section>` : '';
+
+  $('#detailContent').innerHTML = `
+    <button type="button" class="btn-back" data-action="back">${icon('arrowLeft', 14)}<span>Retour</span></button>
+
+    <div class="detail-hero">
+      <div class="detail-cover">
+        <img src="${g.img}" alt="${g.title}">
+        <span class="genre-badge" style="color:${s.color};background:${s.bg};border-color:${s.border}">${g.genre}</span>
+      </div>
+      <div class="detail-info">
+        <h2>${g.title}</h2>
+        <p class="detail-release">Sorti le <b>${g.date}</b> · Gratuit · Jouable dans le navigateur</p>
+        <div class="tags">${(g.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+        <a href="${g.link}" class="btn-play btn-play-big">${icon('play', 15)}<span>Jouer maintenant</span></a>
+      </div>
+    </div>
+
+    <section class="detail-section">
+      <p class="detail-kicker">// À propos</p>
+      <h3>Le concept</h3>
+      <p class="detail-desc">${desc}</p>
+    </section>
+
+    <section class="detail-section">
+      <p class="detail-kicker">// Galerie</p>
+      <h3>Screenshots</h3>
+      ${shotsHTML}
+    </section>
+
+    ${journalHTML}
+
+    <div class="detail-actions">
+      <button type="button" class="btn-back" data-action="back">${icon('arrowLeft', 14)}<span>Retour aux jeux</span></button>
+      <a href="${g.link}" class="btn-play btn-play-big">${icon('play', 15)}<span>Jouer à ${g.title}</span></a>
+    </div>
+  `;
+}
+
+/* Ouvre la page Actualités, sur la bonne page, directement dépliée sur la news choisie */
+function goToNews(idx) {
+  state.newsPage = Math.floor(idx / NEWS_PER_PAGE); /* bascule sur la page qui contient la news */
+  switchSection('actus');
+  renderNews();
+  if (state.openNews !== idx) toggleNews(idx);
+  const card = $(`.news-card[data-news="${idx}"]`, $('#newsList'));
+  if (card) requestAnimationFrame(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+}
+
+/* ===== Visionneuse de screenshots (lightbox) ===== */
+function openLightbox(screens, idx) {
+  closeLightbox();
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = `
+    <button type="button" class="lb-btn lb-close" aria-label="Fermer">${icon('x', 18)}</button>
+    <button type="button" class="lb-btn lb-prev" aria-label="Capture précédente">${icon('chevronLeft', 16)}</button>
+    <img src="${screens[idx]}" alt="Capture d'écran agrandie">
+    <button type="button" class="lb-btn lb-next" aria-label="Capture suivante">${icon('chevronRight', 16)}</button>
+    <span class="lb-count"></span>`;
+  document.body.appendChild(lb);
+  document.body.style.overflow = 'hidden';
+  lightbox = { screens, idx, lb };
+
+  const show = () => {
+    $('img', lb).src = lightbox.screens[lightbox.idx];
+    $('.lb-count', lb).textContent = (lightbox.idx + 1) + ' / ' + lightbox.screens.length;
+    const multi = lightbox.screens.length > 1;
+    $('.lb-prev', lb).hidden = !multi;
+    $('.lb-next', lb).hidden = !multi;
+  };
+  lightbox.show = show;
+  show();
+
+  lb.addEventListener('click', e => {
+    if (e.target.closest('.lb-close')) { closeLightbox(); return; }
+    if (e.target.closest('.lb-prev'))  { lightbox.idx = (lightbox.idx - 1 + lightbox.screens.length) % lightbox.screens.length; show(); return; }
+    if (e.target.closest('.lb-next'))  { lightbox.idx = (lightbox.idx + 1) % lightbox.screens.length; show(); return; }
+    if (!e.target.closest('img')) closeLightbox(); /* clic sur le fond */
+  });
+}
+
+function closeLightbox() {
+  if (!lightbox) return;
+  lightbox.lb.remove();
+  lightbox = null;
+  document.body.style.overflow = '';
+}
+
+function initDetailEvents() {
+  const page = $('#page-detail');
+
+  /* Clics dans la fiche (délégation) */
+  page.addEventListener('click', e => {
+    if (e.target.closest('[data-action="back"]')) { closeDetail(); return; }
+    if (e.target.closest('[data-open-news]'))     { goToNews(parseInt(e.target.closest('[data-open-news]').dataset.openNews, 10)); return; }
+    const shot = e.target.closest('.shot');
+    if (shot && state.detailScreens) openLightbox(state.detailScreens, parseInt(shot.dataset.shot, 10));
+  });
+
+  /* Clavier de la visionneuse : Échap ferme, flèches naviguent */
+  document.addEventListener('keydown', e => {
+    if (!lightbox) return;
+    if (e.key === 'Escape')          { closeLightbox(); }
+    else if (e.key === 'ArrowLeft')  { lightbox.idx = (lightbox.idx - 1 + lightbox.screens.length) % lightbox.screens.length; lightbox.show(); }
+    else if (e.key === 'ArrowRight') { lightbox.idx = (lightbox.idx + 1) % lightbox.screens.length; lightbox.show(); }
+  });
+}
+
+/* ============================================================
+   PAGE ACTUALITÉS (paginée : 10 news par page)
+   ============================================================ */
+const NEWS_PER_PAGE = 10;
+
+/* Numéros de pages à afficher : [1, …, 4, 5, 6, …, 9] si beaucoup de pages */
+function pageNumbers(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  if (start > 2) pages.push('…');
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push('…');
+  pages.push(total);
+  return pages;
+}
+
+function renderNews() {
+  const totalPages = Math.max(1, Math.ceil(NEWS.length / NEWS_PER_PAGE));
+  if (state.newsPage > totalPages - 1) state.newsPage = 0; /* news supprimées : retour page 1 */
+  const start = state.newsPage * NEWS_PER_PAGE;
+  const slice = NEWS.slice(start, start + NEWS_PER_PAGE);
+
+  /* data-news porte l'index GLOBAL (utilisé par le journal des fiches jeu) */
+  $('#newsList').innerHTML = slice.map((n, k) => {
+    const i = start + k;
+    const b = getNewsBadge(n.title);
+    const open = state.openNews === i;
+    return `<article class="news-card reveal${open ? ' open' : ''}" style="animation-delay:${Math.min(k, 8) * 0.05}s" data-news="${i}">
+      <div class="news-head" role="button" tabindex="0" aria-expanded="${open}">
+        <span class="news-thumb"><img src="${n.img}" alt="" loading="lazy" decoding="async"></span>
+        <span class="news-meta">
+          <span class="news-title-row">
+            <span class="news-badge" style="color:${b.color};background:${b.bg};border-color:${b.border}">${b.label}</span>
+            <h3>${n.title}</h3>
           </span>
-          <span class="news-toggle">${icon('chevron', 15)}</span>
+          <span class="news-date">${icon('calendar', 11)}${n.date}</span>
+        </span>
+        <span class="news-toggle">${icon('chevron', 15)}</span>
+      </div>
+      <div class="acc-body${open ? ' open' : ''}">
+        <div class="acc-inner">
+          <div class="news-rich">${n.text}</div>
         </div>
-        <div class="acc-body${open ? ' open' : ''}">
-          <div class="acc-inner">
-            <div class="news-rich">${n.text}</div>
-          </div>
-        </div>
-      </article>`;
-    }).join('');
-  }
+      </div>
+    </article>`;
+  }).join('');
 
-  function toggleNews(i) {
-    state.openNews = state.openNews === i ? -1 : i;
-    $$('.news-card', $('#newsList')).forEach((card, idx) => {
-      const open = idx === state.openNews;
-      card.classList.toggle('open', open);
-      $('.acc-body', card).classList.toggle('open', open);
-      $('.news-head', card).setAttribute('aria-expanded', open);
-    });
-  }
+  /* Pagination (masquée s'il n'y a qu'une seule page) */
+  const pag = $('#newsPagination');
+  if (totalPages <= 1) { pag.hidden = true; pag.innerHTML = ''; return; }
+  pag.hidden = false;
+  const cur = state.newsPage + 1;
+  let html = `<button type="button" class="page-btn" data-page="${state.newsPage - 1}"${state.newsPage === 0 ? ' disabled' : ''} aria-label="Page précédente">${icon('chevronLeft', 14)}</button>`;
+  pageNumbers(state.newsPage, totalPages).forEach(p => {
+    if (p === '…') html += `<span class="page-ellipsis">…</span>`;
+    else html += `<button type="button" class="page-btn${p === cur ? ' active' : ''}" data-page="${p - 1}"${p === cur ? ' aria-current="page"' : ''}>${p}</button>`;
+  });
+  html += `<button type="button" class="page-btn" data-page="${state.newsPage + 1}"${state.newsPage === totalPages - 1 ? ' disabled' : ''} aria-label="Page suivante">${icon('chevronRight', 14)}</button>`;
+  pag.innerHTML = html;
+}
 
-  function initNewsEvents() {
-    const list = $('#newsList');
+function toggleNews(i) {
+  state.openNews = state.openNews === i ? -1 : i;
+  $$('.news-card', $('#newsList')).forEach(card => {
+    const open = parseInt(card.dataset.news, 10) === state.openNews;
+    card.classList.toggle('open', open);
+    $('.acc-body', card).classList.toggle('open', open);
+    $('.news-head', card).setAttribute('aria-expanded', open);
+  });
+}
 
-    list.addEventListener('click', e => {
-      const head = e.target.closest('.news-head');
-      if (head) toggleNews(parseInt(head.dataset.news, 10));
-    });
+function initNewsEvents() {
+  const list = $('#newsList');
 
-    /* Support clavier (Enter / Espace) */
-    list.addEventListener('keydown', e => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const head = e.target.closest('.news-head');
-      if (head) { e.preventDefault(); head.click(); }
-    });
+  list.addEventListener('click', e => {
+    const head = e.target.closest('.news-head');
+    if (head) toggleNews(parseInt(head.closest('.news-card').dataset.news, 10));
+  });
 
-    list.addEventListener('animationend', e => {
-      if (e.animationName === 'revealUp') e.target.classList.add('done');
-    });
-  }
+  list.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const head = e.target.closest('.news-head');
+    if (head) { e.preventDefault(); head.click(); }
+  });
+
+  list.addEventListener('animationend', e => {
+    if (e.animationName === 'revealUp') e.target.classList.add('done');
+  });
+
+  /* ===== Pagination ===== */
+  $('#newsPagination').addEventListener('click', e => {
+    const btn = e.target.closest('.page-btn');
+    if (!btn || btn.disabled) return;
+    const p = parseInt(btn.dataset.page, 10);
+    const totalPages = Math.ceil(NEWS.length / NEWS_PER_PAGE);
+    if (p < 0 || p >= totalPages || p === state.newsPage) return;
+    state.newsPage = p;
+    state.openNews = -1; /* on referme la news ouverte en changeant de page */
+    renderNews();
+    /* Remonte au début de la liste, sous le header fixe */
+    const y = $('#newsList').getBoundingClientRect().top + window.scrollY - 90;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  });
+}
 
   /* ============================================================
      9. RACCOURCIS CLAVIER
@@ -481,6 +737,7 @@ function initRandomGame() {
     initGamesEvents();
     initRandomGame();
     initNewsEvents();
+    initDetailEvents();
     initShortcuts();
 
     $('#gamesCount').textContent =
