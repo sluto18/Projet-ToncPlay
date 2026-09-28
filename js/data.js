@@ -1,6 +1,36 @@
 /* ============================================================
    PROJET TONCPLAY — DONNÉES (jeux & actualités)
    ------------------------------------------------------------
+   C'EST LE SEUL FICHIER À ÉDITER pour ajouter du contenu.
+   Le site se met à jour tout seul : filtres, compteurs,
+   recherche, dates… rien d'autre à toucher.
+
+   Sommaire :
+   1. GAMES ........ la liste des jeux
+   2. NEWS ......... la liste des actualités
+   3. GENRE_ORDER .. l'ordre des boutons de filtre
+   4. GENRE_STYLES . la couleur du badge de chaque genre
+   ============================================================ */
+
+
+/* ============================================================
+   1. JEUX
+   ------------------------------------------------------------
+   Pour ajouter un jeu, copiez le bloc ci-dessous et collez-le
+   dans la liste GAMES (en haut pour qu'il apparaisse en premier
+   avec le tri « Plus récents ») :
+
+   {
+     img:   'jaquette/monjeu.png',              // jaquette du jeu
+     title: 'Mon Jeu',                           // titre affiché
+     desc:  'Une description courte et drôle.',  // description
+     link:  'jeux/monjeu/index.html',            // lien vers le jeu
+     genre: 'Arcade',                            // UN genre de GENRE_ORDER (point 3)
+     tags:  ['Tag1', 'Tag2', 'Tag3'],            // 2-3 tags de style (#affichés comme ceci)
+     date:  '31/12/2026',                        // date de sortie (affichée sur la carte)
+     iso:   '2026-12-31',                        // MÊME date au format AAAA-MM-JJ (sert au tri)
+   },
+   ============================================================ */
 const GAMES = [
   {
      img:   'jaquette/suivezleguide.jpg',
@@ -270,12 +300,12 @@ const GAMES = [
    • tout le reste     → badge ÉVÉNEMENT (bleu)
    ============================================================ */
 const NEWS = [
-   {
-       img:   'jaquette/neonsnake.png',
-       title: 'Mise à jour Neon Snake : Visuels flashy & IA barjot !',
-       date:  '28/09/2026',
-       text:  'Sortez les lunettes de soleil, <b>Neon Snake</b> fait sa mue !<br><br>Au programme : une <b>refonte graphique</b> avec des néons encore plus éclatants, et de <b>nouveaux challenges</b> dont un duel hilarant contre notre toute nouvelle IA complètement imprévisible.<br><br>Venez tester vos réflexes !',
-   },
+  {
+    img:   'jaquette/neonsnake.png',
+    title: 'Mise à jour Neon Snake : Visuels flashy & IA barjot !',
+    date:  '28/09/2026',
+    text:  'Sortez les lunettes de soleil, <b>Neon Snake</b> fait sa mue !<br><br>Au programme : une <b>refonte graphique</b> avec des néons encore plus éclatants, et de <b>nouveaux challenges</b> dont un duel hilarant contre notre toute nouvelle IA complètement imprévisible.<br><br>Venez tester vos réflexes !',
+  },
   {
      img:   'jaquette/suivezleguide.jpg',
      title: 'Sortie de Suivez le Guide',
@@ -460,6 +490,19 @@ const NEWS = [
    ============================================================ */
 const GENRE_ORDER = ['Action', 'Arcade', 'Réflexion', 'Plateforme', 'Gestion', 'Survie'];
 
+
+/* ============================================================
+   4. GENRE_STYLES — couleur du badge de chaque genre
+   ------------------------------------------------------------
+   Pour créer un nouveau genre :
+   1. Ajoutez son nom dans GENRE_ORDER (ci-dessus).
+   2. Ajoutez ses couleurs ici (color = texte, bg = fond,
+      border = bordure — utilisez des valeurs rgba semi-
+      transparentes pour rester dans l'esprit du design).
+   Note : un jeu déclaré avec un genre inconnu de cette liste
+   est toléré : il apparaîtra automatiquement en fin de filtres
+   avec la couleur accent par défaut.
+   ============================================================ */
 const GENRE_STYLES = {
   'Action':     { color: '#ff7a6b', bg: 'rgba(255,122,107,.1)',  border: 'rgba(255,122,107,.32)' },
   'Arcade':     { color: '#ffd166', bg: 'rgba(255,209,102,.09)', border: 'rgba(255,209,102,.3)'  },
