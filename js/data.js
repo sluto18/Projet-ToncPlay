@@ -300,6 +300,12 @@ const GAMES = [
    • tout le reste     → badge ÉVÉNEMENT (bleu)
    ============================================================ */
 const NEWS = [
+   {
+       img:   'jaquette/neonsnake.png',
+       title: 'Mise à jour Neon Snake : Visuels flashy & IA barjot !',
+       date:  '28/09/2026',
+       text:  'Sortez les lunettes de soleil, <b>Neon Snake</b> fait sa mue !<br><br>Au programme : une <b>refonte graphique</b> avec des néons encore plus éclatants, et de <b>nouveaux challenges</b> dont un duel hilarant contre notre toute nouvelle IA complètement imprévisible.<br><br>Venez tester vos réflexes !',
+   },
   {
      img:   'jaquette/suivezleguide.jpg',
      title: 'Sortie de Suivez le Guide',
