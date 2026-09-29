@@ -1,0 +1,586 @@
+/* ==========================================================================
+     Masse Critique - feuille de style
+   ========================================================================== */
+
+:root {
+  --bg:      #04060c;
+  --screen:  #060a13;
+  --ink:     #e8f0f6;
+  --dim:     #5c6f85;
+  --line:    #1b2a3d;
+  --cyan:    #6fe3f2;
+  --gold:    #ffd94a;
+  --danger:  #ff6b4a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Press Start 2P', monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 16px 12px;
+  -webkit-font-smoothing: none;
+}
+
+/* ---------- Cabine ---------- */
+.cab {
+  width: min(94vw, 500px, calc(100vh - 225px));
+  width: min(94vw, 500px, calc(100dvh - 225px));
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: auto;   /* sticky footer : centre la cabine, pousse le copyright en bas */
+}
+
+/* En menu : HUD et aide masqués (la place reste réservée, rien ne saute) */
+.cab.menu .hud, .cab.menu .help, .cab.menu .gamebar { visibility: hidden; }
+.cab.home .gamebar, .cab.home .hud { display: none; }   /* accueil : ni cadre ni bandeaux */
+
+/* Sur l'accueil : en plus, le cadre de jeu et les scanlines disparaissent */
+.cab.home .screen { border-color: transparent; box-shadow: none; }
+.cab.home .scanlines { opacity: 0; }
+
+/* Bandeaux VIES / SAC autour du canvas */
+.gamebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 26px;
+  padding: 4px 8px;
+  background: #070d16;
+}
+.gamebar-top    { border-bottom: 1px solid var(--line); }
+.gamebar-bottom { border-top: 1px solid var(--line); }
+
+.gamebar-label { font-size: 7px; color: var(--dim); letter-spacing: 1px; }
+
+.lives-row, .bag-row { display: flex; align-items: center; gap: 7px; }
+.lives-icons { display: flex; gap: 4px; }
+.lives-icons img { width: 16px; height: 16px; display: block; image-rendering: pixelated; }
+
+.bag-squares { display: flex; gap: 2px; }
+.bag-square {
+  width: 7px; height: 7px;
+  background: #152234;
+  border: 1px solid #22344e;
+}
+.bag-square.full { background: var(--cyan); border-color: var(--cyan); }
+.bag-count { font-size: 7px; color: var(--gold); }
+
+/* Joystick flottant tactile */
+.joy {
+  position: absolute;
+  z-index: 4;
+  width: 110px; height: 110px;
+  margin: -55px 0 0 -55px;   /* centré sur le doigt */
+  pointer-events: none;      /* le pad n'intercepte rien : c'est l'écran qui écoute */
+  touch-action: none;
+}
+.joy.hidden { display: none; }
+
+.joy-base {
+  position: absolute; inset: 0;
+  border: 2px solid rgba(111, 227, 242, .4);
+  border-radius: 50%;
+  background: rgba(7, 12, 21, .35);
+  box-sizing: border-box;
+}
+.joy-stick {
+  position: absolute;
+  width: 44px; height: 44px;
+  left: 33px; top: 33px;     /* centré (110-44)/2 */
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  background: rgba(111, 227, 242, .35);
+  box-sizing: border-box;
+}
+
+/* ---------- HUD ---------- */
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+  padding: 8px 10px;
+  background: #070d16;
+}
+
+/* HUD détaché (challenges) : encadré autonome pleine largeur */
+.cab > .hud { border: 1px solid var(--line); }
+
+/* HUD intégré (classique) : collé à la barre VIES, largeur du canvas */
+.screen > .hud { border-bottom: 1px solid var(--line); }
+
+.hud-cell { display: flex; align-items: center; gap: 7px; }
+.hud-mid   { justify-content: center; }
+.hud-right { justify-content: flex-end; }
+
+.hud-label { font-size: 7px; color: var(--dim); letter-spacing: 1px; }
+.hud-value { font-size: 14px; color: var(--ink); }
+.hud-value.best { color: var(--gold); }
+.hud-value.time { font-size: 12px; color: #9db4c9; }
+
+.hud-value.punch { animation: punch .18s steps(3, end); }
+@keyframes punch {
+  0%   { transform: scale(1.3); color: var(--gold); }
+  100% { transform: scale(1); }
+}
+
+.combo {
+  display: flex; flex-direction: row; align-items: center; gap: 8px;
+  font-size: 9px; color: var(--gold);
+}
+.combo-bar { width: 56px; height: 5px; border: 1px solid #2a3a52; background: #0a1220; }
+.combo-bar i { display: block; height: 100%; background: var(--gold); }
+.combo.hidden { visibility: hidden; }
+
+/* ---------- Écran ---------- */
+
+.screen {
+  position: relative;
+  border: 3px solid var(--line);
+  box-shadow: 0 0 0 3px #070d16, inset 0 0 0 1px rgba(111, 227, 242, .08);
+  background: var(--screen);
+  touch-action: none;
+  width: -moz-fit-content;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+canvas#game {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 72vh;
+  max-height: 72dvh;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.scanlines {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-repeat: repeat;
+  opacity: .55;
+  transition: opacity .2s ease;
+}
+
+/* ---------- Petits boutons en jeu (icônes) ---------- */
+
+/* Icône déchargement : vaisseau + badge du nombre d'appels */
+.unload-btn {
+  position: relative;   /* ancre du badge */
+  flex: none;
+  width: 22px; height: 22px;
+  padding: 0;
+  background: rgba(7, 12, 21, .85) center / 16px 16px no-repeat;
+  border: 1px solid var(--cyan);
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+.unload-btn:hover:not(:disabled) { border-color: var(--gold); }
+.unload-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.unload-badge {
+  position: absolute;
+  right: -6px; bottom: -6px;
+  font-size: 6px; line-height: 1;
+  color: #131018;
+  background: var(--gold);
+  border: 1px solid #8a6a14;
+  padding: 1px 2px;
+  min-width: 8px;
+  text-align: center;
+}
+
+/* Icône options (engrenage), dans le pied de page */
+.gameopt-btn {
+  width: 22px; height: 22px;
+  padding: 0;
+  flex: none;
+  background: rgba(7, 12, 21, .9) center / 18px 18px no-repeat;
+  border: 2px solid #2a3a52;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+.gameopt-btn:hover { border-color: var(--cyan); }
+
+.unload-btn.hidden, .gameopt-btn.hidden { display: none; }
+
+/* ---------- Pages de menu ---------- */
+
+.page {
+  position: absolute; inset: 0; z-index: 5;
+  background: rgba(4, 7, 13, .88);
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 18px 14px 14px;
+  overflow-y: auto;
+}
+.page.hidden { display: none; }
+
+/* L'accueil laisse voir le fond animé du jeu (étoiles + débris) */
+#page-title { background: rgba(4, 7, 13, .45); }
+
+.page-title { font-size: 13px; color: var(--ink); text-align: center; letter-spacing: 1px; }
+.page-sub { font-size: 6px; color: var(--dim); text-align: center; letter-spacing: 1px; }
+
+/* Pièces */
+.coins-line { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 10px; color: var(--gold); }
+.coin {
+  width: 12px; height: 12px; flex: none; border-radius: 50%;
+  background: var(--gold); border: 2px solid #8a6a14;
+  box-shadow: inset -2px -2px 0 #c9982a;
+}
+.coins-unit { font-size: 6px; color: var(--dim); }
+
+/* ---------- Accueil ---------- */
+
+.home-center {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+/* Titre du jeu (image) */
+.game-title {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.game-title-img {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  margin: 0 auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .5));
+  animation: titleIn .5s steps(6, end);
+}
+@keyframes titleIn { from { opacity: 0; transform: translateY(-10px); } }
+
+/* Boutons */
+.menu-btn {
+  font-family: inherit;
+  letter-spacing: 1px;
+  color: var(--ink);
+  background: #0b1320;
+  border: 2px solid #2a3a52;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .45);
+}
+.menu-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.menu-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,.45); }
+.menu-btn:focus-visible, .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+/* JOUER : carré, plus petit */
+.menu-primary {
+  position: relative;      /* permet le z-index */
+  z-index: 1;              /* le bouton passe devant les robots */
+  width: 96px; height: 96px;
+  font-size: 13px;
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.menu-primary:hover { background: var(--gold); color: #131018; }
+
+/* Les autres : colonne dessous */
+.menu-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 250px;
+}
+.menu-cell { padding: 12px 4px; font-size: 8px; }
+
+/* Petits robots au survol de JOUER (images injectées par JS) */
+.play-wrap { position: relative; }
+
+.bot {
+  position: absolute;
+  width: 40px; height: 40px;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  transition: transform .16s steps(3, end);
+}
+/* Au repos : cachés DERRIÈRE le bouton (96x96) */
+.bot-left  { left: -54px;  top: 50%;  margin-top: -20px;   background-image: var(--bot-left);  transform: translateX(54px); }
+.bot-right { right: -54px; top: 50%;  margin-top: -20px;   background-image: var(--bot-right); transform: translateX(-54px); }
+.bot-top   { left: 50%;    top: -52px; margin-left: -20px;  background-image: var(--bot-top);  transform: translateY(52px); }
+
+/* Au survol : ils sortent de derrière le bouton */
+.play-wrap:hover .bot {
+  animation: botBob .5s steps(2, end) infinite alternate;
+}
+.play-wrap:hover .bot-left,
+.play-wrap:hover .bot-right { transform: translateX(0); }
+.play-wrap:hover .bot-top   { transform: translateY(0); }
+
+@keyframes botBob {
+  from { background-position: 0 0; }
+  to   { background-position: 0 3px; }
+}
+
+/* ---------- Listes scrollables ---------- */
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-right: 4px;
+  min-height: 0;
+}
+.list::-webkit-scrollbar { width: 6px; }
+.list::-webkit-scrollbar-thumb { background: var(--line); }
+
+.card {
+  border: 2px solid var(--line);
+  background: rgba(11, 19, 32, .92);
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.card-name { font-size: 8px; color: var(--ink); }
+.card-rec  { font-size: 7px; color: var(--gold); flex: none; }
+.card-desc { font-size: 6px; color: var(--dim); line-height: 1.9; }
+.card-btn  { align-self: flex-end; }
+
+/* Boutique */
+.shop-section {
+  font-size: 7px; color: var(--cyan); letter-spacing: 2px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 4px; margin-top: 2px;
+}
+.shop-item {
+  display: flex; gap: 10px; align-items: center;
+  border: 2px solid var(--line);
+  background: rgba(11, 19, 32, .92);
+  padding: 8px;
+}
+.shop-img {
+  width: 48px; height: 48px; flex: none;
+  image-rendering: pixelated;
+  background: #060a13;
+  border: 1px solid var(--line);
+}
+.shop-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.shop-name { font-size: 8px; color: var(--ink); }
+.shop-desc { font-size: 6px; color: var(--dim); line-height: 1.8; }
+
+/* Succès */
+.achv-item {
+  display: flex; gap: 10px; align-items: center;
+  border: 2px solid var(--line);
+  background: rgba(11, 19, 32, .92);
+  padding: 8px;
+}
+.achv-item.unlocked { border-color: #8a6a14; }
+.achv-item.locked { opacity: .45; }
+.achv-img {
+  width: 32px; height: 32px; flex: none;
+  image-rendering: pixelated;
+  background: #060a13;
+  border: 1px solid var(--line);
+}
+.achv-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.achv-name { font-size: 8px; color: var(--ink); }
+.achv-desc { font-size: 6px; color: var(--dim); line-height: 1.8; }
+.achv-check { font-size: 8px; color: var(--gold); flex: none; }
+
+/* Options */
+.opt-group { display: flex; flex-direction: column; gap: 14px; }
+.opt-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 8px; }
+input[type="range"] { width: 150px; accent-color: var(--gold); }
+
+.help-box {
+  border: 2px solid var(--line);
+  background: rgba(11, 19, 32, .92);
+  padding: 10px;
+  font-size: 6px; color: #9db4c9; line-height: 2.1;
+  display: flex; flex-direction: column; gap: 8px;
+  text-align: left;
+}
+.help-box.hidden { display: none; }
+
+/* ---------- Boutons génériques ---------- */
+
+.btn {
+  font-family: inherit;
+  font-size: 10px; letter-spacing: 1px;
+  color: var(--gold);
+  background: #0b1320;
+  border: 2px solid var(--gold);
+  padding: 12px 18px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .45);
+}
+.btn:hover  { background: var(--gold); color: #131018; }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,.45); }
+.btn[disabled] { opacity: .35; cursor: not-allowed; }
+.btn[disabled]:hover { background: #0b1320; color: var(--gold); }
+
+.btn-sm    { font-size: 7px; padding: 8px 10px; }
+.btn-back  { align-self: center; font-size: 8px; padding: 10px 22px; }
+.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover, .btn-danger.armed { background: var(--danger); color: #131018; }
+.btn.equipped { border-color: var(--cyan); color: var(--cyan); cursor: default; }
+.btn.equipped:hover { background: #0b1320; }
+
+/* ---------- Overlays pause / options / fin ---------- */
+
+.overlay {
+  position: absolute; inset: 0; z-index: 6;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 6%;
+  background: rgba(4, 7, 13, .55);
+  animation: fadeIn .25s ease-out;
+}
+.overlay.hidden { display: none; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.panel {
+  background: rgba(7, 12, 21, .96);
+  border: 2px solid var(--line);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, .4);
+  padding: 18px 14px;
+  text-align: center;
+  max-width: 100%;
+  display: flex; flex-direction: column; gap: 14px;
+  align-items: center;
+}
+.panel-small { padding: 16px 24px; }
+
+.pause-title { font-size: 14px; color: var(--cyan); margin-bottom: 2px; }
+
+.over-title { font-size: 17px; color: var(--danger); margin-bottom: 10px; }
+.over-title.success { color: var(--cyan); }
+.over-sub { font-size: 6px; color: var(--dim); letter-spacing: 1px; margin-bottom: 16px; }
+.final-label { font-size: 7px; color: var(--dim); margin-bottom: 6px; }
+.final-score { font-size: 18px; margin-bottom: 8px; }
+.new-record {
+  font-size: 8px; color: var(--gold); margin-bottom: 6px;
+  animation: blink .6s step-end infinite;
+}
+.new-record.hidden { display: none; }
+.over-stats { font-size: 7px; color: #9db4c9; margin-bottom: 12px; }
+.coins-won {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.coins-won .coin {
+  width: 14px; height: 14px;
+}
+.coins-won.nocoins { font-size: 6px; color: var(--dim); }
+.over-btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.over-btns .btn { font-size: 8px; padding: 10px 14px; }
+
+.hint { margin-top: 8px; font-size: 6px; color: var(--dim); letter-spacing: 1px; }
+
+@keyframes blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0; } }
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+  z-index: 9;
+  background: rgba(7, 12, 21, .96);
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  font-size: 7px; letter-spacing: 1px;
+  padding: 8px 12px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.hidden { display: none; }
+
+/* ---------- Aide contrôles ---------- */
+
+.help {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 6px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  padding: 0 2px;
+}
+.help-item { display: flex; align-items: center; gap: 5px; }
+.help-sep { color: var(--line); }
+.key {
+  color: var(--ink);
+  background: #0b1320;
+  border: 1px solid #2a3a52;
+  padding: 2px 4px;
+}
+.key::before { content: '['; }
+.key::after  { content: ']'; }
+.help-snd {
+  font-family: inherit;
+  font-size: 6px; letter-spacing: 1px;
+  background: none; border: none;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0;
+}
+.help-snd:hover .key { border-color: var(--cyan); color: var(--cyan); }
+
+/* Footer de page (sticky) */
+.site-footer {
+  flex: none;
+  font-size: 6px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 8px 4px 2px;
+}
+.site-footer a { color: var(--cyan); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .menu-primary { width: 84px; height: 84px; font-size: 11px; }
+  .menu-grid2 { width: 220px; }
+  .hud-value    { font-size: 12px; }
+  .hud-value.time { font-size: 10px; }
+  .panel        { padding: 14px 10px; }
+  .final-score  { font-size: 15px; }
+  .bot          { width: 32px; height: 32px; }
+  .bot-left     { left: -44px; margin-top: -16px; }
+  .bot-right    { right: -44px; margin-top: -16px; }
+  .bot-top      { top: -42px; margin-left: -16px; }
+}
+
+/* Curseur gant partout (image générée en JS) */
+body, a, button, input, label, .page, .overlay, .screen, .toast, .help,
+.menu-btn, .btn, .unload-btn, .gameopt-btn, .site-footer, .site-footer a {
+  cursor: var(--cursor, auto);
+}
+
+/* Sur tactile : les raccourcis clavier n'ont pas de sens */
+@media (pointer: coarse) {
+  .help-item, .help-sep { display: none; }
+}
