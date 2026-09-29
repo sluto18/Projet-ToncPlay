@@ -22,7 +22,8 @@ const MAX_OBST     = 22;
 
 /* Tactile : d-pad flottant au lieu du suivi du doigt */
 const IS_TOUCH   = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
-const DPAD_SPEED = 340;   // vitesse de déplacement de la cible au d-pad (px/s)
+const DPAD_SPEED = 340;   // vitesse max de la cible au joystick (px/s)
+const JOY_RADIUS = 42;    // course du doigt pour atteindre la vitesse max (px)
 
 const ORB_POINTS  = 100;
 const COIN_PER_SEC = 1;      // pièces par seconde survécue (mission libre)
@@ -41,9 +42,9 @@ const UNLOAD_RANGE  = 36;    // rayon de dépôt autour du vaisseau (px)
 const SAVE_KEY = 'zerog-sweeper-save-v2';
 const LEGACY_BEST_KEY = 'zerog-sweeper-best';
 
-const PRICE_LIVES  = [100, 200, 300, 400, 500];   // vies 1 -> 6
-const PRICE_BAG    = [100, 200, 300, 400, 500];   // sac 5 -> 10 places
-const PRICE_UNLOAD = [200, 350, 500, 750, 900];  // déchargements 0 -> 5
+const PRICE_LIVES  = [120, 250, 450, 750, 1100];  // vies 1 -> 6 
+const PRICE_BAG    = [80, 160, 300, 500, 800];    // sac 5 -> 10    
+const PRICE_UNLOAD = [150, 300, 500, 750, 1000];  // déchargements   
 
 /* ============================== MODES ============================== */
 
@@ -1543,7 +1544,6 @@ function updateHUD() {
 function updateUnloadButton() {
   const inGame = game.state === 'playing' && !game.paused && !gameOptOpen;
   el.btnGameOpt.classList.toggle('hidden', !inGame);
-  el.dpad.classList.toggle('hidden', !inGame || !IS_TOUCH);
   const show = inGame && save.unloads > 0;
   el.btnUnload.classList.toggle('hidden', !show);
   if (!show) return;
@@ -1585,8 +1585,10 @@ function resetRun() {
   });
   hudCache.score = -1; hudCache.time = -1; hudCache.combo = -1;
   player.reset();
-  dpadHeld.up = dpadHeld.down = dpadHeld.left = dpadHeld.right = false;
-  document.querySelectorAll('.dpad-btn.held').forEach(b => b.classList.remove('held'));
+  joy.active = false;
+  joy.id = null;
+  joy.dx = joy.dy = 0;
+  el.dpad.classList.add('hidden');
   ship.active = false;
   ship.phase = 'out';
   ship.t = 0;
@@ -1809,20 +1811,62 @@ function updateShip(dt) {
   }
 }
 
-/* --- D-pad tactile : déplace la cible du robot --- */
-const dpadHeld = { up: false, down: false, left: false, right: false };
+/* --- Joystick flottant tactile --- */
+const joy = {
+  active: false,
+  id: null,          // identifiant du doigt qui pilote
+  bx: 0, by: 0,      // base (point de contact initial)
+  dx: 0, dy: 0,      // vecteur doigt - base (limité au rayon)
+};
 
-function dpadMove(dt) {
-  if (!IS_TOUCH || game.state !== 'playing' || game.paused || gameOptOpen) return;
-  let dx = 0, dy = 0;
-  if (dpadHeld.left)  dx -= 1;
-  if (dpadHeld.right) dx += 1;
-  if (dpadHeld.up)    dy -= 1;
-  if (dpadHeld.down)  dy += 1;
-  if (!dx && !dy) return;
-  const n = Math.hypot(dx, dy);   // diagonales à vitesse identique
-  player.tx = clamp(player.tx + dx / n * DPAD_SPEED * dt, 16, W - 16);
-  player.ty = clamp(player.ty + dy / n * DPAD_SPEED * dt, 16, H - 16);
+function joyStart(e) {
+  if (!IS_TOUCH || e.pointerType !== 'touch') return;
+  if (game.state !== 'playing' || game.paused || gameOptOpen) return;
+  if (joy.active) return;                     // un seul doigt pilote
+  if (e.target.closest('.screen-btn, .joy')) return;   // pas sur les icônes
+  joy.active = true;
+  joy.id = e.pointerId;
+  const r = canvas.getBoundingClientRect();
+  joy.bx = e.clientX;
+  joy.by = e.clientY;
+  joy.dx = joy.dy = 0;
+  // Place le pad à l'endroit du doigt (coordonnées écran de .screen)
+  const sr = el.dpad.parentElement.getBoundingClientRect();
+  el.dpad.style.left = (e.clientX - sr.left) + 'px';
+  el.dpad.style.top  = (e.clientY - sr.top) + 'px';
+  el.dpad.classList.remove('hidden');
+}
+
+function joyMove(e) {
+  if (!joy.active || e.pointerId !== joy.id) return;
+  let dx = e.clientX - joy.bx;
+  let dy = e.clientY - joy.by;
+  const d = Math.hypot(dx, dy);
+  if (d > JOY_RADIUS) {                 // le stick se cale au bord de la base
+    dx = dx / d * JOY_RADIUS;
+    dy = dy / d * JOY_RADIUS;
+  }
+  joy.dx = dx; joy.dy = dy;
+  // Visual : le stick suit le doigt (borné)
+  el.dpad.querySelector('.joy-stick').style.transform =
+    'translate(' + dx + 'px,' + dy + 'px)';
+}
+
+function joyEnd(e) {
+  if (!joy.active || e.pointerId !== joy.id) return;
+  joy.active = false;
+  joy.id = null;
+  joy.dx = joy.dy = 0;
+  el.dpad.classList.add('hidden');
+}
+
+function joyMoveTarget(dt) {
+  if (!joy.active) return;
+  const k = Math.hypot(joy.dx, joy.dy) / JOY_RADIUS;   // intensité 0 à 1
+  if (k < 0.12) return;                                // zone morte au centre
+  const n = Math.hypot(joy.dx, joy.dy);
+  player.tx = clamp(player.tx + joy.dx / n * DPAD_SPEED * k * dt, 16, W - 16);
+  player.ty = clamp(player.ty + joy.dy / n * DPAD_SPEED * k * dt, 16, H - 16);
 }
 
 /* ============================== MISE À JOUR ============================== */
@@ -1880,7 +1924,8 @@ function update(dt) {
       if (L + 1 >= 10) unlockAchv('level10');
     }
 
-    dpadMove(dt);
+    joyMoveTarget(dt);
+    player.update(dt);
     player.update(dt);
     updateShip(dt);
     director.update(dt);
@@ -2552,30 +2597,11 @@ window.addEventListener('blur', () => {
  $('btnAchv').addEventListener('click',   () => { AU.ensure(); showPage('achv'); });
  $('backAchv').addEventListener('click',  () => showPage('title'));
 
-/* --- D-pad tactile : initialisation et événements --- */
-(function bindDpad() {
-  const pad = $('dpad');
-  if (!pad) return;
-  const url = SPR.arrow.img.toDataURL();
-  pad.querySelectorAll('.dpad-btn').forEach(btn => {
-    btn.style.backgroundImage = 'url(' + url + ')';
-    const dir = btn.dataset.dir;
-    const release = () => {
-      dpadHeld[dir] = false;
-      btn.classList.remove('held');
-    };
-    btn.addEventListener('pointerdown', e => {
-      e.preventDefault();
-      AU.ensure();
-      dpadHeld[dir] = true;
-      btn.classList.add('held');
-    });
-    btn.addEventListener('pointerup', release);
-    btn.addEventListener('pointercancel', release);
-    btn.addEventListener('pointerleave', release);
-    btn.addEventListener('contextmenu', e => e.preventDefault());
-  });
-})();
+ /* Joystick flottant : l'écran entier est la zone de jeu */
+screenBox.addEventListener('pointerdown', joyStart);
+window.addEventListener('pointermove', joyMove);
+window.addEventListener('pointerup', joyEnd);
+window.addEventListener('pointercancel', joyEnd);
 
 /* Bruitages de navigation */
 function bindSound(idOrEl, fn) {

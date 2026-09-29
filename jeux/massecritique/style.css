@@ -75,36 +75,33 @@ body {
 .bag-square.full { background: var(--cyan); border-color: var(--cyan); }
 .bag-count { font-size: 7px; color: var(--gold); }
 
-/* D-pad tactile (mobile/tablette) */
-.dpad {
+/* Joystick flottant tactile */
+.joy {
   position: absolute;
-  left: 10px; bottom: 48px;   /* coin bas gauche, au-dessus de la barre SAC */
-  z-index: 3;
-  display: grid;
-  grid-template-columns: repeat(3, 48px);
-  grid-template-rows: repeat(3, 48px);
-  gap: 5px;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.dpad.hidden { display: none; }
-.dpad-btn {
-  padding: 0;
-  background: rgba(7, 12, 21, .72) center / 24px 24px no-repeat;
-  border: 2px solid rgba(111, 227, 242, .45);
-  cursor: pointer;
-  image-rendering: pixelated;
+  z-index: 4;
+  width: 110px; height: 110px;
+  margin: -55px 0 0 -55px;   /* centré sur le doigt */
+  pointer-events: none;      /* le pad n'intercepte rien : c'est l'écran qui écoute */
   touch-action: none;
 }
-.dpad-btn.held {
-  background-color: rgba(111, 227, 242, .4);
-  border-color: var(--cyan);
+.joy.hidden { display: none; }
+
+.joy-base {
+  position: absolute; inset: 0;
+  border: 2px solid rgba(111, 227, 242, .4);
+  border-radius: 50%;
+  background: rgba(7, 12, 21, .35);
+  box-sizing: border-box;
 }
-.dpad-up    { grid-area: 1 / 2; }
-.dpad-left  { grid-area: 2 / 1; transform: rotate(-90deg); }
-.dpad-right { grid-area: 2 / 3; transform: rotate(90deg); }
-.dpad-down  { grid-area: 3 / 2; transform: rotate(180deg); }
+.joy-stick {
+  position: absolute;
+  width: 44px; height: 44px;
+  left: 33px; top: 33px;     /* centré (110-44)/2 */
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  background: rgba(111, 227, 242, .35);
+  box-sizing: border-box;
+}
 
 /* ---------- HUD ---------- */
 
@@ -292,6 +289,8 @@ canvas#game {
 
 /* JOUER : carré, plus petit */
 .menu-primary {
+  position: relative;      /* permet le z-index */
+  z-index: 1;              /* le bouton passe devant les robots */
   width: 96px; height: 96px;
   font-size: 13px;
   border-color: var(--gold);
@@ -316,16 +315,16 @@ canvas#game {
   width: 40px; height: 40px;
   background-size: 100% 100%;
   image-rendering: pixelated;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity .16s steps(3, end), transform .16s steps(3, end);
+  transition: transform .16s steps(3, end);
 }
-.bot-left  { left: -54px;  top: 50%;  margin-top: -20px;  background-image: var(--bot-left);  transform: translateX(-18px); }
-.bot-right { right: -54px; top: 50%;  margin-top: -20px;  background-image: var(--bot-right); transform: translateX(18px); }
-.bot-top   { left: 50%;    top: -52px; margin-left: -20px; background-image: var(--bot-top);  transform: translateY(-16px); }
+/* Au repos : cachés DERRIÈRE le bouton (96x96) */
+.bot-left  { left: -54px;  top: 50%;  margin-top: -20px;   background-image: var(--bot-left);  transform: translateX(54px); }
+.bot-right { right: -54px; top: 50%;  margin-top: -20px;   background-image: var(--bot-right); transform: translateX(-54px); }
+.bot-top   { left: 50%;    top: -52px; margin-left: -20px;  background-image: var(--bot-top);  transform: translateY(52px); }
 
+/* Au survol : ils sortent de derrière le bouton */
 .play-wrap:hover .bot {
-  opacity: 1;
   animation: botBob .5s steps(2, end) infinite alternate;
 }
 .play-wrap:hover .bot-left,
