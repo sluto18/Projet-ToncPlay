@@ -32,6 +32,29 @@
    },
    ============================================================ */
 const GAMES = [
+   {
+         img:   'jaquette/massecritique.png',
+      title: 'Masse Critique', 
+      desc: "Guidez un robot dans l'espace, ramassez des orbes et esquivez les débris spatiaux !",
+      link:  'jeux/massecritique/index.html',    
+      genre: 'Arcade', 
+      tags:  ['Arcade', 'Survie'],
+      date:  '29/09/2026', 
+      iso:   '2026-09-29',
+        // page fiche
+      descLong: `<b>Le Pitch :</b><br>
+      Perdu dans le vide intersidéral, votre petit robot a une mission vitale : éviter l'implosion ! Dans <i>Masse Critique</i>, vous devez slalomer à toute vitesse au milieu d'un champ de débris spatiaux particulièrement encombré.<br><br>
+      <b>Votre Mission :</b><br>
+      Récoltez un maximum d'orbes d'énergie pour alimenter vos systèmes, tout en esquivant les météores, les satellites en perdition et les vaisseaux qui croisent votre route. Plus vous tenez longtemps, plus le trafic spatial devient un enfer !<br><br>
+      <b>Ce qui vous attend :</b><br>
+      • Un jeu d'esquive spatial ultra-nerveux axé sur le score et les réflexes.<br>
+      • Une difficulté progressive avec des vagues d'obstacles variées.<br>
+      • Une seule règle d'or : <i>Si un satellite vous fonce dessus... ce n'est pas le moment de vérifier votre itinéraire GPS !</i>`,
+      screens: [
+      'screens/monjeu/1.png',
+      'screens/monjeu/2.png',
+      'screens/monjeu/3.png',
+    ]},
   {
      img:   'jaquette/suivezleguide.jpg',
      title: 'Suivez le Guide', 
@@ -300,6 +323,12 @@ const GAMES = [
    • tout le reste     → badge ÉVÉNEMENT (bleu)
    ============================================================ */
 const NEWS = [
+   {
+    img:   'jaquette/massecritique.png',
+    title: 'Sortie de Masse Critique !',
+    date:  '29/09/2026',
+    text:  'Enfilez votre combinaison spatiale, <b>Masse Critique</b> débarque sur ToncPlay !<br><br>Incarnez un petit robot propulsé dans le vide intersidéral et tentez de survivre le plus longtemps possible. Récoltez des orbes tout en esquivant météores, satellites en perdition et vaisseaux à la dérive.<br><br>Prêt pour le grand saut spatial ? Venez tester vos réflexes dès maintenant !',
+  },
   {
     img:   'jaquette/neonsnake.png',
     title: 'Mise à jour Neon Snake : Visuels flashy & IA barjot !',
