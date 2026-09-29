@@ -13,19 +13,23 @@ const SPR_SIZE = 16;         // résolution des sprites
 const PX = 2;                // échelle sprite -> écran
 
 const SPEED_START = 320;     // vitesse du robot au départ (px/s)
-const BAG_SLOW    = 15;      // vitesse perdue PAR SAC PLEIN livré
-const SPEED_MIN   = 100;     // vitesse plancher
+const BAG_SLOW    = 40;      // vitesse perdue PAR SAC PLEIN livré
+const SPEED_MIN   = 80;     // vitesse plancher
 
 const COMBO_WINDOW = 3.5;   // durée du combo
 const COMBO_MAX    = 5;
-const MAX_OBST     = 24;
+const MAX_OBST     = 22;
+
+/* Tactile : d-pad flottant au lieu du suivi du doigt */
+const IS_TOUCH   = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+const DPAD_SPEED = 340;   // vitesse de déplacement de la cible au d-pad (px/s)
 
 const ORB_POINTS  = 100;
 const COIN_PER_SEC = 1;      // pièces par seconde survécue (mission libre)
 const COIN_PER_ORB = 2;      // pièces par orbe ramassée
 
 /* --- Difficulté par paliers --- */
-const TIME_PER_LEVEL = 10;
+const TIME_PER_LEVEL = 20;
 const ORBS_PER_LEVEL = 5;    // orbes nécessaires pour monter d'un niveau
 const BIG_FROM_LEVEL = 3;    // les gros débris apparaissent à ce niveau (0-based)
 
@@ -61,7 +65,7 @@ const MODES = {
     desc: 'Pluie verticale de débris très rapides. Gardez le regard vers le haut.',
   },
   heavy: {
-    name: 'CHANTIER PERDU', gx: 11, gy: 16, spawn: 1.5, speed: 0.8, types: ['drone', 'sat'],
+    name: 'CHANTIER PERDU', gx: 11, gy: 16, spawn: 1.5, speed: 0.8, types: ['drone', 'sat', 'bigdrone', 'bigsat'],
     desc: 'Drones et épaves lents mais très nombreux. Grille 11x16.',
   },
   sprint: {
@@ -193,11 +197,17 @@ const ACHIEVEMENTS = [
   { id: 'first-drop',  icon: 'ship',   name: 'PREMIÈRE LIVRAISON',desc: 'Déposer des sacs via le vaisseau allié.' },
   { id: 'bags3',       icon: 'crate',  name: 'PLEINE CHARGE',     desc: 'Porter 3 sacs pleins à bord en même temps.' },
   { id: 'survive2',    icon: 'player', name: 'SURVIVANT',         desc: 'Tenir 2 minutes en une mission.' },
-  { id: 'level10',     icon: 'big',    name: 'ZONE ROUGE',        desc: 'Atteindre le niveau 10 de difficulté.' },
+  { id: 'survive5',    icon: 'player', name: 'MARATHON',          desc: 'Tenir 4 minutes en une mission.' },
+  { id: 'survive10',   icon: 'player', name: 'ÉTERNEL',           desc: 'Tenir 7 minutes en une mission.' },
+  { id: 'score10k',    icon: 'sat',    name: 'GROS SCORE',        desc: 'Marquer 5 000 points en une mission.' },
+  { id: 'score25k',    icon: 'sat',    name: 'AS DE L\'ESPACE',   desc: 'Marquer 12 000 points en une mission.' },
+  { id: 'score50k',    icon: 'ice',    name: 'LÉGENDE ORBITALE',  desc: 'Marquer 25 000 points en une mission.' },
+  { id: 'level10',     icon: 'ember',  name: 'ZONE ROUGE',        desc: 'Atteindre le niveau 10 de difficulté.' },
   { id: 'orbs50',      icon: 'orbA',   name: 'RÉCOLTEUR',         desc: 'Ramasser 50 orbes au total.' },
   { id: 'orbs200',     icon: 'crate',  name: 'FERRAILLEUR',       desc: 'Ramasser 200 orbes au total.' },
-  { id: 'score10k',    icon: 'sat',    name: 'GROS SCORE',        desc: 'Marquer 10 000 points en une mission.' },
   { id: 'magnat',      icon: 'coin',   name: 'MAGNAT',            desc: 'Gagner 1 000 pièces au total.' },
+  { id: 'coins2k',     icon: 'coin',   name: 'RÉSERVE D\'OR',     desc: 'Gagner 2 000 pièces au total.' },
+  { id: 'coins5k',     icon: 'coin',   name: 'COFFRE-FORT',       desc: 'Gagner 5 000 pièces au total.' },
   { id: 'buy-life',    icon: 'heart',  name: 'PREMIÈRE VIE',      desc: 'Acheter la première vie de secours.' },
   { id: 'buy-bag',     icon: 'crate',  name: 'GRAND SAC',         desc: 'Acheter la première amélioration de sac.' },
   { id: 'buy-unload',  icon: 'ship',   name: 'RENDEZ-VOUS',       desc: 'Acheter le premier déchargement.' },
@@ -234,6 +244,8 @@ function setMode(id) {
   starfield = new Starfield();
   decoObstacles = []; decoTimer = 0;
   hudCache.best = -1;
+  if (id === 'classic') screenBox.prepend(hudEl);
+  else cabEl.insertBefore(hudEl, screenBox);
 }
 
 /* ============================== AUDIO ============================== */
@@ -297,6 +309,15 @@ const SFX = {
   },
 
   blip()   { this.tone({ f0: 520, dur: 0.05, vol: 0.08 }); },
+    /* Bruitages d'interface */
+  uiTap()    { this.tone({ f0: 620, f1: 560, dur: 0.045, vol: 0.07 }); },
+  uiBack()   { this.tone({ f0: 430, f1: 300, dur: 0.08,  vol: 0.07 }); },
+  uiConfirm(){ this.tone({ f0: 480, f1: 700, dur: 0.09,  type: 'triangle', vol: 0.09 }); },
+  uiReset()  {
+    this.tone({ f0: 300, f1: 80, dur: 0.3,  type: 'sawtooth', vol: 0.1 });
+    this.tone({ f0: 150, f1: 55, dur: 0.35, vol: 0.08, delay: 0.05 });
+  },
+
   pickup(combo) {
     const base = 500 + Math.min(combo, COMBO_MAX) * 45;
     this.tone({ f0: base,        dur: 0.07, vol: 0.11 });
@@ -351,84 +372,92 @@ const SFX = {
   },
 };
 
-/* --- Musique procédurale (séquenceur 32 pas, la mineur) --- */
+/* --- Musique procédurale --- */
 
 const midi2f = m => 440 * Math.pow(2, (m - 69) / 12);
 
 const Music = {
   on: false, step: 0, nextT: 0, timer: null, lastSec: -1,
-  stepDur: 60 / 126 / 4,
+  stepDur: 60 / 120 / 4,
 
-  /* Tempo de chaque phrase (BPM) : spatial, spatial, reggae, dub */
-  bpm: [126, 126, 96, 96],
+  /* Tempo : 120 BPM constant (~32 sec au total pour 256 pas) */
+  bpm: [120, 120, 120, 120],
 
-  /* Accords du skank reggae (index -> notes midi) */
+  /* Accords (index -> notes midi) : Cm, Ab, Fm, G7, Bb */
   chords: {
-    1: [57, 60, 64],   // Am
-    2: [57, 62, 65],   // Dm
-    3: [56, 59, 64],   // E7
-    4: [55, 59, 62],   // G
-    5: [53, 57, 60],   // F
+    1: [60, 63, 67],   // Cm
+    2: [56, 60, 63],   // Ab
+    3: [53, 56, 60],   // Fm
+    4: [55, 59, 62],   // G7
+    5: [58, 62, 65],   // Bb
   },
 
-  /* Basse : 64 pas (4 mesures) par phrase */
+  /* Basse : 64 pas par phrase */
   bass: [
-    [ 33,0,0,33, 0,0,31,0, 33,0,0,33, 0,36,0,40,      // 1 — groove spatial (Am)
-      33,0,0,33, 0,0,31,0, 33,0,33,0, 36,0,31,0,
-      33,0,0,33, 0,0,31,0, 33,0,0,33, 0,36,0,40,
-      31,0,0,31, 0,0,33,0, 36,0,0,36, 0,40,0,43 ],
-    [ 33,0,0,33, 0,0,31,0, 33,0,0,33, 0,36,0,40,      // 2 — variation
-      33,0,0,33, 0,0,31,0, 33,0,33,0, 36,0,31,0,
-      33,0,0,33, 0,0,31,0, 33,0,0,33, 0,36,0,40,
-      36,0,0,36, 0,0,35,0, 40,0,0,40, 0,43,0,45 ],
-    [ 45,0,0,0, 0,0,45,0, 0,0,52,0, 0,0,47,0,        // 3 — reggae (Am Am Dm E7)
-      45,0,0,0, 0,0,45,0, 0,0,48,0, 0,0,45,0,
-      38,0,0,0, 0,0,38,0, 0,0,45,0, 0,0,41,0,
-      40,0,0,0, 0,0,40,0, 0,0,47,0, 0,0,52,0 ],
-    [ 45,0,0,0, 0,0,45,0, 0,0,52,0, 0,0,47,0,        // 4 — dub (Am G F E7)
-      43,0,0,0, 0,0,43,0, 0,0,50,0, 0,0,47,0,
-      41,0,0,0, 0,0,41,0, 0,0,48,0, 0,0,45,0,
-      40,0,0,0, 0,0,40,0, 0,0,47,0, 0,0,52,0 ],
+    [ 36,0,0,36, 0,0,36,0, 32,0,0,32, 0,0,32,0,      // 1 — Intro : Basse simple (Cm -> Ab)
+      29,0,0,29, 0,0,29,0, 31,0,0,31, 0,0,31,0,
+      36,0,0,36, 0,0,36,0, 32,0,0,32, 0,0,32,0,
+      29,0,0,29, 0,0,29,0, 31,0,0,31, 0,31,0,0 ],
+    [ 36,0,36,0, 36,0,36,0, 32,0,32,0, 32,0,32,0,      // 2 — Montée : Croches serrées
+      29,0,29,0, 29,0,29,0, 31,0,31,0, 31,0,31,0,
+      36,0,36,0, 36,0,36,0, 32,0,32,0, 32,0,32,0,
+      29,0,29,0, 29,0,29,0, 31,0,31,0, 31,0,34,0 ],
+    [ 36,48,36,48, 36,48,36,48, 32,44,32,44, 32,44,32,44, // 3 — Drop Synthwave : Octaves rapides
+      29,41,29,41, 29,41,29,41, 31,43,31,43, 31,43,31,43,
+      36,48,36,48, 36,48,36,48, 32,44,32,44, 32,44,32,44,
+      29,41,29,41, 29,41,29,41, 31,43,31,43, 31,43,34,46 ],
+    [ 36,0,0,0, 0,0,36,0, 32,0,0,0, 0,0,32,0,          // 4 — Outro : Respirations
+      29,0,0,0, 0,0,29,0, 31,0,0,0, 0,0,31,0,
+      36,0,0,0, 0,0,36,0, 32,0,0,0, 0,0,32,0,
+      29,0,0,0, 0,0,29,0, 31,0,0,0, 0,0,0,0 ],
   ],
 
-  /* Arpège : phrases spatiales uniquement */
+  /* Arpège : Arpèges montants & descendants */
   arp: [
-    [ 57,0,60,0, 64,0,67,0, 69,0,67,0, 64,0,60,0,
-      57,0,60,0, 64,0,67,0, 72,0,69,0, 67,64,0,60,
-      57,0,60,0, 64,0,67,0, 69,0,67,0, 64,0,60,0,
-      55,0,59,0, 62,0,67,0, 69,0,72,0, 71,0,67,0 ],
-    [ 57,0,60,0, 64,0,67,0, 69,0,67,0, 64,0,60,0,
-      69,0,72,0, 76,0,79,0, 81,0,79,0, 76,0,72,0,
-      57,0,60,0, 64,0,67,0, 69,0,67,0, 64,0,60,0,
-      64,0,67,0, 72,0,76,0, 79,0,76,0, 72,0,64,0 ],
-    null, null,
+    [ 60,0,63,0, 67,0,72,0, 70,0,67,0, 63,0,60,0,      // 1 — Arpège Cm / Ab / Fm / G7
+      56,0,60,0, 63,0,68,0, 67,0,63,0, 60,0,56,0,
+      53,0,56,0, 60,0,65,0, 63,0,60,0, 56,0,53,0,
+      55,0,59,0, 62,0,67,0, 65,0,62,0, 59,0,55,0 ],
+    [ 60,0,63,0, 67,0,72,0, 70,0,67,0, 63,0,60,0,      // 2 — Reprise
+      56,0,60,0, 63,0,68,0, 67,0,63,0, 60,0,56,0,
+      53,0,56,0, 60,0,65,0, 63,0,60,0, 56,0,53,0,
+      55,0,59,0, 62,0,67,0, 71,0,67,0, 62,0,59,0 ],
+    null,                                              // 3 — Pause sur le drop pour laisser la basse agir
+    [ 72,0,67,0, 63,0,60,0, 68,0,63,0, 60,0,56,0,      // 4 — Arpège rapide de fin
+      65,0,60,0, 56,0,53,0, 67,0,62,0, 59,0,55,0,
+      72,0,67,0, 63,0,60,0, 68,0,63,0, 60,0,56,0,
+      65,0,60,0, 56,0,53,0, 67,0,0,0, 0,0,0,0 ],
   ],
 
-  /* Skank reggae : n° d'accord joué sur les contretemps */
+  /* Chords/Stabs : Plaqué sur les temps forts */
   skank: [
-    null, null,
-    [ 0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0,          // reggae : contretemps pleins
-      0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0,
-      0,0,2,0, 0,0,2,0, 0,0,2,0, 0,0,2,0,
-      0,0,3,0, 0,0,3,0, 0,0,3,0, 0,0,3,0 ],
-    [ 0,0,1,0, 0,0,0,0, 0,0,1,0, 0,0,0,0,          // dub : skank éclairci
-      0,0,4,0, 0,0,0,0, 0,0,4,0, 0,0,0,0,
-      0,0,5,0, 0,0,0,0, 0,0,5,0, 0,0,0,0,
-      0,0,3,0, 0,0,0,0, 0,0,3,0, 0,0,3,0 ],
+    null,
+    [ 1,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0,
+      3,0,0,0, 0,0,0,0, 4,0,0,0, 0,0,0,0,
+      1,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0,
+      3,0,0,0, 0,0,0,0, 4,0,0,0, 0,0,0,0 ],
+    [ 1,0,0,1, 0,0,1,0, 2,0,0,2, 0,0,2,0,              // Stabs rythmés sur le drop
+      3,0,0,3, 0,0,3,0, 4,0,0,4, 0,0,4,0,
+      1,0,0,1, 0,0,1,0, 2,0,0,2, 0,0,2,0,
+      3,0,0,3, 0,0,3,0, 4,0,0,4, 0,0,4,0 ],
+    null,
   ],
 
-  /* Mélodie : phrase 2 (thème) et phrase 4 (stabs dub) */
+  /* Lead / Thème principal */
   lead: [
     null,
-    [ 69,0,0,72, 0,74,0,0, 76,0,74,0, 72,0,69,0,
-      67,0,69,0, 72,0,0,0, 69,0,67,0, 64,0,0,0,
-      69,0,0,72, 0,74,0,0, 76,0,79,0, 76,0,74,0,
-      72,0,74,0, 71,0,0,0, 69,0,0,0, 0,0,0,0 ],
-    null,
-    [ 76,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
-      0,0,0,0, 74,0,0,0, 0,0,0,0, 0,0,0,0,
-      0,0,0,0, 0,0,0,0, 72,0,0,0, 0,0,0,0,
-      0,0,0,0, 0,0,0,0, 0,0,0,0, 71,0,0,0 ],
+    [ 72,0,0,72, 0,74,0,75, 0,74,0,72, 0,70,0,67,      // Thème mélodique 1
+      68,0,0,68, 0,70,0,72, 0,70,0,68, 0,67,0,63,
+      65,0,0,65, 0,67,0,68, 0,67,0,65, 0,63,0,60,
+      62,0,0,62, 0,65,0,67, 0,0,0,0, 0,0,0,0 ],
+    [ 72,0,0,72, 0,74,0,75, 0,74,0,72, 0,70,0,67,      // Thème mélodique énergique sur la phase 3
+      68,0,0,68, 0,70,0,72, 0,70,0,68, 0,67,0,63,
+      65,0,0,65, 0,67,0,68, 0,67,0,65, 0,63,0,60,
+      67,0,0,67, 0,71,0,74, 0,75,0,74, 0,71,0,67 ],
+    [ 72,0,0,0, 0,0,0,0, 70,0,0,0, 0,0,0,0,            // Stabs d'écho de fin
+      68,0,0,0, 0,0,0,0, 67,0,0,0, 0,0,0,0,
+      72,0,0,0, 0,0,0,0, 70,0,0,0, 0,0,0,0,
+      68,0,0,0, 0,0,0,0, 67,0,0,0, 0,0,0,0 ],
   ],
 
   note(type, midi, t, dur, vol) {
@@ -446,37 +475,46 @@ const Music = {
     const o = AU.ctx.createOscillator();
     const g = AU.ctx.createGain();
     o.type = 'sine';
-    o.frequency.setValueAtTime(120, t);
-    o.frequency.exponentialRampToValueAtTime(42, t + 0.1);
-    g.gain.setValueAtTime(0.22, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    o.frequency.setValueAtTime(130, t);
+    o.frequency.exponentialRampToValueAtTime(38, t + 0.12);
+    g.gain.setValueAtTime(0.28, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
     o.connect(g); g.connect(AU.music);
-    o.start(t); o.stop(t + 0.13);
+    o.start(t); o.stop(t + 0.14);
   },
 
   snare(t, vol = 0.7) {
-    const len = Math.max(1, Math.floor(AU.ctx.sampleRate * 0.09));
+    const len = Math.max(1, Math.floor(AU.ctx.sampleRate * 0.1));
     const buf = AU.ctx.createBuffer(1, len, AU.ctx.sampleRate);
     const d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
     const src = AU.ctx.createBufferSource();
     src.buffer = buf;
     const g = AU.ctx.createGain();
-    g.gain.value = 0.14 * vol;
+    g.gain.value = 0.16 * vol;
     src.connect(g); g.connect(AU.music);
     src.start(t);
-    this.note('triangle', 55, t, 0.05, 0.05 * vol);
+    this.note('triangle', 62, t, 0.06, 0.08 * vol);
   },
 
   rim(t) {
-    this.note('square', 88, t, 0.025, 0.035);
+    this.note('square', 90, t, 0.02, 0.03);
   },
 
-  start() {
+  /** Nouvelle partie : la musique repart de l'intro. */
+  begin() {
+    this.step = 0;
+    this.lastSec = -1;
+  },
+
+  start(fromBeginning = false) {
     AU.ensure();
     if (!AU.ctx) return;
     this.on = true;
-    this.lastSec = -1;
+    if (fromBeginning) {
+      this.step = 0;
+      this.lastSec = -1;
+    }
     this.nextT = AU.ctx.currentTime + 0.1;
     if (!this.timer) this.timer = setInterval(() => this.tick(), 60);
   },
@@ -487,42 +525,45 @@ const Music = {
     if (!this.on || !AU.ctx) return;
     while (this.nextT < AU.ctx.currentTime + 0.2) {
       const s = this.step;
-      const sec = Math.floor(s / 64) % 4;   // phrase en cours (0-3)
-      const p = s % 64;                     // position dans la phrase
-      const s16 = p % 16;                   // position dans la mesure
+      const sec = Math.floor(s / 64) % 4;   // phrase (0-3)
+      const p = s % 64;                     // pas dans la phrase
+      const s16 = p % 16;                   // pas dans la mesure
       const t = this.nextT;
 
-      if (sec !== this.lastSec) {           // tempo de la phrase
+      if (sec !== this.lastSec) {
         this.lastSec = sec;
         this.stepDur = 60 / this.bpm[sec] / 4;
       }
 
       const b = this.bass[sec][p];
-      if (b) this.note('square', b, t, 0.18, 0.13);
+      if (b) this.note('sawtooth', b, t, 0.15, 0.14); // Sawtooth pour plus d'impact bass Synthwave
 
       const a = this.arp[sec] && this.arp[sec][p];
-      if (a) this.note('triangle', a, t, 0.10, 0.08);
+      if (a) this.note('triangle', a, t, 0.09, 0.07);
 
       const k = this.skank[sec] && this.skank[sec][p];
-      if (k) for (const n of this.chords[k]) this.note('square', n, t, 0.07, 0.045);
+      if (k) for (const n of this.chords[k]) this.note('square', n, t, 0.08, 0.04);
 
       const L = this.lead[sec] && this.lead[sec][p];
       if (L) {
-        this.note('triangle', L, t, 0.14, 0.10);
-        if (sec === 3) {                    // échos dub décalés
-          this.note('triangle', L, t + this.stepDur * 3, 0.12, 0.05);
-          this.note('triangle', L, t + this.stepDur * 6, 0.10, 0.025);
+        this.note('sawtooth', L, t, 0.16, 0.09);
+        if (sec === 3) {                   // Écho synthwave sur l'outro
+          this.note('sawtooth', L, t + this.stepDur * 2, 0.12, 0.04);
+          this.note('sawtooth', L, t + this.stepDur * 4, 0.10, 0.02);
         }
       }
 
-      if (sec < 2) {                        // groove spatial
+      // Batterie style Synthwave 4-on-the-floor sur la phase 3
+      if (sec === 0) {
         if (s16 === 0 || s16 === 8) this.kick(t);
-        if (s16 % 4 === 2) this.note('square', 96, t, 0.02, 0.02);
-        if (sec === 1 && (s16 === 4 || s16 === 12)) this.snare(t, 0.45);
-      } else {                              // reggae / dub
-        if (s16 === 8) { this.kick(t); this.snare(t, 0.7); }   // one-drop
-        if (sec === 2 && (s16 === 4 || s16 === 12)) this.rim(t);
-        if (sec === 3 && s16 === 12) this.rim(t);
+        if (s16 === 4 || s16 === 12) this.snare(t, 0.4);
+      } else if (sec === 1 || sec === 2) {
+        if (s16 % 4 === 0) this.kick(t);                     // Kick sur chaque temps (4-on-the-floor)
+        if (s16 === 4 || s16 === 12) this.snare(t, 0.7);     // Snare puissante
+        if (s16 % 2 === 1) this.rim(t);                      // Offbeat Hi-Hat
+      } else {
+        if (s16 === 0) this.kick(t);
+        if (s16 === 8) this.snare(t, 0.5);
       }
 
       this.nextT += this.stepDur;
@@ -567,9 +608,10 @@ const SPR = {};
 function rebuildPlayerSprite() {
   const sk = SKINS.find(k => k.id === save.skin) || SKINS[0];
   SPR.player = buildSprite(PLAYER_ROWS, sk.pal);
+  renderLives();  
 }
 
-/* --- Météorite --- */
+/* --- Météorites : 3 designs (petits ET gros débris) --- */
 const METEOR_ROWS = [
   "................",
   "....lrrrrrr.....",
@@ -588,11 +630,54 @@ const METEOR_ROWS = [
   "................",
   "................",
 ];
+const ICE_ROWS = [
+  "................",
+  "......lr........",
+  "...llrrrlr......",
+  "..lrrrrrrrl.....",
+  ".lrrwrrrrrrl....",
+  ".lrrrrrkkrrrl...",
+  "lrrrkkrrrrrrrl..",
+  "lrrrrrrrrrkkrl..",
+  "lrrrkkrrrrrrrl..",
+  ".lrrrrrrkkrrl...",
+  ".lrrrrrrrrrl....",
+  "..lrrrrrrrl.....",
+  "...lrrrrrl......",
+  "....lRRRl.......",
+  "................",
+  "................",
+];
+const EMBER_ROWS = [
+  "................",
+  "....rrrrrr......",
+  "...rrlrrrrr.....",
+  "..rrlkkrrrrr....",
+  ".rrlkkrrrrrrr...",
+  ".rrkkrrrrkkrr...",
+  "rrlrrrrrkkrrrr..",
+  "rrrrkkrrrkkrrr..",
+  "rrrkkrrrkkrrrr..",
+  ".rrrkkrrrkkrr...",
+  ".mrrrrkkrrrrr...",
+  "..mmrrrrrrrm....",
+  "...mmrrrrrmm....",
+  ".....mmmmm......",
+  "................",
+  "................",
+];
+
+/* Design 1 : graphite à veines incandescentes */
 SPR.meteor = buildSprite(METEOR_ROWS, {
-  r: '#9a7156', R: '#6e4d38', k: '#4a3324', l: '#c69a78', m: '#835e46',
+  r: '#6a7286', R: '#454d61', k: '#ff9d3b', l: '#a3adc0', m: '#565e72',
 });
-SPR.ice = buildSprite(METEOR_ROWS, {
-  r: '#9fb8c9', R: '#7290a6', k: '#4d6377', l: '#d7e8f2', m: '#87a2b5',
+/* Design 2 : glace anguleuse */
+SPR.ice = buildSprite(ICE_ROWS, {
+  r: '#9fb8c9', R: '#7290a6', k: '#4d6377', l: '#e8f4fc', m: '#87a2b5', w: '#f4faff',
+});
+/* Design 3 : braise, roche à fissures de lave */
+SPR.ember = buildSprite(EMBER_ROWS, {
+  r: '#8a3a2c', m: '#5f2317', k: '#ff9d3b', l: '#c65b3f',
 });
 
 /* --- Gros astéroïde (dessiné en 2x2 cases, 64 px) --- */
@@ -815,6 +900,26 @@ SPR.cursor = buildSprite([
   "..ooooccoooo....",
   "..dddddddddd....",
 ], { w: '#eef3f9', s: '#aebdd2', o: '#ff9d3b', d: '#343e50', c: '#6fe3f2' });
+
+/* --- Flèche du D-pad --- */
+SPR.arrow = buildSprite([
+  "................",
+  ".......ww.......",
+  ".......ww.......",
+  "......wwww......",
+  "......wwww......",
+  ".....wwwwww.....",
+  ".....wwwwww.....",
+  "....wwwwwwww....",
+  "....wwwwwwww....",
+  "...wwwwwwwwww...",
+  "...wwwwwwwwww...",
+  "..wwwwwwwwwwww..",
+  "................",
+  "................",
+  "................",
+  "................",
+], { w: '#eef3f9' });
 
 /* --- Vaisseau allié de déchargement --- */
 SPR.ship = buildSprite([
@@ -1069,6 +1174,9 @@ const OB_DEFS = {
   sat:    { hit: 22, speedMul: 0.85, spin: [0.28, 0.60] },
   screw:  { hit: 12, speedMul: 1.55, spin: [0.12, 0.30] },
   big:    { hit: 44, speedMul: 0.55, spin: [0.10, 0.25], size: 2 },   // 2x2 cases
+  bigdrone: { hit: 40, speedMul: 0.60, spin: [0.15, 0.35], size: 2 },
+  bigsat:   { hit: 42, speedMul: 0.50, spin: [0.12, 0.30], size: 2 },
+  bigscrew: { hit: 36, speedMul: 0.90, spin: [0.08, 0.20], size: 2 },
 };
 
 const DIR_QUARTER = { '1,0': 2, '-1,0': 0, '0,1': 3, '0,-1': 1 };
@@ -1087,13 +1195,18 @@ class Obstacle {
     this.spinT = Math.random() * 10;
     this.dead = false;
 
-    if (type === 'meteor') this.spr = Math.random() < 0.3 ? SPR.ice : SPR.meteor;
-    else if (type === 'drone') this.spr = SPR.drone;
-    else if (type === 'big')   this.spr = SPR.big;
-    else if (type === 'sat')   this.spr = SPR.sat;
-    else                       this.spr = SPR.screw;
+    // Costume selon le type
+    // Costume selon le type
+    if (type === 'meteor')        this.spr = pick([SPR.meteor, SPR.ice, SPR.ember]);
+    else if (type === 'drone')    this.spr = SPR.drone;
+    else if (type === 'big')      this.spr = pick([SPR.meteor, SPR.ice, SPR.ember]);
+    else if (type === 'bigdrone') this.spr = SPR.drone;
+    else if (type === 'bigsat')   this.spr = SPR.sat;
+    else if (type === 'bigscrew') this.spr = SPR.screw;
+    else if (type === 'sat')      this.spr = SPR.sat;
+    else                          this.spr = SPR.screw;
 
-    this.baseQuarter = type === 'screw'
+    this.baseQuarter = (type === 'screw' || type === 'bigscrew')
       ? DIR_QUARTER[dir.x + ',' + dir.y]
       : randInt(0, 3);
 
@@ -1139,6 +1252,12 @@ function diffLevel() {
        + Math.floor(game.picks / ORBS_PER_LEVEL);
 }
 
+/** Niveau "effectif" pour les mécaniques */
+function effLevel() {
+  const L = diffLevel();
+  return L <= 8 ? L : 8 + (L - 8) * 0.4;
+}
+
 function randomDir() {
   const m = MODES[game.modeId];
   if (m.dirs === 'v') return pick([{ x: 0, y: 1 }, { x: 0, y: -1 }]);
@@ -1152,17 +1271,22 @@ function randomLane(dir) {
 function pickType() {
   const m = MODES[game.modeId];
   if (m.types) return pick(m.types);
-  const L = diffLevel();
+  const L = effLevel();
   const w = {
     meteor: 34,
     drone:  20,
     sat:    8 + Math.min(14, L * 2),
     screw:  5 + Math.min(20, L * 2.5),
   };
-  if (L >= BIG_FROM_LEVEL) w.big = Math.min(14, 3 + (L - BIG_FROM_LEVEL) * 2);
+  if (L >= BIG_FROM_LEVEL) {
+    const nb = L - BIG_FROM_LEVEL;
+    w.big      = Math.min(12, 3 + nb * 2);
+    w.bigdrone = Math.min(8,  2 + nb);
+    w.bigsat   = Math.min(8,  2 + nb);
+    w.bigscrew = Math.min(6,  1 + Math.floor(nb / 2));
+  }
   return weighted(w);
 }
-
 function fairLane(dir) {
   for (let i = 0; i < 8; i++) {
     const lane = randomLane(dir);
@@ -1188,11 +1312,12 @@ const director = {
   plan() {
     const m = MODES[game.modeId];
     const L = diffLevel();
-    const salvo = Math.random() < Math.min(0.26, 0.04 + game.time * 0.0022) * m.spawn;
-    const n = salvo ? randInt(2, 3) : 1;
+    const salvo = Math.random() < Math.min(0.30, 0.04 + L * 0.03) * m.spawn;
+    const extra = Math.min(3, Math.floor(L / 5));   // +1 débris par tranche de 5 niveaux
+    const n = (salvo ? randInt(2, 3) : 1) + extra;
     const dir = randomDir();
     const type = (salvo && Math.random() < 0.6) ? 'meteor' : pickType();
-    const speedBase = Math.min(90 + game.time * 1.4, 250) * m.speed;
+    const speedBase = Math.min(85 + L * 15, 220) * m.speed;
 
     const used = new Set();
     let made = 0, guard = 0;
@@ -1222,8 +1347,8 @@ const director = {
     if (this.timer <= 0) {
       this.plan();
       const m = MODES[game.modeId];
-      const L = diffLevel();
-      const base = clamp(1.4 - L * 0.07, 0.55, 1.4) / m.spawn;
+      const L = effLevel();
+      const base = clamp(1.4 - L * 0.09, 0.40, 1.4) / m.spawn;
       this.timer = base * rand(0.75, 1.3);
     }
   },
@@ -1243,25 +1368,9 @@ class Collectible {
   get cy() { return this.gy * TILE + TILE / 2; }
 }
 
-/** Cases recouvertes par l'UI en jeu : l'orbe ne doit pas y apparaître. */
-function uiBlocked(gx, gy) {
-  const x = gx * TILE, y = gy * TILE;   // coin haut-gauche de la case
-  const r = canvas.getBoundingClientRect();
-  const sc = Math.max(0.4, (r.width || W) / W);   // échelle d'affichage réelle
-
-  // Vies : mini-robots en haut à gauche
-  if (y < 26 / sc && x < (10 + game.lives * 20) / sc) return true;
-  // Jauge SAC + compteur de sacs : bas gauche
-  if (y > H - 26 / sc && x < (44 + bagCapacity() * 9 + 55) / sc) return true;
-  // Icône de déchargement : bas droite (uniquement si possédée)
-  if (save.unloads > 0 && x > W - 42 / sc && y > H - 42 / sc) return true;
-  return false;
-}
-
 function freeCell() {
   for (let tries = 0; tries < 80; tries++) {
     const gx = randInt(0, GX - 1), gy = randInt(0, GY - 1);
-    if (uiBlocked(gx, gy)) continue;   // pas d'orbe sous l'UI en jeu
     const cx = gx * TILE + TILE / 2, cy = gy * TILE + TILE / 2;
     if (Math.abs(cx - player.x) < 40 && Math.abs(cy - player.y) < 40) continue;
     const blocked = obstacles.some(o =>
@@ -1329,6 +1438,8 @@ const ship = {
 
 const $ = id => document.getElementById(id);
 const cabEl = document.querySelector('.cab');
+const screenBox = document.querySelector('.screen');
+const hudEl = document.querySelector('.hud');
 const el = {
   score: $('hudScore'), time: $('hudTime'), best: $('hudBest'),
   combo: $('hudCombo'), comboVal: $('comboVal'), comboBar: $('comboBar'),
@@ -1355,17 +1466,53 @@ const el = {
   },
   challengeList: $('challengeList'), stationList: $('stationList'),
   achvList: $('achvList'), achvCount: $('achvCount'),
+  btnUnload: $('btnUnload'), unloadBadge: $('unloadBadge'),
+  livesIcons: $('livesIcons'), bagSquares: $('bagSquares'), bagCount: $('bagCount'),
+  btnSnd: $('btnSnd'), sndIcon: $('sndIcon'),
+  dpad: $('dpad'),
 };
 
-const hudCache = { score: -1, time: -1, best: -1, combo: -1 };
+const hudCache = { score: -1, time: -1, best: -1, combo: -1, lives: -1 };
+
+/** Vies : mini-robots (skin équipé) dans le bandeau haut. */
+function renderLives() {
+  const url = SPR.player.img.toDataURL();
+  let html = '';
+  for (let i = 0; i < game.lives; i++) html += '<img src="' + url + '" alt="">';
+  el.livesIcons.innerHTML = html;
+}
+
+/** Sac : carrés + compteur dans le bandeau bas. */
+const bagHud = { cap: -1, squares: [] };
+function updateBagHud() {
+  const cap = bagCapacity();
+  if (cap !== bagHud.cap) {
+    bagHud.cap = cap;
+    el.bagSquares.innerHTML = '';
+    bagHud.squares = [];
+    for (let i = 0; i < cap; i++) {
+      const s = document.createElement('span');
+      s.className = 'bag-square';
+      el.bagSquares.appendChild(s);
+      bagHud.squares.push(s);
+    }
+  }
+  for (let i = 0; i < cap; i++) {
+    bagHud.squares[i].classList.toggle('full', i < player.bag);
+  }
+  el.bagCount.textContent = 'x' + player.bagsFull;
+}
 
 function updateHUD() {
   if (game.score !== hudCache.score) {
+    const gained = game.score - hudCache.score;
     hudCache.score = game.score;
     el.score.textContent = pad6(game.score);
-    el.score.classList.remove('punch');
-    void el.score.offsetWidth;
-    el.score.classList.add('punch');
+    if (gained >= 100) {              // punch uniquement pour une orbe (pas le drip)
+      el.score.classList.remove('punch');
+      void el.score.offsetWidth;
+      el.score.classList.add('punch');
+    }
   }
   const tt = Math.floor(game.time);
   if (tt !== hudCache.time) {
@@ -1386,12 +1533,17 @@ function updateHUD() {
     }
     el.comboBar.style.width = (game.comboT / COMBO_WINDOW * 100).toFixed(1) + '%';
   }
+  if (game.lives !== hudCache.lives) {
+    hudCache.lives = game.lives;
+    renderLives();
+  }
 }
 
 /** Icônes en jeu : déchargement (badge) + engrenage (visibilité). */
 function updateUnloadButton() {
   const inGame = game.state === 'playing' && !game.paused && !gameOptOpen;
   el.btnGameOpt.classList.toggle('hidden', !inGame);
+  el.dpad.classList.toggle('hidden', !inGame || !IS_TOUCH);
   const show = inGame && save.unloads > 0;
   el.btnUnload.classList.toggle('hidden', !show);
   if (!show) return;
@@ -1433,6 +1585,8 @@ function resetRun() {
   });
   hudCache.score = -1; hudCache.time = -1; hudCache.combo = -1;
   player.reset();
+  dpadHeld.up = dpadHeld.down = dpadHeld.left = dpadHeld.right = false;
+  document.querySelectorAll('.dpad-btn.held').forEach(b => b.classList.remove('held'));
   ship.active = false;
   ship.phase = 'out';
   ship.t = 0;
@@ -1451,7 +1605,7 @@ function startGame(modeId) {
   el.oOver.classList.add('hidden');
   cabEl.classList.remove('menu', 'home');
   currentPage = null;
-  Music.start();
+  Music.start(true);
   SFX.start();
 }
 
@@ -1466,7 +1620,16 @@ function endRun(success) {
   if (m.coins) {
     coinsWon = Math.floor(game.time * COIN_PER_SEC) + game.picks * COIN_PER_ORB;
     save.coins += coinsWon;
+    save.stats.coinsEarned += coinsWon;
+    if (save.stats.coinsEarned >= 1000) unlockAchv('magnat');
+    if (save.stats.coinsEarned >= 2000) unlockAchv('coins2k');
+    if (save.stats.coinsEarned >= 5000) unlockAchv('coins5k');
   }
+  if (!success) {
+    save.stats.deaths++;
+    if (save.stats.deaths === 1) unlockAchv('first-death');
+  }
+
   const rec = save.records[game.modeId] || 0;
   if (game.score > rec) {
     save.records[game.modeId] = game.score;
@@ -1480,21 +1643,19 @@ function endRun(success) {
   el.finalScore.textContent = pad6(game.score);
   el.newRecord.classList.toggle('hidden', !game.newRecord);
   el.overStats.textContent = 'TEMPS ' + fmtTime(game.time) + ' · ORBES ' + game.picks
-                           + ' · NIVEAU ' + (diffLevel() + 1)
-                           + ' · SACS ' + player.bagsFull;
+                            + ' · NIVEAU ' + (diffLevel() + 1)
+                            + ' · SACS ' + player.bagsFull;
+                            + ' · SURVIE +' + Math.floor(game.time * 2) + ' PTS';
+
   if (m.coins) {
-    coinsWon = Math.floor(game.time * COIN_PER_SEC) + game.picks * COIN_PER_ORB;
-    save.coins += coinsWon;
-    save.stats.coinsEarned += coinsWon;
-    if (save.stats.coinsEarned >= 1000) unlockAchv('magnat');
-  }
-  if (!success) {
-    save.stats.deaths++;
-    if (save.stats.deaths === 1) unlockAchv('first-death');
+    el.coinsWon.innerHTML =
+      '<i class="coin"></i>+' + coinsWon + ' PIÈCES';
+    el.coinsWon.classList.remove('nocoins');
   } else {
-    el.coinsWon.textContent = 'PIÈCES : MISSION LIBRE UNIQUEMENT';
+    el.coinsWon.innerHTML = 'PIÈCES : MISSION LIBRE UNIQUEMENT';
     el.coinsWon.classList.add('nocoins');
   }
+
   el.oOver.classList.remove('hidden');
 }
 
@@ -1648,6 +1809,22 @@ function updateShip(dt) {
   }
 }
 
+/* --- D-pad tactile : déplace la cible du robot --- */
+const dpadHeld = { up: false, down: false, left: false, right: false };
+
+function dpadMove(dt) {
+  if (!IS_TOUCH || game.state !== 'playing' || game.paused || gameOptOpen) return;
+  let dx = 0, dy = 0;
+  if (dpadHeld.left)  dx -= 1;
+  if (dpadHeld.right) dx += 1;
+  if (dpadHeld.up)    dy -= 1;
+  if (dpadHeld.down)  dy += 1;
+  if (!dx && !dy) return;
+  const n = Math.hypot(dx, dy);   // diagonales à vitesse identique
+  player.tx = clamp(player.tx + dx / n * DPAD_SPEED * dt, 16, W - 16);
+  player.ty = clamp(player.ty + dy / n * DPAD_SPEED * dt, 16, H - 16);
+}
+
 /* ============================== MISE À JOUR ============================== */
 
 function updateTitleDeco(dt) {
@@ -1655,8 +1832,8 @@ function updateTitleDeco(dt) {
   if (decoTimer <= 0 && decoObstacles.length < 6) {
     const dir = randomDir();
     decoObstacles.push(new Obstacle(
-      pick(['meteor', 'drone', 'sat', 'screw', 'big']),
-      dir, randomLane(dir), rand(12, 34)
+      pick(['meteor', 'drone', 'sat', 'screw', 'big', 'bigdrone', 'bigsat']),
+      dir, randomLane(dir), rand(25, 55)
     ));
     decoTimer = rand(0.8, 2.0);
   }
@@ -1674,7 +1851,19 @@ function update(dt) {
   else if (game.state === 'playing') {
     game.time += dt;
     if (game.bannerT > 0) game.bannerT -= dt;
+    // Points de survie : 1 point par 0,5 seconde
+    game.surviveAcc = (game.surviveAcc || 0) + dt;
+    if (game.surviveAcc >= 0.5) {
+      const pts = Math.floor(game.surviveAcc / 0.5);
+      game.score += pts;
+      game.surviveAcc -= pts * 0.5;
+    }
     if (game.time >= 120) unlockAchv('survive2');
+    if (game.time >= 240) unlockAchv('survive5');
+    if (game.time >= 420) unlockAchv('survive10');
+    if (game.score >= 5000)  unlockAchv('score10k');
+    if (game.score >= 12000) unlockAchv('score25k');
+    if (game.score >= 25000) unlockAchv('score50k');
 
     const m = MODES[game.modeId];
     if (m.timeLimit && game.time >= m.timeLimit) {
@@ -1691,6 +1880,7 @@ function update(dt) {
       if (L + 1 >= 10) unlockAchv('level10');
     }
 
+    dpadMove(dt);
     player.update(dt);
     updateShip(dt);
     director.update(dt);
@@ -1750,7 +1940,8 @@ function drawMarkers(t) {
     if (Math.sin(t * 16 + q.lane) < -0.3) continue;
     const col = '#ff9d3b';
     // Les gros débris sont centrés sur 2 cases
-    const mid = q.lane * TILE + (q.type === 'big' ? TILE : TILE / 2);
+    const big = (OB_DEFS[q.type].size || 1) > 1;
+    const mid = q.lane * TILE + (big ? TILE : TILE / 2);
     if (q.dir.x > 0)      drawChevron(14, mid, 0, col);
     else if (q.dir.x < 0) drawChevron(W - 14, mid, 2, col);
     else if (q.dir.y > 0) drawChevron(mid, 14, 1, col);
@@ -1818,40 +2009,6 @@ function drawCollectible(c, t) {
     ctx.fillRect(x - 1, y, 3, 1); ctx.fillRect(x, y - 1, 1, 3);
   }
   ctx.globalAlpha = 1;
-}
-
-/** Bas gauche : jauge du sac + nombre de sacs livrés. */
-function drawCargoHud() {
-  if (game.state !== 'playing' && game.state !== 'dying') return;
-  const cap = bagCapacity();
-  const bx = 10, by = H - 16;
-
-  ctx.font = '7px "Press Start 2P", monospace';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#5c6f85';
-  ctx.fillText('SAC', bx, by + 4);
-
-  for (let i = 0; i < cap; i++) {
-    const x = bx + 34 + i * 9;
-    ctx.fillStyle = i < player.bag ? '#6fe3f2' : '#152234';
-    ctx.fillRect(x, by, 7, 7);
-  }
-
-  const sx = bx + 34 + cap * 9 + 10;
-  ctx.fillStyle = '#8a6a14'; ctx.fillRect(sx, by - 1, 9, 9);
-  ctx.fillStyle = '#ffd94a'; ctx.fillRect(sx + 1, by, 7, 7);
-  ctx.fillStyle = '#8a6a14'; ctx.fillRect(sx + 4, by + 3, 1, 1);
-  ctx.fillStyle = player.bagsFull > 0 ? '#ffd94a' : '#5c6f85';
-  ctx.fillText('x' + player.bagsFull, sx + 14, by + 4);
-}
-
-/** Vies : mini-robots (skin équipé) en haut à gauche. */
-function drawLives() {
-  if (game.state !== 'playing') return;
-  for (let i = 0; i < game.lives; i++) {
-    ctx.drawImage(SPR.player.img, 10 + i * 20, 8, 16, 16);
-  }
 }
 
 function drawReticle(t) {
@@ -1948,8 +2105,6 @@ function render() {
   drawFloaters();
   ctx.restore();
 
-  drawCargoHud();
-  drawLives();
   drawReticle(t);
   drawBanner();
 
@@ -2242,9 +2397,37 @@ el.btnHelp.addEventListener('click',  () => el.helpBox.classList.toggle('hidden'
 el.btnHelp2.addEventListener('click', () => el.helpBox2.classList.toggle('hidden'));
 
 let resetArmed = false, resetTimer = null;
+
+function doResetSave() {
+  // Sauvegarde neuve, construite explicitement (aucune dépendance à DEFAULT_SAVE)
+  save = {
+    coins: 0,
+    lives: 1,
+    bagLv: 0,
+    unloads: 0,
+    skin: 'default',
+    owned: ['default'],
+    records: {},
+    achv: [],
+    stats: { orbs: 0, deaths: 0, coinsEarned: 0 },
+    volMusic: save.volMusic,   // les volumes sont conservés
+    volSfx: save.volSfx,
+  };
+  saveSave();
+  try { localStorage.removeItem(LEGACY_BEST_KEY); } catch (e) {}   // ancienne clé v1
+  AU.applyVol();
+  rebuildPlayerSprite();
+  syncOptions();
+  hudCache.best = -1;
+  setMode('classic');
+  toast('SAUVEGARDE EFFACÉE');
+  SFX.blip();
+}
+
 el.btnReset.addEventListener('click', () => {
   if (!resetArmed) {
     resetArmed = true;
+    SFX.uiConfirm();
     el.btnReset.textContent = 'CONFIRMER L\'EFFACEMENT ?';
     el.btnReset.classList.add('armed');
     clearTimeout(resetTimer);
@@ -2259,14 +2442,8 @@ el.btnReset.addEventListener('click', () => {
   resetArmed = false;
   el.btnReset.textContent = 'RÉINITIALISER LA SAUVEGARDE';
   el.btnReset.classList.remove('armed');
-  save = JSON.parse(JSON.stringify(DEFAULT_SAVE));
-  saveSave();
-  AU.applyVol();
-  rebuildPlayerSprite();
-  syncOptions();
-  setMode('classic');
-  toast('SAUVEGARDE EFFACÉE');
-  SFX.blip();
+  SFX.uiReset();
+  doResetSave();
 });
 
 /* ============================== OPTIONS EN JEU ============================== */
@@ -2325,6 +2502,7 @@ function toggleSound() {
   AU.ensure();
   AU.muted = !AU.muted;
   AU.applyVol();
+  el.sndIcon.textContent = AU.muted ? '🔇' : '🔊';
   toast(AU.muted ? 'SON COUPÉ' : 'SON ACTIVÉ');
   if (!AU.muted) SFX.blip();
 }
@@ -2350,7 +2528,8 @@ window.addEventListener('keydown', e => {
    On ignore les événements venant des petits boutons en jeu
    (sinon le robot irait se coller à l'icône quand on la survole). */
 function setTarget(e) {
-  if (e.target && e.target.closest && e.target.closest('.screen-btn')) return;
+  if (e.pointerType && e.pointerType !== 'mouse') return;   // tactile : contrôle au d-pad
+  if (e.target && e.target.closest && e.target.closest('.screen-btn, .dpad')) return;
   const r = canvas.getBoundingClientRect();
   player.tx = clamp((e.clientX - r.left) * (W / r.width), 16, W - 16);
   player.ty = clamp((e.clientY - r.top) * (H / r.height), 16, H - 16);
@@ -2373,12 +2552,62 @@ window.addEventListener('blur', () => {
  $('btnAchv').addEventListener('click',   () => { AU.ensure(); showPage('achv'); });
  $('backAchv').addEventListener('click',  () => showPage('title'));
 
+/* --- D-pad tactile : initialisation et événements --- */
+(function bindDpad() {
+  const pad = $('dpad');
+  if (!pad) return;
+  const url = SPR.arrow.img.toDataURL();
+  pad.querySelectorAll('.dpad-btn').forEach(btn => {
+    btn.style.backgroundImage = 'url(' + url + ')';
+    const dir = btn.dataset.dir;
+    const release = () => {
+      dpadHeld[dir] = false;
+      btn.classList.remove('held');
+    };
+    btn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      AU.ensure();
+      dpadHeld[dir] = true;
+      btn.classList.add('held');
+    });
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
+    btn.addEventListener('pointerleave', release);
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+  });
+})();
+
+/* Bruitages de navigation */
+function bindSound(idOrEl, fn) {
+  const b = typeof idOrEl === 'string' ? $(idOrEl) : idOrEl;
+  if (!b) return;
+  b.addEventListener('click', () => { AU.ensure(); fn(); });
+}
+bindSound('btnPlay',       () => SFX.uiTap());
+bindSound('btnChallenge',  () => SFX.uiTap());
+bindSound('btnStation',    () => SFX.uiTap());
+bindSound('btnOptions',    () => SFX.uiTap());
+bindSound('btnAchv',       () => SFX.uiTap());
+bindSound('backChallenge', () => SFX.uiBack());
+bindSound('backStation',   () => SFX.uiBack());
+bindSound('backOptions',   () => SFX.uiBack());
+bindSound('backAchv',      () => SFX.uiBack());
+bindSound(el.btnRetry,     () => SFX.uiTap());
+bindSound(el.btnMenu,      () => SFX.uiBack());
+bindSound(el.btnHelp,      () => SFX.uiTap());
+bindSound(el.btnHelp2,     () => SFX.uiTap());
+bindSound(el.btnResume,    () => SFX.uiBack());
+bindSound(el.btnQuitHome,  () => SFX.uiBack());
+
 /* Icône déchargement */
 el.btnUnload.addEventListener('click', e => {
   e.stopPropagation();
   AU.ensure();
   callUnload();
 });
+
+/* Icône son (pied de page) */
+el.btnSnd.addEventListener('click', () => { AU.ensure(); toggleSound(); });
 
 /* Fin de partie */
 el.btnRetry.addEventListener('click', () => { AU.ensure(); startGame(game.modeId); });
@@ -2438,6 +2667,7 @@ function loop(now) {
   update(dt);
   render();
   updateHUD();
+  updateBagHud();
   updateUnloadButton();
   requestAnimationFrame(loop);
 }

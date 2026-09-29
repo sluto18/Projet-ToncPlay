@@ -1,6 +1,5 @@
 /* ==========================================================================
-   SWEEPER-01 — Nettoyage en apesanteur
-   Borne d'arcade : accueil animé, menus, boutique, challenges
+     Masse Critique - feuille de style
    ========================================================================== */
 
 :root {
@@ -31,8 +30,8 @@ body {
 
 /* ---------- Cabine ---------- */
 .cab {
-  width: min(94vw, 500px, calc(100vh - 165px));
-  width: min(94vw, 500px, calc(100dvh - 165px));
+  width: min(94vw, 500px, calc(100vh - 225px));
+  width: min(94vw, 500px, calc(100dvh - 225px));
   min-width: 250px;
   display: flex;
   flex-direction: column;
@@ -41,24 +40,93 @@ body {
 }
 
 /* En menu : HUD et aide masqués (la place reste réservée, rien ne saute) */
-.cab.menu .hud, .cab.menu .help { visibility: hidden; }
+.cab.menu .hud, .cab.menu .help, .cab.menu .gamebar { visibility: hidden; }
+.cab.home .gamebar, .cab.home .hud { display: none; }   /* accueil : ni cadre ni bandeaux */
 
 /* Sur l'accueil : en plus, le cadre de jeu et les scanlines disparaissent */
 .cab.home .screen { border-color: transparent; box-shadow: none; }
 .cab.home .scanlines { opacity: 0; }
+
+/* Bandeaux VIES / SAC autour du canvas */
+.gamebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 26px;
+  padding: 4px 8px;
+  background: #070d16;
+}
+.gamebar-top    { border-bottom: 1px solid var(--line); }
+.gamebar-bottom { border-top: 1px solid var(--line); }
+
+.gamebar-label { font-size: 7px; color: var(--dim); letter-spacing: 1px; }
+
+.lives-row, .bag-row { display: flex; align-items: center; gap: 7px; }
+.lives-icons { display: flex; gap: 4px; }
+.lives-icons img { width: 16px; height: 16px; display: block; image-rendering: pixelated; }
+
+.bag-squares { display: flex; gap: 2px; }
+.bag-square {
+  width: 7px; height: 7px;
+  background: #152234;
+  border: 1px solid #22344e;
+}
+.bag-square.full { background: var(--cyan); border-color: var(--cyan); }
+.bag-count { font-size: 7px; color: var(--gold); }
+
+/* D-pad tactile (mobile/tablette) */
+.dpad {
+  position: absolute;
+  left: 10px; bottom: 48px;   /* coin bas gauche, au-dessus de la barre SAC */
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  grid-template-rows: repeat(3, 48px);
+  gap: 5px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dpad.hidden { display: none; }
+.dpad-btn {
+  padding: 0;
+  background: rgba(7, 12, 21, .72) center / 24px 24px no-repeat;
+  border: 2px solid rgba(111, 227, 242, .45);
+  cursor: pointer;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+.dpad-btn.held {
+  background-color: rgba(111, 227, 242, .4);
+  border-color: var(--cyan);
+}
+.dpad-up    { grid-area: 1 / 2; }
+.dpad-left  { grid-area: 2 / 1; transform: rotate(-90deg); }
+.dpad-right { grid-area: 2 / 3; transform: rotate(90deg); }
+.dpad-down  { grid-area: 3 / 2; transform: rotate(180deg); }
 
 /* ---------- HUD ---------- */
 
 .hud {
   display: flex;
   justify-content: space-between;
-  align-items: stretch;
-  padding: 0 2px;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+  padding: 8px 10px;
+  background: #070d16;
 }
 
-.hud-cell { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
-.hud-mid   { align-items: center; }
-.hud-right { align-items: flex-end; }
+/* HUD détaché (challenges) : encadré autonome pleine largeur */
+.cab > .hud { border: 1px solid var(--line); }
+
+/* HUD intégré (classique) : collé à la barre VIES, largeur du canvas */
+.screen > .hud { border-bottom: 1px solid var(--line); }
+
+.hud-cell { display: flex; align-items: center; gap: 7px; }
+.hud-mid   { justify-content: center; }
+.hud-right { justify-content: flex-end; }
 
 .hud-label { font-size: 7px; color: var(--dim); letter-spacing: 1px; }
 .hud-value { font-size: 14px; color: var(--ink); }
@@ -72,8 +140,8 @@ body {
 }
 
 .combo {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  margin-top: 2px; font-size: 9px; color: var(--gold);
+  display: flex; flex-direction: row; align-items: center; gap: 8px;
+  font-size: 9px; color: var(--gold);
 }
 .combo-bar { width: 56px; height: 5px; border: 1px solid #2a3a52; background: #0a1220; }
 .combo-bar i { display: block; height: 100%; background: var(--gold); }
@@ -87,6 +155,7 @@ body {
   box-shadow: 0 0 0 3px #070d16, inset 0 0 0 1px rgba(111, 227, 242, .08);
   background: var(--screen);
   touch-action: none;
+  width: -moz-fit-content;
   width: fit-content;
   max-width: 100%;
   margin: 0 auto;
@@ -115,10 +184,9 @@ canvas#game {
 
 /* Icône déchargement : vaisseau + badge du nombre d'appels */
 .unload-btn {
-  position: absolute;
-  right: 8px; bottom: 8px;
-  z-index: 3;
-  width: 20px; height: 20px;
+  position: relative;   /* ancre du badge */
+  flex: none;
+  width: 22px; height: 22px;
   padding: 0;
   background: rgba(7, 12, 21, .85) center / 16px 16px no-repeat;
   border: 1px solid var(--cyan);
@@ -190,23 +258,23 @@ canvas#game {
   gap: 22px;
 }
 
-/* Titre du jeu (pixel art : contour dur + ombre décalée) */
+/* Titre du jeu (image) */
 .game-title {
-  font-weight: normal;
-  font-size: clamp(13px, 5.4vw, 25px);
-  letter-spacing: 2px;
-  line-height: 1.3;
   text-align: center;
-  color: var(--ink);
-  margin-bottom: 34px;   /* laisse la place au petit robot du survol */
-  text-shadow:
-    -2px  0 0 #0a1220,  2px  0 0 #0a1220,
-     0 -2px 0 #0a1220,  0  2px 0 #0a1220,
-    -2px -2px 0 #0a1220, 2px -2px 0 #0a1220,
-    -2px  2px 0 #0a1220, 2px  2px 0 #0a1220,
-    4px 4px 0 rgba(0, 0, 0, .55);
+  margin-bottom: 8px;
 }
-.game-title span { color: var(--danger); }
+.game-title-img {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  margin: 0 auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .5));
+  animation: titleIn .5s steps(6, end);
+}
+@keyframes titleIn { from { opacity: 0; transform: translateY(-10px); } }
 
 /* Boutons */
 .menu-btn {
@@ -412,7 +480,18 @@ input[type="range"] { width: 150px; accent-color: var(--gold); }
 }
 .new-record.hidden { display: none; }
 .over-stats { font-size: 7px; color: #9db4c9; margin-bottom: 12px; }
-.coins-won { font-size: 10px; color: var(--gold); margin-bottom: 14px; }
+.coins-won {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.coins-won .coin {
+  width: 14px; height: 14px;
+}
 .coins-won.nocoins { font-size: 6px; color: var(--dim); }
 .over-btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
 .over-btns .btn { font-size: 8px; padding: 10px 14px; }
@@ -424,7 +503,7 @@ input[type="range"] { width: 150px; accent-color: var(--gold); }
 /* ---------- Toast ---------- */
 
 .toast {
-  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
   z-index: 9;
   background: rgba(7, 12, 21, .96);
   border: 2px solid var(--gold);
@@ -439,9 +518,35 @@ input[type="range"] { width: 150px; accent-color: var(--gold); }
 /* ---------- Aide contrôles ---------- */
 
 .help {
-  display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-  font-size: 6px; color: var(--dim); letter-spacing: 1px; padding: 0 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 6px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  padding: 0 2px;
 }
+.help-item { display: flex; align-items: center; gap: 5px; }
+.help-sep { color: var(--line); }
+.key {
+  color: var(--ink);
+  background: #0b1320;
+  border: 1px solid #2a3a52;
+  padding: 2px 4px;
+}
+.key::before { content: '['; }
+.key::after  { content: ']'; }
+.help-snd {
+  font-family: inherit;
+  font-size: 6px; letter-spacing: 1px;
+  background: none; border: none;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0;
+}
+.help-snd:hover .key { border-color: var(--cyan); color: var(--cyan); }
 
 /* Footer de page (sticky) */
 .site-footer {
@@ -474,4 +579,9 @@ input[type="range"] { width: 150px; accent-color: var(--gold); }
 body, a, button, input, label, .page, .overlay, .screen, .toast, .help,
 .menu-btn, .btn, .unload-btn, .gameopt-btn, .site-footer, .site-footer a {
   cursor: var(--cursor, auto);
+}
+
+/* Sur tactile : les raccourcis clavier n'ont pas de sens */
+@media (pointer: coarse) {
+  .help-item, .help-sep { display: none; }
 }

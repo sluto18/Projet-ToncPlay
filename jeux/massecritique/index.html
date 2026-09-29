@@ -15,6 +15,10 @@
 
   <main class="cab">
 
+    <div class="game-title">
+      <img src="massecritiquetitre.png" alt="Masse Critique" class="game-title-img">
+    </div>
+
     <header class="hud" aria-label="Tableau de bord">
       <div class="hud-cell">
         <span class="hud-label">SCORE</span>
@@ -23,10 +27,6 @@
       <div class="hud-cell hud-mid">
         <span class="hud-label">TEMPS</span>
         <span id="hudTime" class="hud-value time">00:00</span>
-        <div id="hudCombo" class="combo hidden">
-          <span id="comboVal">x2</span>
-          <span class="combo-bar"><i id="comboBar"></i></span>
-        </div>
       </div>
       <div class="hud-cell hud-right">
         <span class="hud-label">RECORD</span>
@@ -35,18 +35,42 @@
     </header>
 
     <div class="screen">
+      <div class="gamebar gamebar-top">
+        <div class="lives-row">
+          <span class="gamebar-label">VIES :</span>
+          <span id="livesIcons" class="lives-icons"></span>
+        </div>
+        <div id="hudCombo" class="combo hidden">
+          <span id="comboVal">x2</span>
+          <span class="combo-bar"><i id="comboBar"></i></span>
+        </div>
+      </div>
+
       <canvas id="game" width="448" height="448" aria-label="Grille de jeu"></canvas>
       <div class="scanlines" aria-hidden="true"></div>
 
-      <!-- Petits boutons en jeu -->
-      <button id="btnUnload" class="unload-btn screen-btn hidden" type="button" title="Déchargement (E)">
-        <span id="unloadBadge" class="unload-badge">0</span>
-      </button>
+      <div class="gamebar gamebar-bottom">
+        <div class="bag-row">
+          <span class="gamebar-label">SAC :</span>
+          <span id="bagSquares" class="bag-squares"></span>
+          <span id="bagCount" class="bag-count">x0</span>
+        </div>
+        <button id="btnUnload" class="unload-btn screen-btn hidden" type="button" title="Déchargement (E)">
+          <span id="unloadBadge" class="unload-badge">0</span>
+        </button>
+      </div>
+
+      <!-- D-pad tactile (affiché automatiquement sur mobile/tablette) -->
+      <div id="dpad" class="dpad hidden" aria-hidden="true">
+        <button class="dpad-btn dpad-up"    data-dir="up"    type="button"></button>
+        <button class="dpad-btn dpad-left"  data-dir="left"  type="button"></button>
+        <button class="dpad-btn dpad-right" data-dir="right" type="button"></button>
+        <button class="dpad-btn dpad-down"  data-dir="down"  type="button"></button>
+      </div>
 
       <!-- ===== PAGE : ACCUEIL ===== -->
       <div id="page-title" class="page">
         <div class="home-center">
-          <h1 class="game-title">MASSE <span>CRITIQUE</span></h1>
           <div class="play-wrap">
             <span class="bot bot-left" aria-hidden="true"></span>
             <span class="bot bot-top" aria-hidden="true"></span>
@@ -151,11 +175,11 @@
           <p id="finalScore" class="final-score">000000</p>
           <p id="newRecord" class="new-record hidden">&gt;&gt;&gt; NOUVEAU RECORD &lt;&lt;&lt;</p>
           <p id="overStats" class="over-stats"></p>
-          <p id="coinsWon" class="coins-won"></p>
           <div class="over-btns">
             <button id="btnRetry" class="btn" type="button">REJOUER</button>
             <button id="btnMenu" class="btn" type="button">MENU</button>
           </div>
+          <p id="coinsWon" class="coins-won"></p>
           <p class="hint">ESPACE POUR REJOUER</p>
         </div>
       </div>
@@ -164,10 +188,13 @@
     </div>
 
     <div class="help">
-      <span>SOURIS · DÉPLACER</span>
-      <span>E · DÉCHARGER</span>
-      <span>P · PAUSE</span>
-      <span>M · SON</span>
+      <span class="help-item"><span class="key">SOURIS</span> Déplacer</span>
+      <span class="help-sep">│</span>
+      <span class="help-item"><span class="key">E</span> Décharger</span>
+      <span class="help-sep">│</span>
+      <span class="help-item"><span class="key">P</span> Pause</span>
+      <span class="help-sep">│</span>
+      <button id="btnSnd" class="help-snd screen-btn" type="button"><span class="key">M</span> <span id="sndIcon">🔊</span></button>
       <button id="btnGameOpt" class="gameopt-btn screen-btn hidden" type="button" title="Options" aria-label="Options"></button>
     </div>
 
