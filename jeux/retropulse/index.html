@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>RETROPULSE — Jeu de rythme synthwave</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-state="home">
+
+<!-- Fond animé synthwave (dessiné en Canvas, derrière tout) -->
+<canvas id="bg" aria-hidden="true"></canvas>
+<!-- Texture CRT très légère par-dessus l'ensemble -->
+<div id="scanlines" aria-hidden="true"></div>
+
+<!-- Bouton options flottant (accueil + sélection) -->
+<button id="btn-options" class="icon-btn" title="Options et calibrage" aria-label="Options">
+  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 8.6A3.4 3.4 0 1 0 12 15.4A3.4 3.4 0 0 0 12 8.6M12 6.2a5.8 5.8 0 1 1 0 11.6a5.8 5.8 0 0 1 0-11.6M10.4 2h3.2l.5 2.6c.6.2 1.2.5 1.7.9l2.4-1.1l2.3 4l-2 1.7c.1.6.1 1.2 0 1.8l2 1.7l-2.3 4l-2.4-1.1c-.5.4-1.1.7-1.7.9L13.6 22h-3.2l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.4 1.1l-2.3-4l2-1.7a6.6 6.6 0 0 1 0-1.8l-2-1.7l2.3-4l2.4 1.1c.5-.4 1.1-.7 1.7-.9Z" fill="currentColor"/></svg>
+</button>
+
+<!-- ═══════════ ÉCRAN D'ACCUEIL ═══════════ -->
+<section class="screen show" id="scr-home">
+  <div class="home-inner">
+    <p class="kicker">JEU DE RYTHME · 4 PISTES · WEB AUDIO</p>
+    <h1 class="logo"><span class="logo-a">RETRO</span><span class="logo-b">PULSE</span></h1>
+    <p class="tagline">Dix morceaux composés par le code, joués au clavier ou du bout des doigts.<br>Frappez les notes en rythme&nbsp;: <b>D</b> · <b>F</b> · <b>J</b> · <b>K</b> — ou touchez les colonnes.</p>
+    <button class="btn btn-primary" id="btn-start">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 3.5 20 12 6 20.5Z" fill="currentColor"/></svg>
+      <span id="btn-start-label">ENTRÉE POUR COMMENCER</span>
+    </button>
+    <div class="lvl" id="lvl-home">
+      <span class="lvl-badge">NV. <b>1</b></span>
+      <span class="lvl-bar"><i class="lvl-fill"></i></span>
+      <span class="lvl-xp">0 XP</span>
+    </div>
+    <p class="credit">Musique générée en direct par oscillateurs — aucun fichier audio.</p>
+  </div>
+</section>
+
+<!-- ═══════════ ÉCRAN DE SÉLECTION ═══════════ -->
+<section class="screen" id="scr-select">
+  <div class="select-inner">
+    <header class="select-head">
+      <button class="btn btn-ghost" id="btn-back-home">← RETOUR</button>
+      <h2>CHOISISSEZ VOTRE PISTE</h2>
+      <div class="lvl" id="lvl-select">
+        <span class="lvl-badge">NV. <b>1</b></span>
+        <span class="lvl-bar"><i class="lvl-fill"></i></span>
+        <span class="lvl-xp">0 XP</span>
+      </div>
+    </header>
+    <div id="tracks"><!-- tracklist générée en JS --></div>
+    <p class="hint-line">Une médaille (bronze ou mieux) sur une piste débloque la suivante — toute difficulté confondue.</p>
+  </div>
+</section>
+
+<!-- ═══════════ ÉCRAN DE JEU ═══════════ -->
+<section class="screen" id="scr-game">
+  <button id="btn-pause" class="icon-btn" title="Pause" aria-label="Pause">
+    <svg viewBox="0 0 24 24" width="18" height="18"><path d="M7 4h4v16H7zM13 4h4v16h-4z" fill="currentColor"/></svg>
+  </button>
+  <div id="game-chrome">
+    <div id="hud-progress"><i id="hud-progress-fill"></i></div>
+    <div id="hud-row">
+      <div id="hud-left">
+        <span class="hud-label">SCORE</span>
+        <span id="hud-score">0</span>
+        <span id="hud-mult" class="m1">×1</span>
+      </div>
+      <div id="hud-right">
+        <span class="hud-label">VIE</span>
+        <span id="hud-life"><i id="hud-life-fill"></i></span>
+      </div>
+    </div>
+  </div>
+  <div id="field-wrap">
+    <canvas id="field"></canvas>
+    <div id="combo"><span id="combo-n">0</span><span id="combo-l">COMBO</span></div>
+    <div id="count"></div>
+  </div>
+  <p id="game-hint"></p>
+</section>
+
+<!-- ═══════════ ÉCRAN DE RÉSULTAT ═══════════ -->
+<section class="screen" id="scr-result">
+  <div class="result-inner">
+    <p class="kicker" id="res-song">NÉON CITY</p>
+    <h2 id="res-title">PIÈCE TERMINÉE</h2>
+    <div id="res-medal"></div>
+    <p id="res-diff" class="res-diff">NORMAL</p>
+    <p id="res-newbest" class="newbest">NOUVEAU RECORD</p>
+    <div class="res-scoreline"><span class="hud-label">SCORE</span><span id="res-score">0</span></div>
+    <div class="res-grid">
+      <div><span class="hud-label">PRÉCISION</span><b id="res-acc">0%</b></div>
+      <div><span class="hud-label">MEILLEUR COMBO</span><b id="res-combo">0</b></div>
+      <div><span class="hud-label">ÉCART MOYEN</span><b id="res-delta">0 ms</b></div>
+    </div>
+    <div class="res-stats">
+      <span class="jg jp">PARFAIT <b id="r-p">0</b></span>
+      <span class="jg jb">BIEN <b id="r-b">0</b></span>
+      <span class="jg jo">OK <b id="r-o">0</b></span>
+      <span class="jg jm">RATÉ <b id="r-m">0</b></span>
+    </div>
+    <div class="res-xp">
+      <div class="res-xp-head"><span class="hud-label">EXPÉRIENCE</span><span id="res-xp-txt">+0 XP</span></div>
+      <span class="lvl-bar big"><i id="res-xp-fill"></i></span>
+      <p id="res-levelup" class="levelup">NIVEAU SUPÉRIEUR&nbsp;!</p>
+    </div>
+    <div class="res-actions">
+      <button class="btn btn-primary" id="btn-replay">REJOUER <small>(Entrée)</small></button>
+      <button class="btn btn-ghost" id="btn-res-menu">MENU <small>(Échap)</small></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ÉCRAN D'ÉCHEC ═══════════ -->
+<section class="screen" id="scr-fail">
+  <div class="result-inner fail-inner">
+    <h2 class="fail-title">ÉCHEC</h2>
+    <p class="fail-sub">La jauge de vie est tombée à zéro.</p>
+    <p class="fail-quote" id="fail-quote">« … »</p>
+    <div class="res-actions">
+      <button class="btn btn-primary" id="btn-retry">RÉESSAYER <small>(Entrée)</small></button>
+      <button class="btn btn-ghost" id="btn-fail-menu">MENU <small>(Échap)</small></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ OVERLAY PAUSE ═══════════ -->
+<div id="overlay-pause" class="overlay">
+  <div class="panel">
+    <h2>PAUSE</h2>
+    <p class="panel-sub">Le son est coupé proprement — reprenez quand vous voulez.</p>
+    <div class="res-actions col">
+      <button class="btn btn-primary" id="btn-resume">REPRENDRE</button>
+      <button class="btn" id="btn-restart">RECOMMENCER</button>
+      <button class="btn btn-ghost" id="btn-quit">QUITTER</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODALE OPTIONS / CALIBRAGE ═══════════ -->
+<div id="modal-options" class="overlay">
+  <div class="panel">
+    <h2>OPTIONS</h2>
+    <div class="opt-row">
+      <label for="opt-vol">VOLUME GÉNÉRAL</label>
+      <div class="opt-ctrl">
+        <input type="range" id="opt-vol" min="0" max="100" value="80">
+        <output id="opt-vol-val">80%</output>
+      </div>
+    </div>
+    <div class="opt-row">
+      <label for="opt-offset">DÉCALAGE VISUEL (LATENCE)</label>
+      <div class="opt-ctrl">
+        <input type="range" id="opt-offset" min="-150" max="150" step="5" value="0">
+        <output id="opt-offset-val">0 ms</output>
+      </div>
+    </div>
+    <p class="opt-help">Si vos frappes arrivent trop tôt, augmentez le décalage&nbsp;; trop tard, diminuez-le.</p>
+    <div id="calib-zone">
+      <button class="btn" id="btn-calib">TEST DE CALIBRAGE AUTOMATIQUE</button>
+      <p id="calib-status">Huit tics vont retentir — tapez en rythme (Espace ou en touchant cette zone).</p>
+      <button class="btn btn-primary hidden" id="btn-calib-apply">APPLIQUER</button>
+    </div>
+    <div class="res-actions">
+      <button class="btn btn-primary" id="btn-close-opt">FERMER</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
