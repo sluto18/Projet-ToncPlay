@@ -1105,11 +1105,13 @@ function renderField(vNow, dt){
       c.strokeStyle = COLS[i].c + (pulse>0.4 ? 'ff' : '88');
       c.lineWidth = 1.5; c.stroke();
     }
-    // Lettre de la touche (équivalent clavier, utile aussi au tactile)
-    c.fillStyle = (held||fl>0.05) ? '#0a0620' : COLS[i].c;
-    c.font = '700 17px ' + getComputedStyle(document.body).getPropertyValue('--f-mono');
-    c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.fillText(COLS[i].label, px+pw/2, py+ph/2+1);
+    // Lettre de la touche — affichée uniquement sur ordinateur (clavier physique)
+    if (!IS_TOUCH){
+      c.fillStyle = (held||fl>0.05) ? '#0a0620' : COLS[i].c;
+      c.font = '700 17px ' + getComputedStyle(document.body).getPropertyValue('--f-mono');
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(COLS[i].label, px+pw/2, py+ph/2+1);
+    }
   }
 
   // ── Notes ──
@@ -1663,6 +1665,7 @@ resizeAll();
 refreshLevelUI();
 // Textes adaptés au périphérique (clavier ou écran tactile)
  $('#btn-start-label').textContent = IS_TOUCH ? 'TOUCHER POUR COMMENCER' : 'ENTRÉE POUR COMMENCER';
+ if (IS_TOUCH) $('#tagline').textContent = 'Frappez les notes en rythme en touchant les colonnes.';
  $('#game-hint').innerHTML = IS_TOUCH
   ? 'Touchez les <b>colonnes</b> en rythme — bouton <b>PAUSE</b> en haut à droite'
   : '<b>D</b> · <b>F</b> · <b>J</b> · <b>K</b> — <b>Échap</b>&nbsp;: pause';

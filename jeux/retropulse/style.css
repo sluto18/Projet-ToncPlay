@@ -19,6 +19,8 @@
   --red:     #ff4d6d;
   --f-disp: "Bahnschrift", "Avenir Next Condensed", "Arial Narrow", "Segoe UI", sans-serif;
   --f-mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  display: flex;
+  flex-direction: column;
 }
 
 *{ margin:0; padding:0; box-sizing:border-box; }
@@ -155,6 +157,7 @@ body[data-state="game"] #btn-pause{ display:flex; }
   width:min(760px, 94vw); max-height:94vh; overflow:auto;
   padding:10px calc(10px + env(safe-area-inset-right)) 10px calc(10px + env(safe-area-inset-left));
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 48px;
 }
 .select-head{ display:flex; align-items:center; gap:16px; margin-bottom:22px; }
 .select-head h2{
@@ -310,6 +313,7 @@ input[type="range"]{ flex:1; accent-color: var(--mag); height:4px; cursor:pointe
   text-align:center; background:var(--panel); border:1px solid var(--line);
   padding:28px 30px; animation: fadeUp .35s ease;
   box-shadow: 0 0 60px rgba(0,229,255,.08);
+  padding-bottom: 52px;
 }
 #res-title{ font-size:clamp(24px, 5vw, 32px); font-style:italic; letter-spacing:.15em; }
 .res-diff{ font:600 11px var(--f-mono); letter-spacing:.4em; color:var(--dim); margin-top:4px; }
@@ -362,3 +366,22 @@ input[type="range"]{ flex:1; accent-color: var(--mag); height:4px; cursor:pointe
   #game-hint{ display:none; }
   #combo{ top:12%; }
 }
+
+/* ── Footer sticky (méthode flexbox : margin-top:auto) ───── */
+#footerText{
+  position: relative;  z-index: 40;   /* au-dessus des écrans (z10), sous les overlays (z50) */
+  margin-top: auto;                    /* ← c'est ça, le sticky : colle le footer en bas */
+  text-align: center;
+  font: 400 11px/1.6 var(--f-mono);
+  color: rgba(139,147,201,.8);
+  padding: 9px 12px calc(9px + env(safe-area-inset-bottom));
+}
+#footerText a{
+  color: var(--cyan);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(0,229,255,.5);
+}
+#footerText a:hover{ text-shadow: 0 0 10px rgba(0,229,255,.8); }
+/* Sticky footer (méthode flexbox) */
+body{ display: flex; flex-direction: column; }
+#footerText{ margin-top: auto; }
