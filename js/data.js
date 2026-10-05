@@ -33,6 +33,27 @@
    ============================================================ */
 const GAMES = [
    {
+    img: 'jaquette/retropulse.png',
+    title: 'RetroPulse',
+    desc: 'Enchaînez les notes en rythme sur des synthés rétros et surfez sur la vague synthwave !',
+    link: 'jeux/retropulse/index.html',
+    genre: 'Rythme',
+    tags: ['rythme', 'musical'],
+    date: '05/10/2026',
+    iso: '2026-10-05',
+    descLong: `<b>Le Pitch :</b><br>
+      Chaussez vos meilleures spadrilles, mettez votre veste en cuir fluo et préparez vos doigts : <i>RetroPulse</i> vous catapulte directement dans les années 80 à travers un néon-trip musical survolté !<br><br>
+      <b>Votre Mission :</b><br>
+      Suivez la cadence, validez les notes au centième de seconde près et enchaînez les combos parfaits pour faire exploser le score. Plus la musique accélère, plus vos réflexes seront mis à rude épreuve.<br><br>
+      <b>Ce qui vous attend :</b><br>
+      • Une ambiance néon/synthwave rétro-futuriste ultra léchée.<br>
+      • Des pistes rythmées exigeantes pour tester votre sens de la mesure et votre sang-froid.<br>
+      • Une seule règle d'or : <i>Un faux pli dans le tempo, et c'est le fausse note assurée. Tapez en rythme !</i>`,
+      screens: [
+      'images/screens/retropulse/1.png',
+      'images/screens/retropulse/2.png',
+    ]},
+   {
          img:   'jaquette/massecritique.png',
       title: 'Masse Critique', 
       desc: "Guidez un robot dans l'espace, ramassez des orbes et esquivez les débris spatiaux !",
@@ -323,6 +344,12 @@ const GAMES = [
    • tout le reste     → badge ÉVÉNEMENT (bleu)
    ============================================================ */
 const NEWS = [
+   {
+    img: 'jaquette/retropulse.png',
+    title: 'Sortie de RetroPulse',
+    date: '05/10/2026',
+    text: 'Branchez les casques et chauffez vos réflexes, <b>RetroPulse</b> débarque sur ToncPlay !<br><br>Plongez dans un jeu de rythme survitaminé sur une bande-son synthwave rétro-futuriste. Tapotez en tempo, enchaînez les combos et tentez d\\\'atteindre le sommet du classement sans rater une seule note.<br><br>Prêts à faire chauffer le clavier ? Venez tester votre sens du rythme dès maintenant !'
+  },
    {
     img:   'jaquette/massecritique.png',
     title: 'Sortie de Masse Critique !',
