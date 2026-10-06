@@ -1,0 +1,24 @@
+/* ════════════════════════════════════════════════════════════
+   CARTONNERIE — feuille de style
+   Toute l'interface est dessinée DANS le canvas : le CSS se
+   limite au plein écran et au fond "carton ondulé".
+   ════════════════════════════════════════════════════════════ */
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ height:100%; overflow:hidden; }
+body{
+  background:#171210;
+  /* cannelures d'ondulé discrètes (visibles pendant le chargement) */
+  background-image:repeating-linear-gradient(
+    to bottom,
+    #191310 0px, #191310 7px,
+    #171110 7px, #171110 14px
+  );
+  user-select:none;
+}
+#game{
+  display:block;
+  width:100vw; height:100vh;
+  image-rendering:pixelated;
+  cursor:default;
+}
