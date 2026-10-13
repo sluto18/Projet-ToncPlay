@@ -1,0 +1,316 @@
+/* ══════════════════════════════════════════════════════════════
+   AILE D'ACIER v2 — feuille de style
+   Direction : cabine d'arcade nocturne, aplats, ombres dures.
+   ══════════════════════════════════════════════════════════════ */
+*{ box-sizing:border-box; margin:0; padding:0; }
+html, body{ height:100%; }
+
+body{
+  background:#0b0e18;
+  color:#c8d2e6;
+  font-family:'VT323', monospace;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none;
+  overflow-x:hidden;
+}
+
+.cache{ display:none !important; }
+
+/* ————— Écran d'accueil ————— */
+#ecran-accueil{
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding:18px;
+  background:#070a12;
+}
+.accueil-scene{ display:flex; flex-direction:column; align-items:center; gap:20px; }
+#canvas-accueil{ width:min(540px, 92vw); height:auto; display:block; image-rendering:pixelated; }
+
+#bouton-jouer{
+  font-family:'Press Start 2P', monospace;
+  font-size:16px;
+  padding:17px 46px;
+  background:#0a0d1a;
+  color:#ffb020;
+  border:3px solid #ffb020;
+  cursor:pointer;
+  animation:poulsBouton 1.7s ease-in-out infinite;
+  touch-action:manipulation;
+}
+#bouton-jouer:hover{ background:#ffb020; color:#0a0d1a; }
+.rang-accueil{ display:flex; gap:14px; }
+#bouton-survie{
+  font-family:'Press Start 2P', monospace;
+  font-size:16px;
+  padding:17px 34px;
+  background:#0a0d1a;
+  color:#5cf7e4;
+  border:3px solid #5cf7e4;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+#bouton-survie:hover{ background:#5cf7e4; color:#0a0d1a; }
+#bouton-survie.verrouille{ color:#55617e; border-color:#333c58; cursor:default; }
+#bouton-survie.verrouille:hover{ background:#0a0d1a; color:#55617e; }
+@keyframes poulsBouton{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.06); }
+}
+.accueil-pied{ color:#5c688a; font-size:17px; letter-spacing:1px; text-align:center; }
+
+/* ————— Écran : carte de campagne ————— */
+#ecran-carte{
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  gap:14px; padding:24px 12px 40px;
+}
+
+.entete{ display:flex; align-items:center; gap:16px; }
+#logo{ image-rendering:pixelated; }
+
+.titre-bloc h1{
+  font-family:'Press Start 2P', monospace;
+  font-size:clamp(17px, 5.2vw, 27px);
+  color:#ffb020;
+  text-shadow:3px 3px 0 #7a3c00;   /* ombre dure bien arcade */
+  letter-spacing:1px;
+}
+.sous-titre{ font-size:clamp(16px, 3.4vw, 21px); color:#7f8db0; letter-spacing:1px; }
+
+.barre-outils{
+  display:flex; align-items:center; gap:10px;
+  background:#11162a; border:2px solid #232b48; padding:6px 12px;
+}
+.stat{ display:flex; align-items:center; gap:6px; font-size:19px; color:#e8ddc0; }
+.stat svg{ fill:#ffb020; width:15px; height:15px; }
+.stat.neutre svg{ fill:#8fa0c0; }
+
+.bouton-carre{
+  width:34px; height:34px; display:grid; place-items:center;
+  background:#0d1122; border:2px solid #2c3550; color:#8fa0c0;
+  cursor:pointer; touch-action:manipulation;
+}
+.bouton-carre svg{ fill:currentColor; width:17px; height:17px; }
+.bouton-carre:hover{ color:#ffb020; border-color:#ffb020; }
+
+/* La carte du monde : chemin serpentin dans un panneau à zones */
+#carte-monde{
+  position:relative;
+  width:min(430px, 92vw);
+  aspect-ratio:43/68;
+  background:#0c1220;
+  border:3px solid #232b48;
+  overflow:hidden;
+}
+#fond-carte{ position:absolute; inset:0; width:100%; height:100%; }
+#defilement-carte{
+  position:absolute; inset:0;
+  overflow-y:auto; overflow-x:hidden;
+  touch-action:pan-y;      /* on peut faire défiler la route au doigt */
+  scrollbar-width:none;
+}
+#defilement-carte::-webkit-scrollbar{ display:none; }
+#contenu-carte{ position:relative; width:100%; }
+.pastille{ width:11px; height:11px; border-radius:50%; display:inline-block; }
+
+#trace{ position:absolute; inset:0; width:100%; height:100%; }
+#trace .trace-base{
+  fill:none; stroke:#242e4c; stroke-width:9;
+  stroke-linecap:round; stroke-dasharray:0.5 15.5;   /* pointillé en gros points */
+}
+#trace .trace-progression{
+  fill:none; stroke:#c98a1e; stroke-width:6; stroke-linecap:round;
+}
+
+/* Nœuds de niveau */
+.noeud{
+  position:absolute; transform:translate(-50%,-50%);
+  width:clamp(34px, 9.5vw, 46px); aspect-ratio:1;
+  border-radius:50%;
+  background:#0a0d1a;
+  border:3px solid var(--couleur-env, #3f8f4f);
+  display:grid; place-items:center;
+  cursor:pointer; z-index:2;
+  touch-action:manipulation;
+}
+.noeud .numero{ font-family:'Press Start 2P', monospace; width:clamp(34px, 9.5vw, 46px); color:#e8eefc; font-size:clamp(10px, 2.7vw, 13px); }
+.noeud .cadenas{ width:42%; color:#55617e; display:none; }
+.noeud.verrouille{ border-color:#333c58; cursor:default; }
+.noeud.verrouille .numero{ display:none; }
+.noeud.verrouille .cadenas{ display:block; }
+.noeud.complet .numero{ color:#ffd97a; }
+.noeud.courant{ border-color:#ffb020; }
+.noeud.courant::after{
+  content:''; position:absolute; inset:-7px;
+  border:3px solid rgba(255,176,32,.75); border-radius:50%;
+  animation:pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{ transform:scale(1); opacity:.9; }
+  50%{ transform:scale(1.18); opacity:.2; }
+}
+.etoiles-noeud{
+  position:absolute; top:calc(100% + 3px); left:50%;
+  transform:translateX(-50%);
+  display:flex; gap:2px;
+}
+.etoiles-noeud .etoile{ width:13px; height:13px; fill:#2b3452; }
+.etoiles-noeud .etoile.gagnee{ fill:#ffb020; }
+
+.pied{ text-align:center; color:#5c688a; font-size:17px; letter-spacing:1px; line-height:1.35; }
+
+/* ————— Modale de confirmation ————— */
+#voile-modale{
+  position:fixed; inset:0; z-index:50;
+  background:rgba(4,6,12,.82);
+  display:none; place-items:center;
+}
+#voile-modale.ouvert{ display:grid; }
+.modale{ background:#11162a; border:3px solid #2c3550; padding:22px 26px; text-align:center; }
+.modale p{ font-size:22px; margin-bottom:16px; color:#e8eefc; }
+.rang-boutons{ display:flex; gap:12px; justify-content:center; }
+.rang-boutons button{
+  font-family:'Press Start 2P', monospace; font-size:12px; padding:10px 18px;
+  background:#0a0d1a; color:#ffb020; border:2px solid #ffb020; cursor:pointer;
+}
+.rang-boutons button:hover{ background:#ffb020; color:#0a0d1a; }
+
+/* ————— Écran de jeu ————— */
+#ecran-jeu{
+  position:fixed; inset:0; z-index:10;
+  background:#04060c;
+  display:flex; align-items:center; justify-content:center;
+}
+#cadre-jeu{ position:relative; height:min(100vh, 133.34vw); aspect-ratio:3/4; }
+#jeu{ width:100%; height:100%; display:block; background:#000; image-rendering:pixelated; }
+
+/* Effet CRT discret : fines lignes de balayage par-dessus le canvas */
+#scanlines{
+  position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(rgba(0,0,0,0) 0 2px, rgba(0,0,0,.15) 2px 3px);
+}
+
+/* ————— Contrôles tactiles ————— */
+#overlay-tactile{ position:absolute; inset:0; display:none; touch-action:none; z-index:5; }
+body.tactile #overlay-tactile{ display:block; }
+
+#base-joystick{
+  position:absolute; width:112px; height:112px; margin:-56px 0 0 -56px;
+  border-radius:50%;
+  border:2px dashed rgba(92,247,228,.45);
+  background:rgba(92,247,228,.05);
+  display:none; pointer-events:none;
+}
+#knob{
+  position:absolute; left:50%; top:50%; width:48px; height:48px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:rgba(92,247,228,.28);
+  border:2px solid rgba(92,247,228,.75);
+}
+#bouton-tir{
+  position:absolute; right:4%; bottom:5%;
+  width:clamp(70px, 19vw, 90px); aspect-ratio:1;
+  border-radius:50%;
+  border:3px solid rgba(255,176,32,.65);
+  background:rgba(255,176,32,.10);
+  color:rgba(255,176,32,.92);
+  font-family:'Press Start 2P', monospace; font-size:clamp(11px, 2.6vw, 14px);
+}
+#bouton-tir.actif{ background:rgba(255,176,32,.35); }
+#bouton-pause{
+  position:absolute; top:10px; right:10px;
+  width:42px; height:34px;
+  background:rgba(10,13,26,.5);
+  border:2px solid rgba(143,160,192,.5);
+  color:#8fa0c0; cursor:pointer;
+}
+#bouton-pause::before, #bouton-pause::after{
+  content:''; display:inline-block;
+  width:4px; height:14px; background:currentColor; margin:0 2px;
+}
+
+/* ————— Fiche de secteur (clic sur un nœud de la carte) ————— */
+#volet-niveau{
+  position:absolute; inset:0; z-index:4;
+  background:rgba(4,6,12,.55);
+  display:none;
+}
+#panneau-niveau{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);   /* recentrage permanent : sans lui, la fiche
+                                       retombe décalée dès la fin de l'animation */
+  z-index:5;
+  width:82%;
+  background:#11162a;
+  border:3px solid #2c3550;
+  padding:14px 16px;
+  display:none;
+  text-align:center;
+}
+#panneau-niveau.ouvert{
+  display:block;
+  animation:popPanneau .16s ease;
+}
+@keyframes popPanneau{
+  from{ transform:translate(-50%,-46%) scale(.88); opacity:0; }
+  to{   transform:translate(-50%,-50%) scale(1);   opacity:1; }
+}
+#panneau-niveau .p-num{
+  font-family:'Press Start 2P', monospace;
+  font-size:12px; color:#ffb020; letter-spacing:1px;
+}
+#panneau-niveau .p-secteur{
+  font-size:25px; color:#e8eefc; margin:5px 0 3px;
+}
+#panneau-niveau .p-env{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  font-size:17px; color:#8fa0c0; letter-spacing:1px;
+}
+#panneau-niveau .p-etoiles{
+  display:flex; justify-content:center; gap:5px; margin:9px 0 7px;
+}
+#panneau-niveau .p-etoiles .etoile{ width:18px; height:18px; fill:#2b3452; }
+#panneau-niveau .p-etoiles .etoile.gagnee{ fill:#ffb020; }
+#panneau-niveau .p-record{
+  font-family:'Press Start 2P', monospace;
+  font-size:10px; color:#ffd97a; margin-bottom:13px;
+}
+#panneau-niveau .p-boutons{ display:flex; gap:10px; justify-content:center; }
+#panneau-niveau .p-boutons button{
+  font-family:'Press Start 2P', monospace; font-size:11px;
+  padding:10px 16px; cursor:pointer;
+  background:#0a0d1a; color:#8fa0c0; border:2px solid #2c3550;
+}
+#panneau-niveau .p-boutons #bouton-lancer{
+  color:#ffb020; border-color:#ffb020;
+}
+#panneau-niveau .p-boutons #bouton-lancer:hover{
+  background:#ffb020; color:#0a0d1a;
+}
+
+/* ————— Pied de page global (sticky footer) ————— */
+#pied-page{
+  flex-shrink:0;              /* jamais compressé */
+  text-align:center;
+  padding:12px 10px 14px;
+  font-size:17px;
+  color:#5c688a;
+  letter-spacing:1px;
+}
+#pied-page p{ margin:0; }
+#pied-page a{
+  color:#ffb020;                        /* l'accent ambre du jeu */
+  text-decoration:none;
+  border-bottom:2px solid rgba(255,176,32,.35);   /* soulignement net, rétro */
+  padding-bottom:1px;
+  transition:color .15s ease, border-color .15s ease;
+}
+#pied-page a:hover{
+  color:#ffe94a;
+  border-bottom-color:#ffe94a;
+}
+#pied-page a:focus-visible{
+  outline:2px dashed #ffb020;           /* navigation clavier : visible */
+  outline-offset:3px;
+}
