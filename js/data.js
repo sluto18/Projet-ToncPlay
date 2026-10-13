@@ -32,7 +32,18 @@
    },
    ============================================================ */
 const GAMES = [
-   {
+  {
+    img: 'jaquette/ailedacier.jpg',
+    title: 'Aile d\'Acier',
+    desc: 'Tirez sur tout ce qui vole. Et sur le reste, au cas où.',
+    link: 'jeux/ailedacier/index.html',
+    genre: 'Shooter',
+    tags: ['Shooter', 'Shoot EM UP', 'Arcade'],
+    date: '14/10/2026',
+    iso: '2026-10-14',
+    screens: ['images/screens/ailedacier/1.png', 'images/screens/ailedacier/2.png', 'images/screens/ailedacier/3.png', 'images/screens/ailedacier/4.png']
+  },
+  {
     img: 'jaquette/retropulse.png',
     title: 'RetroPulse',
     desc: 'Enchaînez les notes en rythme sur des synthés rétros et surfez sur la vague synthwave !',
@@ -53,7 +64,7 @@ const GAMES = [
       'images/screens/retropulse/1.png',
       'images/screens/retropulse/2.png',
     ]},
-   {
+    {
          img:   'jaquette/massecritique.png',
       title: 'Masse Critique', 
       desc: "Guidez un robot dans l'espace, ramassez des orbes et esquivez les débris spatiaux !",
@@ -72,9 +83,8 @@ const GAMES = [
       • Une difficulté progressive avec des vagues d'obstacles variées.<br>
       • Une seule règle d'or : <i>Si un satellite vous fonce dessus... ce n'est pas le moment de vérifier votre itinéraire GPS !</i>`,
       screens: [
-      'screens/monjeu/1.png',
-      'screens/monjeu/2.png',
-      'screens/monjeu/3.png',
+      'images/screens/massecritique/1.png',
+      'images/screens/massecritique/2.png',
     ]},
   {
      img:   'jaquette/suivezleguide.jpg',
@@ -95,9 +105,8 @@ const GAMES = [
      • Un hommage vibrant aux grands classiques du jeu de réflexion rétro.<br>
      • Une seule règle d'or : <i>C'est vous le chef, chef ! Ne les laissez pas faire n'importe quoi !</i>`,
      screens: [
-      'screens/monjeu/1.png',
-      'screens/monjeu/2.png',
-      'screens/monjeu/3.png',
+      'images/screens/suivezleguide/1.png',
+      'images/screens/suivezleguide/2.png',
     ],
    },
   {
@@ -117,7 +126,11 @@ const GAMES = [
     • Une conduite arcade nerveuse et prise en main immédiate.<br>
     • Un style visuel rétro tout en blocs et angles droits.<br>
     • De la déception, certainement !</i>`,
-      },
+    screens: [
+      'images/screens/taxirush/1.png',
+      'images/screens/taxirush/2.png',
+    ],
+  },
   {
     img: 'jaquette/donjonbaluchon.png',
     title: 'Donjon & Baluchon',
@@ -136,6 +149,10 @@ const GAMES = [
     • Des casse-têtes tactiques où chaque déplacement doit être anticipé.<br>
     • Des commandes simples avec options d'annulation (Touche U) et de réinitialisation rapide (Touche R).<br>
     • Une seule règle d'or : <i>Un vrai héros ne tire jamais ses sacs, il les pousse avec honneur !</i>`,
+    screens: [
+      'images/screens/donjonbaluchon/1.png',
+      'images/screens/donjonbaluchon/2.png',
+    ],
   },
   {
     img: 'jaquette/sliderobot.png',
@@ -155,6 +172,10 @@ const GAMES = [
     • Des parties aléatoires pour faire chauffer vos méninges à l'infini.<br>
     • Un compteur de coups et un chrono pour mesurer vos meilleures performances.<br>
     • Une seule règle d'or : <i>Dans le doute, faites sauter un robot contre un mur, ça finit toujours par passer !</i>`,
+    screens: [
+      'images/screens/sliderobot/1.png',
+      'images/screens/sliderobot/2.png',
+    ],
   },
   {
     img: 'jaquette/cafetycoon.png',
@@ -173,6 +194,11 @@ const GAMES = [
     • Un jeu de gestion incremental / idle addictif et complet.<br>
     • Une vraie stratégie commerciale : plantation, préparation et commerce.<br>
     • Une seule règle d'or : <i>Si le client commande un café... servez-le vite, parce qu'après ça va couper !</i>`,
+    screens: [
+      'images/screens/cafetycoon/1.png',
+      'images/screens/cafetycoon/2.png',
+      'images/screens/cafetycoon/3.png',
+    ],
   },
   {
     img: 'jaquette/deadzonebastion.jpg',
@@ -191,6 +217,11 @@ const GAMES = [
     • Un Tower Defense rétro intense mêlant stratégie en temps réel et progression permanente.<br>
     • Un arbre de compétences complet : renforcez votre Bastion, votre Santé, votre Économie et vos Sorts.<br>
     • Une seule règle d'or : <i>Un bon zombie est un zombie qui se prend un tir critique dans le désert... Prenez un chewing-gum et feu à volonté !</i>`,
+    screens: [
+      'images/screens/deadzonebastion/1.png',
+      'images/screens/deadzonebastion/2.png',
+      'images/screens/deadzonebastion/3.png',
+    ],
   },
   {
     img: 'jaquette/neonsnake.png',
@@ -209,6 +240,11 @@ const GAMES = [
     • Un gameplay intemporel et ultra-addictif avec un style graphique synthwave / néon.<br>
     • Des commandes réactives pour des réflexes mis à rude épreuve.<br>
     • Une seule règle d'or : <i>Si vous commencez à vous mordre la queue... ce n'est pas un concept philosophique, c'est juste la fin de la partie !</i>`,
+    screens: [
+      'images/screens/neonsnake/1.png',
+      'images/screens/neonsnake/2.png',
+      'images/screens/neonsnake/3.png',
+    ],
   },
   {
     img: 'jaquette/leblob.png',
@@ -229,6 +265,11 @@ const GAMES = [
     • Une aventure de plateforme colorée et attachante.<br>
     • Deux modes de jeu distincts pour varier les plaisirs et les défis.<br>
     • Une seule règle d'or : <i>Si une plateforme s'effondre sous vos pieds... c'est le moment de sauter, pas de prendre un chewing-gum !</i>`,
+    screens: [
+      'images/screens/leblob/1.png',
+      'images/screens/leblob/2.png',
+      'images/screens/leblob/3.png',
+    ],
   },
   {
     img: 'jaquette/rastajump.png',
@@ -247,6 +288,9 @@ const GAMES = [
     • Un runner infini ultra-addictif et nerveux, idéal pour tester vos réflexes.<br>
     • Une ambiance décalée et colorée inspirée de la culture reggae.<br>
     • Une seule règle d'or : <i>Restez zen, sautez au bon moment... et souvenez-vous que le réseau n'a pas besoin de couper pour prendre du bon temps !</i>`,
+    screens: [
+      'images/screens/rastajump/1.png',
+    ],
   },
   {
     img: 'jaquette/survivhordes.jpg',
@@ -265,6 +309,10 @@ const GAMES = [
     • Une fusion parfaite entre l'univers culte de Hordes et le genre du roguelite d'action.<br>
     • Des synergies d'armes et d'objets iconiques pour créer le build de survie ultime.<br>
     • N'oubliez pas : <i>Dans le désert, personne ne vous entendra crier... Essayez juste de ne pas mourir dès la première minute !</i>`,
+    screens: [
+      'images/screens/survivhordes/1.png',
+      'images/screens/survivhordes/2.png',
+    ],
   },
   {
     img: 'jaquette/galacticdefender.png',
@@ -283,6 +331,9 @@ const GAMES = [
     • L'expérience authentique (et sans filtre) d'un des tout premiers jeux développés pour le site.<br>
     • Un gameplay arcade rétro, simple, direct et instantané.<br>
     • <i>C'est peut-être pas du Star Wars, mais hé... ça tire du laser et ça fait 'piou piou', c'est l'essentiel !</i>`,
+    screens: [
+      'images/screens/galacticdefender/1.png',
+    ],
   },
   {
     img: 'jaquette/cartongame.png',
@@ -301,6 +352,11 @@ const GAMES = [
     • Un mélange addictif d'Idle/Clicker et de spéculation boursière cartonnière.<br>
     • Des événements aléatoires pour pimenter vos ventes au meilleur moment.<br>
     • Une seule règle d'or : <i>Achetez le papier, vendez le carton, et surtout... gardez-en un sous le coude, au cas où ça va couper !</i>`,
+    screens: [
+      'images/screens/monjeu/1.png',
+      'images/screens/monjeu/1.png',
+      'images/screens/monjeu/1.png',
+    ],
   },
   {
     img: 'jaquette/luminescence.jpg',
@@ -319,6 +375,11 @@ const GAMES = [
     • Un morceau d'histoire vidéoludique (à notre échelle) conservé dans son jus original.<br>
     • Un gameplay d'esquive ultra-épuré pour tester votre précision.<br>
     • Une seule règle d'or : <i>Soyez indulgents... il faut bien un premier pas avant de décrocher la lune !</i>`,
+    screens: [
+      'images/screens/monjeu/1.png',
+      'images/screens/monjeu/1.png',
+      'images/screens/monjeu/1.png',
+    ],
   },
 ];
 
@@ -344,13 +405,19 @@ const GAMES = [
    • tout le reste     → badge ÉVÉNEMENT (bleu)
    ============================================================ */
 const NEWS = [
-   {
+  {
+    img: 'jaquette/ailedacier.jpg',
+    title: 'Sortie de Aile d\'Acier',
+    date: '14/10/2026',
+    text: 'Ils ont envahi la <b>Terre</b>, l\'<b>Océan</b> et la <b>Galaxie</b>. Le seul endroit où ils sont pas allés, c\'est chez vous. C\'est réparé : vous êtes en ligne, ils sont en face.<br><br>\n\nVous êtes le <b>dernier pilote de l\'humanité</b>. Ça paraît peu, et techniquement, ça l\'est. Mais personne d\'autre n\'a <b>trois vies</b>, une chaîne qui multiplie les points, et un vaisseau qui <i>se penche quand vous tournez</i>. C\'est exactement le genre de détail qui gagne une guerre. Enfin, on espère.<br><br>\n\n<b>30 secteurs</b>, trois mondes, des boss qui tirent beaucoup et s\'excusent jamais. Des tourelles qui vous préviennent avant de tirer — <i>les dernières personnes polies de l\'univers</i>. Et quand vous aurez tout nettoyé, un <b>mode survie</b> sera là pour vous rappeler que vous n\'êtes pas immortel. Il est patient. Il a des vagues à perpète.<br><br>\n\nDisponible sur <a href="index.html"><b>ToncPlay</b></a>, en un clic.<br><br>\n\nLe générique de fin vous dira « <i>MERCI PILOTE</i> ». Vous n\'êtes pas obligé d\'y répondre. Mais si vous ne le faites pas, <b>on le saura</b>.'
+  },
+  {
     img: 'jaquette/retropulse.png',
     title: 'Sortie de RetroPulse',
     date: '05/10/2026',
     text: 'Branchez les casques et chauffez vos réflexes, <b>RetroPulse</b> débarque sur ToncPlay !<br><br>Plongez dans un jeu de rythme survitaminé sur une bande-son synthwave rétro-futuriste. Tapotez en tempo, enchaînez les combos et tentez d\\\'atteindre le sommet du classement sans rater une seule note.<br><br>Prêts à faire chauffer le clavier ? Venez tester votre sens du rythme dès maintenant !'
   },
-   {
+  {
     img:   'jaquette/massecritique.png',
     title: 'Sortie de Masse Critique !',
     date:  '29/09/2026',
