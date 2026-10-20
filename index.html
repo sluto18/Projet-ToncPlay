@@ -15,8 +15,6 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!-- ===== FOND ANIMÉ ===== -->
 <div class="bg-effects" aria-hidden="true">
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
@@ -25,8 +23,6 @@
   <div class="blob blob-3"></div>
   <div class="noise"></div>
 </div>
-
-<!-- ===== HEADER ===== -->
 <header class="site-header">
   <div class="header-inner">
 
@@ -46,15 +42,11 @@
 
   </div>
 </header>
-
-<!-- ===== MENU MOBILE  ===== -->
 <div class="nav-dropdown" id="navDropdown">
   <nav id="mobileNav" aria-label="Menu mobile"><!-- généré par js/app.js --></nav>
 </div>
 
 <main>
-
-  <!-- ===== ACCUEIL ===== -->
   <section class="page" id="page-accueil">
     <div class="hero">
 
@@ -83,8 +75,6 @@
 
     </div>
   </section>
-
-  <!-- ===== JEUX ===== -->
   <section class="page" id="page-jeux" hidden>
     <div class="container">
 
@@ -97,7 +87,6 @@
       <div class="toolbar">
 
         <div class="toolbar-row">
-          <!-- Recherche (compacte) -->
           <div class="search">
             <span class="search-icon" data-icon="search" data-size="14"></span>
             <input type="text" id="searchInput" placeholder="Rechercher…" aria-label="Rechercher un jeu">
@@ -106,12 +95,10 @@
           </div>
 
           <div class="toolbar-right">
-            <!-- Jeu aléatoire -->
             <button type="button" class="btn-random" id="randomGame" title="Lancer un jeu au hasard">
               <span data-icon="dice" data-size="14"></span>
               <span class="btn-random-label">Jeu Aléatoire</span>
             </button>
-            <!-- Tri -->
             <div class="select-wrap">
               <span class="select-icon" data-icon="sort" data-size="12"></span>
               <select id="sortSelect" aria-label="Trier les jeux">
@@ -123,37 +110,26 @@
               </select>
               <span class="select-chevron" data-icon="chevron" data-size="10"></span>
             </div>
-
-            <!-- Bascule grille / liste -->
             <div class="view-toggle" role="group" aria-label="Mode d'affichage">
               <button type="button" id="viewGrid" class="active" aria-label="Vue grille" title="Vue grille"></button>
               <button type="button" id="viewList" aria-label="Vue liste" title="Vue liste"></button>
             </div>
           </div>
         </div>
-
-        <!-- Filtres par genre (générés par js/app.js) -->
         <div class="genre-row" id="genreRow"></div>
-
         <p class="result-count" id="resultCount"></p>
       </div>
-
       <div id="gamesResults">
         <div id="gamesGrid" class="games-grid"></div>
         <div id="gamesEmpty" class="empty" hidden></div>
       </div>
-
     </div>
   </section>
-
-  <!-- ===== FICHE JEU ===== -->
   <section class="page" id="page-detail" hidden>
     <div class="container detail-wrap">
       <div id="detailContent"><!-- généré par app.js --></div>
     </div>
   </section>
-
-  <!-- ===== ACTUALITÉS ===== -->
   <section class="page" id="page-actus" hidden>
     <div class="container container-narrow">
 
@@ -176,10 +152,7 @@
   <p class="footer-line">© Sluto — Projet ToncPlay</p>
   <p class="footer-sub">Des pixels, de l'amour, et probablement un bug ou deux (offerts).</p>
 </footer>
-
-<!-- ===== DONNÉES (jeux & news) — inchangé ===== -->
 <script src="js/data.js"></script>
-<!-- ===== APPLICATION ===== -->
 <script src="js/app.js"></script>
 </body>
 </html>
