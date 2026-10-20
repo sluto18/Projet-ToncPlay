@@ -1,22 +1,9 @@
 /* ============================================================
-   PROJET TONCPLAY — Application (JavaScript vanilla, zéro dépendance)
-   ------------------------------------------------------------
-   Fonctionne en ouverture directe (file://) comme en ligne.
-
-   Fichiers :
-   • index.html ..... squelette de la page
-   • css/style.css .. styles
-   • js/data.js ..... LES DONNÉES (jeux & news) ← éditez ce fichier
-   • js/app.js ...... ce fichier (logique d'affichage)
+   PROJET TONCPLAY
    ============================================================ */
 (function () {
   'use strict';
 
-  /* ============================================================
-     1. DONNÉES DÉRIVÉES
-     (un genre inconnu trouvé dans GAMES est ajouté automatiquement
-      en fin de filtres, avec la couleur accent par défaut)
-     ============================================================ */
   const EXTRA_GENRES = [...new Set(GAMES.map(g => g.genre).filter(Boolean))]
     .filter(g => !GENRE_ORDER.includes(g));
   const ALL_GENRES = [...GENRE_ORDER, ...EXTRA_GENRES];
@@ -27,16 +14,11 @@
   const GENRE_COUNTS = { 'Tous': GAMES.length };
   ALL_GENRES.forEach(g => { GENRE_COUNTS[g] = GAMES.filter(x => x.genre === g).length; });
 
-  /* ============================================================
-     2. OUTILS
-     ============================================================ */
   const $  = (sel, ctx) => (ctx || document).querySelector(sel);
   const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
 
-  /* Normalisation (minuscules + sans accents) pour la recherche */
   const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  /* Badge automatique des news selon le début du titre */
   function getNewsBadge(title) {
     const t = (title || '').toLowerCase();
     if (t.startsWith('mise à jour')) return { label: 'MAJ',        color: '#ffb74d', bg: 'rgba(255,183,77,.12)',  border: 'rgba(255,183,77,.32)'  };
@@ -44,9 +26,6 @@
     return                                  { label: 'ÉVÉNEMENT', color: '#6bb6ff', bg: 'rgba(107,182,255,.1)',  border: 'rgba(107,182,255,.32)' };
   }
 
-  /* ============================================================
-     3. ICÔNES SVG
-     ============================================================ */
   const ICONS = {
     play:     '<polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/>',
     search:   '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
@@ -69,12 +48,9 @@
   const icon = (name, size) =>
     `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
 
-  /* ============================================================
-     4. ÉTAT GLOBAL
-     ============================================================ */
   const state = { section: 'accueil', query: '', genre: 'Tous', sort: 'recent', view: 'grid', openNews: 0, detailGame: null, gamesScrollY: 0, skipGamesAnim: false, newsPage: 0 };
-  let lastAnimKey = ''; /* mémorise genre|view pour savoir quand relancer le stagger */
-  let lightbox = null; /* état de la visionneuse de screenshots */
+  let lastAnimKey = ''; 
+  let lightbox = null; 
 
   const NAV_ITEMS = [
     { id: 'accueil', label: 'Accueil',    icon: 'home'    },
@@ -82,9 +58,6 @@
     { id: 'actus',   label: 'Actualités', icon: 'news'    },
   ];
 
-  /* ============================================================
-     5. NAVIGATION
-     ============================================================ */
   function buildNav() {
     const desktop = $('#desktopNav');
     const mobile  = $('#mobileNav');
@@ -115,7 +88,6 @@
     });
   }
 
-  /* Déplace la pilule sous le lien actif (nav desktop) */
   function moveNavPill() {
     const nav = $('#desktopNav');
     const slider = $('#navSlider');
@@ -145,12 +117,11 @@
     updateNavStates();
     moveNavPill();
 
-    /* Relance le stagger des cartes à chaque visite de la page Jeux */
+
     if (id === 'jeux') renderGames(!state.skipGamesAnim);
     state.skipGamesAnim = false;
   }
 
-/* ===== Menu burger mobile (déroulant compact) ===== */
 let burgerEl = null, dropdownEl = null;
 
 function closeMenu() {
@@ -165,7 +136,7 @@ function initMenu() {
   dropdownEl = $('#navDropdown');
 
   burgerEl.addEventListener('click', e => {
-    e.stopPropagation(); /* ce clic ne doit pas être vu comme un clic « extérieur » */
+    e.stopPropagation(); 
     if (dropdownEl.classList.contains('open')) {
       closeMenu();
     } else {
@@ -175,23 +146,17 @@ function initMenu() {
     }
   });
 
-  /* Ferme le menu si on clique ailleurs sur la page */
   document.addEventListener('click', e => {
     if (!dropdownEl.classList.contains('open')) return;
     if (e.target.closest('#burger') || e.target.closest('#navDropdown')) return;
     closeMenu();
   });
 
-  /* Échap ferme le menu */
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 
-  /* Passage en desktop (redimensionnement) : referme le menu resté ouvert */
   window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
 }
 
-  /* ============================================================
-     6. HÉROS — tilt 3D de l'image
-     ============================================================ */
   function initHeroTilt() {
     const el = $('#heroTilt');
     if (!el) return;
@@ -207,9 +172,6 @@ function initMenu() {
     el.addEventListener('mouseleave', () => { el.style.transform = 'perspective(1000px)'; });
   }
 
-  /* ============================================================
-     7. PAGE JEUX
-     ============================================================ */
   function genreBadgeHTML(genre, small) {
     const s = genreStyle(genre);
     return `<span class="genre-badge${small ? ' small' : ''}" style="color:${s.color};background:${s.bg};border-color:${s.border}">${genre}</span>`;
@@ -220,7 +182,6 @@ function initMenu() {
     const delay  = animate ? `animation-delay:${(i * 0.05).toFixed(2)}s;` : '';
     const tags   = (g.tags || []).map(t => `<span class="tag">#${t}</span>`).join('');
 
-    /* ----- Vue liste ----- */
     if (state.view === 'list') {
       return `<article class="game-card row spot-card${reveal}" style="${delay}" data-game="${g.title}" role="button" tabindex="0" aria-label="Voir la fiche de ${g.title}">
         <div class="cover-list"><img src="${g.img}" alt="${g.title}" loading="lazy" decoding="async"></div>
@@ -233,7 +194,6 @@ function initMenu() {
       </article>`;
     }
 
-    /* ----- Vue grille ----- */
     return `<article class="game-card spot-card${reveal}" style="${delay}" data-game="${g.title}" role="button" tabindex="0" aria-label="Voir la fiche de ${g.title}">
       <div class="cover">
         <img src="${g.img}" alt="${g.title}" loading="lazy" decoding="async">
@@ -277,13 +237,10 @@ function initMenu() {
       case 'genre':  list = [...list].sort((a, b) => (a.genre || '').localeCompare(b.genre || '', 'fr') || a.title.localeCompare(b.title, 'fr')); break;
     }
 
-    /* Le stagger se relance au changement de genre/vue ou d'entrée
-       sur la page — mais PAS à chaque frappe dans la recherche. */
     const animKey = state.genre + '|' + state.view;
     const animate = forceAnimate === true || animKey !== lastAnimKey;
     lastAnimKey = animKey;
 
-    /* ----- Compteur (textContent : pas d'injection HTML) ----- */
     $('#resultCount').textContent =
       `${list.length} / ${GAMES.length} jeux` +
       (state.genre !== 'Tous' ? ` · ${state.genre}` : '') +
@@ -363,16 +320,14 @@ function initMenu() {
     $('#viewGrid').addEventListener('click', () => setView('grid'));
     $('#viewList').addEventListener('click', () => setView('list'));
 
-    /* Filtres genre (délégation : les puces sont reconstruites) */
     $('#genreRow').addEventListener('click', e => {
       const chip = e.target.closest('.chip');
       if (!chip) return;
       state.genre = chip.dataset.genre;
       $$('.chip', $('#genreRow')).forEach(c => c.classList.toggle('active', c === chip));
-      renderGames(false); /* animKey change → le stagger repart */
+      renderGames(false); 
     });
 
-    /* Spotlight + fin d'animation (délégation sur le conteneur) */
     const results = $('#gamesResults');
     results.addEventListener('mousemove', e => {
       const card = e.target.closest('.spot-card');
@@ -384,14 +339,12 @@ function initMenu() {
     results.addEventListener('animationend', e => {
       if (e.animationName === 'revealUp') e.target.classList.add('done');
     });
-        /* Clic sur une carte → fiche du jeu (le bouton « Jouer » garde son comportement) */
     results.addEventListener('click', e => {
-      if (e.target.closest('a')) return; /* lien Jouer : le lien fait son travail */
+      if (e.target.closest('a')) return; 
       const card = e.target.closest('.game-card');
       if (card) openGameDetail(card.dataset.game);
     });
 
-    /* Clavier : Entrée / Espace sur une carte → fiche du jeu */
     results.addEventListener('keydown', e => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       if (e.target.closest('a')) return;
@@ -400,7 +353,6 @@ function initMenu() {
     });
   }
 
-  /* ===== Jeu aléatoire ===== */
 function initRandomGame() {
   const btn = $('#randomGame');
   btn.addEventListener('click', () => {
@@ -413,14 +365,10 @@ function initRandomGame() {
   });
 }
 
-/* ============================================================
-   PAGE FICHE JEU
-   ============================================================ */
 function openGameDetail(title) {
   const g = GAMES.find(x => x.title === title);
   if (!g) return;
 
-  /* Mémorise la position de scroll de la grille pour le retour */
   if (state.section === 'jeux') state.gamesScrollY = window.scrollY;
 
   state.section = 'detail';
@@ -438,9 +386,9 @@ function openGameDetail(title) {
 }
 
 function closeDetail() {
-  state.skipGamesAnim = true;              /* pas d'animation au retour */
+  state.skipGamesAnim = true;            
   switchSection('jeux');
-  window.scrollTo(0, state.gamesScrollY);  /* restaure la position dans la grille */
+  window.scrollTo(0, state.gamesScrollY);
 }
 
 function renderDetail(g) {
@@ -449,11 +397,9 @@ function renderDetail(g) {
   state.detailScreens = screens;
   const desc = g.descLong || g.desc;
 
-  /* News liées : le titre de la news mentionne le titre du jeu */
   const relatedNews = NEWS.map((n, i) => ({ n, i }))
     .filter(o => norm(o.n.title).includes(norm(g.title)));
 
-  /* Galerie : screenshots ou placeholder */
   const shotsHTML = screens
     ? `<div class="shots">${screens.map((src, i) =>
         `<button type="button" class="shot" data-shot="${i}" aria-label="Agrandir la capture ${i + 1}">
@@ -465,7 +411,6 @@ function renderDetail(g) {
          <p class="shots-empty-sub">Les rushs sont encore au montage. Revenez vite, ça va clignoter.</p>
        </div>`;
 
-  /* Journal du jeu (section masquée si aucune news liée) */
   const journalHTML = relatedNews.length ? `
     <section class="detail-section">
       <p class="detail-kicker">// Journal du jeu</p>
@@ -520,9 +465,8 @@ function renderDetail(g) {
   `;
 }
 
-/* Ouvre la page Actualités, sur la bonne page, directement dépliée sur la news choisie */
 function goToNews(idx) {
-  state.newsPage = Math.floor(idx / NEWS_PER_PAGE); /* bascule sur la page qui contient la news */
+  state.newsPage = Math.floor(idx / NEWS_PER_PAGE); 
   switchSection('actus');
   renderNews();
   if (state.openNews !== idx) toggleNews(idx);
@@ -530,7 +474,6 @@ function goToNews(idx) {
   if (card) requestAnimationFrame(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
 
-/* ===== Visionneuse de screenshots (lightbox) ===== */
 function openLightbox(screens, idx) {
   closeLightbox();
   const lb = document.createElement('div');
@@ -581,7 +524,6 @@ function initDetailEvents() {
     if (shot && state.detailScreens) openLightbox(state.detailScreens, parseInt(shot.dataset.shot, 10));
   });
 
-  /* Clavier de la visionneuse : Échap ferme, flèches naviguent */
   document.addEventListener('keydown', e => {
     if (!lightbox) return;
     if (e.key === 'Escape')          { closeLightbox(); }
@@ -590,12 +532,8 @@ function initDetailEvents() {
   });
 }
 
-/* ============================================================
-   PAGE ACTUALITÉS (paginée : 10 news par page)
-   ============================================================ */
 const NEWS_PER_PAGE = 10;
 
-/* Numéros de pages à afficher : [1, …, 4, 5, 6, …, 9] si beaucoup de pages */
 function pageNumbers(current, total) {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   const pages = [1];
@@ -610,11 +548,10 @@ function pageNumbers(current, total) {
 
 function renderNews() {
   const totalPages = Math.max(1, Math.ceil(NEWS.length / NEWS_PER_PAGE));
-  if (state.newsPage > totalPages - 1) state.newsPage = 0; /* news supprimées : retour page 1 */
+  if (state.newsPage > totalPages - 1) state.newsPage = 0; 
   const start = state.newsPage * NEWS_PER_PAGE;
   const slice = NEWS.slice(start, start + NEWS_PER_PAGE);
 
-  /* data-news porte l'index GLOBAL (utilisé par le journal des fiches jeu) */
   $('#newsList').innerHTML = slice.map((n, k) => {
     const i = start + k;
     const b = getNewsBadge(n.title);
@@ -639,7 +576,6 @@ function renderNews() {
     </article>`;
   }).join('');
 
-  /* Pagination (masquée s'il n'y a qu'une seule page) */
   const pag = $('#newsPagination');
   if (totalPages <= 1) { pag.hidden = true; pag.innerHTML = ''; return; }
   pag.hidden = false;
@@ -689,19 +625,14 @@ function initNewsEvents() {
     const totalPages = Math.ceil(NEWS.length / NEWS_PER_PAGE);
     if (p < 0 || p >= totalPages || p === state.newsPage) return;
     state.newsPage = p;
-    state.openNews = -1; /* on referme la news ouverte en changeant de page */
+    state.openNews = -1;
     renderNews();
-    /* Remonte au début de la liste, sous le header fixe */
     const y = $('#newsList').getBoundingClientRect().top + window.scrollY - 90;
     window.scrollTo({ top: y, behavior: 'smooth' });
   });
 }
 
-  /* ============================================================
-     9. RACCOURCIS CLAVIER
-     ============================================================ */
   function initShortcuts() {
-    /* « / » : bascule sur la page Jeux et focus la recherche */
     document.addEventListener('keydown', e => {
       if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((document.activeElement || {}).tagName)) {
         e.preventDefault();
@@ -710,18 +641,13 @@ function initNewsEvents() {
       }
     });
 
-    /* Clic sur n'importe quel bouton [data-nav] (logo, nav, menu mobile) */
     document.addEventListener('click', e => {
       const btn = e.target.closest('[data-nav]');
       if (btn) switchSection(btn.dataset.nav);
     });
   }
 
-  /* ============================================================
-     10. INITIALISATION
-     ============================================================ */
   function init() {
-    /* Icônes statiques présentes dans le HTML */
     $$('[data-icon]').forEach(el => {
       el.innerHTML = icon(el.dataset.icon, Number(el.dataset.size) || 14);
     });
@@ -746,11 +672,10 @@ function initNewsEvents() {
     renderNews();
     renderGames(true);
 
-    /* Section visible au chargement + état de la navigation */
     $('#page-accueil').classList.add('section-anim');
     updateNavStates();
     moveNavPill();
-    setTimeout(moveNavPill, 150); /* re-mesure après rendu complet */
+    setTimeout(moveNavPill, 150); 
     window.addEventListener('resize', moveNavPill);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveNavPill);
   }

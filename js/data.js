@@ -1,37 +1,24 @@
-/* ============================================================
-   PROJET TONCPLAY — DONNÉES (jeux & actualités)
-   ------------------------------------------------------------
-   C'EST LE SEUL FICHIER À ÉDITER pour ajouter du contenu.
-   Le site se met à jour tout seul : filtres, compteurs,
-   recherche, dates… rien d'autre à toucher.
-
-   Sommaire :
-   1. GAMES ........ la liste des jeux
-   2. NEWS ......... la liste des actualités
-   3. GENRE_ORDER .. l'ordre des boutons de filtre
-   4. GENRE_STYLES . la couleur du badge de chaque genre
-   ============================================================ */
-
-
-/* ============================================================
-   1. JEUX
-   ------------------------------------------------------------
-   Pour ajouter un jeu, copiez le bloc ci-dessous et collez-le
-   dans la liste GAMES (en haut pour qu'il apparaisse en premier
-   avec le tri « Plus récents ») :
-
-   {
-     img:   'jaquette/monjeu.png',              // jaquette du jeu
-     title: 'Mon Jeu',                           // titre affiché
-     desc:  'Une description courte et drôle.',  // description
-     link:  'jeux/monjeu/index.html',            // lien vers le jeu
-     genre: 'Arcade',                            // UN genre de GENRE_ORDER (point 3)
-     tags:  ['Tag1', 'Tag2', 'Tag3'],            // 2-3 tags de style (#affichés comme ceci)
-     date:  '31/12/2026',                        // date de sortie (affichée sur la carte)
-     iso:   '2026-12-31',                        // MÊME date au format AAAA-MM-JJ (sert au tri)
-   },
-   ============================================================ */
 const GAMES = [
+  {
+    img: 'jaquette/kraken.png',
+    title: 'Procole Kraken',
+    desc: 'Infiltrez un datacenter, piratez des données et échappez au redoutable Spectre-Réseau !',
+    link: 'jeux/kraken/index.html',
+    genre: 'Arcade',
+    tags: ['Arcade', 'Infiltration', 'RogueLite'],
+    date: '20/10/2026',
+    iso: '2026-10-20',
+    descLong: `
+Avis aux hackers et nostalgiques de l'ère cyberpunk rétro ! Dans <i>Protocole Kraken</i>, prenez les commandes du drone d'infiltration WISP-4 et pénétrez les méandres du datacenter sécurisé ORPHÉE-9.<br><br>
+<b>Votre Mission :</b><br>
+Infiltrez les salles serveurs pour pirater et récolter de précieux fragments de données tout en évitant les patrouilles de drones gardiens et les pièges du réseau. Accumulez des FRAGs pour améliorer votre matériel dans le laboratoire (bouclier, vitesse, aimant à données...) entre chaque secteur.<br><br>
+<b>Ce qui vous attend :</b><br>
+• Un gameplay d'infiltration et d'arcade en pixel art procédural.<br>
+• Un ennemi redoutable : le SPECTRE-RÉSEAU !<br>
+• Un laboratoire d'améliorations permanent pour personnaliser votre drone.<br>
+• <i>Si les voyants passent au rouge... courez vous réfugier dans le dock d'extraction avant la décompilation complète !</i>`,
+    screens: ['images/screens/kraken/1.png', 'images/screens/kraken/2.png', 'images/screens/kraken/3.png']
+  },
   {
     img: 'jaquette/ailedacier.jpg',
     title: 'Aile d\'Acier',
@@ -384,27 +371,13 @@ const GAMES = [
 ];
 
 
-/* ============================================================
-   2. ACTUALITÉS
-   ------------------------------------------------------------
-   Pour ajouter une news, copiez le bloc ci-dessous et collez-le
-   EN HAUT de la liste NEWS (les news s'affichent dans l'ordre
-   de la liste) :
-
-   {
-     img:   'jaquette/monjeu.png',     // vignette
-     title: 'Sortie de Mon Jeu',        // titre
-     date:  '31/12/2026',               // date affichée
-     text:  'Le texte de la news…',     // HTML simple autorisé : <b>, <i>, <br>
-   },
-
-   Le badge de la news est détecté automatiquement selon le
-   début du titre :
-   • « Sortie de… »    → badge SORTIE (vert)
-   • « Mise à jour… »  → badge MAJ (orange)
-   • tout le reste     → badge ÉVÉNEMENT (bleu)
-   ============================================================ */
 const NEWS = [
+  {
+    img: 'jaquette/kraken.png',
+    title: 'Sortie de Protocole Kraken',
+    date: '20/10/2026',
+    text: 'Avis aux hackers ! <b>Protocole Kraken</b> débarque sur ToncPlay.<br><br>Infiltrez le datacenter ORPHÉE-9 à bord du drone WISP-4, piratez des serveurs et tentez d\'échapper au terrifiant Spectre-Réseau qui traverse les murs. Améliorez vos compétences au laboratoire et survivez secteur après secteur dans ce jeu d\'arcade nerveux 100% rétro.<br><br>Prêt pour le piratage ? À vos claviers !'
+  },
   {
     img: 'jaquette/ailedacier.jpg',
     title: 'Sortie de Aile d\'Acier',
