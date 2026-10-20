@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>PROTOCOLE KRAKEN — infiltration de datacenter</title>
+<meta name="description" content="Jeu d'arcade rétro-cyberpunk : infiltrez le datacenter ORPHÉE-9, récoltez les données dans les salles et échappez au SPECTRE-RÉSEAU.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="stage">
+  <header id="masthead">
+    <span class="mh-title">PROTOCOLE KRAKEN</span>
+    <span class="mh-sub">// terminal d'intrusion — datacenter ORPHÉE-9</span>
+  </header>
+
+  <div id="shell">
+
+    <!-- ============ HUD ============ -->
+    <div id="hud">
+      <div class="hud-col h-left">
+        <div class="lab">SCORE</div>
+        <div class="val big" id="h-score">000000</div>
+        <div class="sub">RECORD <span id="h-best">000000</span></div>
+      </div>
+      <div class="hud-col h-mid">
+        <div class="lab">SECTEUR</div>
+        <div class="val" id="h-sector">01</div>
+        <div class="secname" id="h-secname">PÉRIPHÉRIE</div>
+        <div class="keyslots" id="h-keys" title="données extraites"></div>
+      </div>
+      <div class="hud-col h-right">
+        <div class="lab">BOUCLIER</div>
+        <div class="bars" id="h-lives"></div>
+        <div id="h-fx">
+          <div class="chip" id="chip-shield"><span>BOUCLIER</span><i></i></div>
+          <div class="chip" id="chip-slow"><span>RALENTI</span><i></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ÉCRAN DE JEU ============ -->
+    <div id="screen">
+      <canvas id="game" width="240" height="320"></canvas>
+      <div class="crt" aria-hidden="true"></div>
+
+      <!-- Écran titre (terminal) -->
+      <div class="ov show" id="ov-title">
+        <div class="term" id="boot-lines"></div>
+        <div class="title-ui" id="title-ui">
+          <div class="title-block" id="title-block">
+            <div class="t-sup">P R O T O C O L E</div>
+            <div class="t-main">KRAKEN</div>
+            <div class="t-sub">INFILTRATION // DATACENTER ORPHÉE-9</div>
+          </div>
+          <div class="t-best">RECORD <b id="title-best">0</b> &nbsp;·&nbsp; SECTEUR MAX <b id="title-max">—</b> &nbsp;·&nbsp; FRAG <b id="title-frags">0</b></div>
+          <button class="btn" id="btn-start">INITIALISER L'INTRUSION</button>
+          <div class="t-row">
+            <button class="btn ghost" id="btn-tuto">BRIEFING [T]</button>
+            <button class="btn ghost" id="btn-lab">LABORATOIRE [L]</button>
+          </div>
+          <div class="t-keys">ZQSD / FLÈCHES — DÉPLACER&nbsp;&nbsp;·&nbsp;&nbsp;M — SON</div>
+        </div>
+      </div>
+            <!-- Briefing / tutoriel -->
+      <div class="ov" id="ov-tuto">
+        <div class="tu-head">BRIEFING <span id="tuto-step">1/6</span></div>
+        <canvas id="tuto-cv" width="64" height="48"></canvas>
+        <div class="tu-title" id="tuto-title">—</div>
+        <div class="tu-body" id="tuto-body">—</div>
+        <div class="tu-dots" id="tuto-dots"></div>
+        <div class="tu-btns">
+          <button class="btn ghost" id="tuto-skip">PASSER</button>
+          <button class="btn" id="tuto-next">SUIVANT</button>
+        </div>
+      </div>
+
+      <!-- Laboratoire / améliorations -->
+      <div class="ov" id="ov-lab">
+        <div class="l-head">LABORATOIRE WISP-4</div>
+        <div class="l-bank">// FRAGMENTS DISPONIBLES : <b id="lab-frags">0</b></div>
+        <div class="l-list" id="lab-list"></div>
+        <div class="l-hint">les améliorations s'appliquent au lancement de la prochaine partie</div>
+        <button class="btn" id="btn-lab-close">FERMER [ÉCHAP]</button>
+      </div>
+
+      <!-- Secteur sécurisé -->
+      <div class="ov" id="ov-clear">
+        <div class="c-head" id="clear-head">SECTEUR 01 — SÉCURISÉ</div>
+        <div class="c-stats" id="clear-stats"></div>
+        <div class="c-next" id="clear-next">SECTEUR 02 — NŒUDS CACHE</div>
+        <div class="c-desc" id="clear-desc"></div>
+        <div class="c-bar"><i id="clear-bar"></i></div>
+        <div class="c-skip blink">[ENTRÉE] CONTINUER</div>
+      </div>
+
+      <!-- Game over (variante selon la cause de la mort) -->
+      <div class="ov" id="ov-over">
+        <canvas id="over-icon" width="16" height="16"></canvas>
+        <div class="o-head" id="over-title">SIGNAL PERDU</div>
+        <div class="o-sub" id="over-sub"></div>
+        <div class="o-flavor" id="over-flavor"></div>
+        <div class="o-stats">
+          SCORE <b id="over-score">0</b><br>
+          RECORD <b id="over-best">0</b><br>
+          FRAGMENTS <b id="over-frags">0</b>
+        </div>
+        <div class="o-new" id="over-new" hidden>&gt;&gt; NOUVEAU RECORD &lt;&lt;</div>
+        <button class="btn ghost" id="btn-lab2">LABORATOIRE [L]</button>
+        <button class="btn" id="btn-retry">REJOUER [ENTRÉE]</button>
+        <button class="btn ghost" id="btn-home">RETOUR À L'ACCUEIL</button>
+      </div>
+
+      <!-- Pause -->
+      <div class="ov" id="ov-pause">
+        <div class="p-head">SYSTÈME EN VEILLE</div>
+        <button class="btn" id="btn-resume">REPRENDRE [P]</button>
+      </div>
+            <!-- Options / audio -->
+      <div class="ov" id="ov-options">
+        <div class="op-head">OPTIONS</div>
+        <div class="op-row">
+          <span class="op-lab">SONS</span>
+          <input type="range" id="opt-sfx" min="0" max="100" value="80">
+          <span class="op-val" id="opt-sfx-v">80</span>
+        </div>
+        <div class="op-row">
+          <span class="op-lab">MUSIQUE</span>
+          <input type="range" id="opt-mus" min="0" max="100" value="80">
+          <span class="op-val" id="opt-mus-v">80</span>
+        </div>
+        <div class="op-note">boucle musicale « ORPHÉE-9 » : joue en continu<br>— volume réglable ci-dessus et sauvegardé</div>
+        <button class="btn" id="opt-resume">REPRENDRE [ÉCHAP]</button>
+        <button class="btn ghost" id="opt-home">RETOUR À L'ACCUEIL</button>
+      </div>
+    </div>
+
+    <!-- ============ CONTRÔLES ============ -->
+    <div id="controls">
+      <div class="keys-hint">
+        <b>FLÈCHES / ZQSD</b> déplacer le drone<br>
+        <b>P</b> pause &nbsp;·&nbsp; <b>M</b> son<br>
+        <span class="dim">salles = abri anti-drones · dock = zone safe anti-spectre</span>
+      </div>
+      <div id="dpad" aria-label="commandes directionnelles">
+        <button class="pad up"    data-dir="U" aria-label="haut"><i></i></button>
+        <button class="pad left"  data-dir="L" aria-label="gauche"><i></i></button>
+        <button class="pad right" data-dir="R" aria-label="droite"><i></i></button>
+        <button class="pad down"  data-dir="D" aria-label="bas"><i></i></button>
+      </div>
+      <div class="sysbtns">
+        <button id="btn-pause" aria-label="pause"><span class="ic-pause"></span></button>
+        <button id="btn-opt" aria-label="options"><span class="ic-opt"><i></i><i></i><i></i></span></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer id="site-footer">©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a></footer>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="../../js/intro.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
