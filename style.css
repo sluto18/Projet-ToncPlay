@@ -1,8 +1,4 @@
-/* ============================================================
-   PROJET TONCPLAY — Feuille de style (sans dépendance)
-   ============================================================ */
 
-/* ===== Variables ===== */
 :root {
   --bg: #060b09;
   --panel: #0c1612;
@@ -22,7 +18,6 @@
   color-scheme: dark;
 }
 
-/* ===== Reset & base ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
@@ -47,7 +42,6 @@ h1, h2, h3 { line-height: 1.2; }
 :focus-visible { outline: 2px solid rgba(0, 230, 118, .8); outline-offset: 2px; }
 select option { background: var(--panel); color: var(--ink); }
 
-/* Troncature de texte à 2 lignes */
 .clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -56,7 +50,6 @@ select option { background: var(--panel); color: var(--ink); }
   overflow: hidden;
 }
 
-/* ===== Fond animé ===== */
 .bg-effects { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .bg-grid {
   position: absolute; inset: 0; opacity: .7;
@@ -84,7 +77,6 @@ select option { background: var(--panel); color: var(--ink); }
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
 }
 
-/* ===== Header ===== */
 .site-header {
   position: fixed; inset: 0 0 auto 0; height: var(--header-h); z-index: 50;
   border-bottom: 1px solid var(--border);
@@ -104,7 +96,6 @@ select option { background: var(--panel); color: var(--ink); }
 .logo:hover img { transform: scale(1.05); }
 .logo b { color: var(--accent); }
 
-/* Nav desktop : pilule glissante */
 .nav-pill {
   position: relative; display: none; align-items: center; gap: 4px; padding: 4px;
   border-radius: 999px; border: 1px solid rgba(255,255,255,.07);
@@ -126,7 +117,6 @@ select option { background: var(--panel); color: var(--ink); }
   transition: left .5s cubic-bezier(.22,1,.36,1), width .5s cubic-bezier(.22,1,.36,1);
 }
 
-/* Burger mobile */
 .burger {
   display: flex; flex-direction: column; justify-content: center; gap: 5px;
   width: 40px; height: 40px; padding: 9px; border-radius: 10px; transition: background .2s;
@@ -140,7 +130,6 @@ select option { background: var(--panel); color: var(--ink); }
 .burger.open span:nth-child(2) { opacity: 0; }
 .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ===== Menu burger mobile : déroulant compact ===== */
 .nav-dropdown {
   position: fixed; top: calc(var(--header-h) + 10px); right: 12px; z-index: 60;
   min-width: 210px; padding: 6px;
@@ -168,7 +157,6 @@ select option { background: var(--panel); color: var(--ink); }
 #mobileNav button.active { color: var(--accent); background: rgba(0,230,118,.09); }
 #mobileNav button svg { flex-shrink: 0; }
 
-/* Sécurité : jamais de dropdown visible en desktop */
 @media (min-width: 768px) { .nav-dropdown { display: none; } }
 
 /* ===== Pages & animations ===== */
@@ -178,17 +166,10 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 
 .section-anim { animation: sectionIn .55s cubic-bezier(.22,1,.36,1) both; }
 @keyframes sectionIn { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
-
-/*
-  Apparition des cartes. À la fin de l'animation, js/app.js ajoute la
-  classe .done qui verrouille opacity:1 et libère transform pour le survol.
-  (C'est le correctif du bug « cartes qui disparaissent ».)
-*/
 .reveal { opacity: 0; animation: revealUp .5s cubic-bezier(.22,1,.36,1) forwards; }
 .reveal.done { animation: none; opacity: 1; }
 @keyframes revealUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
-/* ===== Conteneurs ===== */
 .container { max-width: 1152px; margin: 0 auto; }
 .container-narrow { max-width: 768px; margin: 0 auto; }
 
@@ -197,8 +178,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .page-head h2 { margin-top: 12px; font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3rem); font-weight: 700; }
 .accent { color: var(--accent); }
 .page-sub { margin-top: 12px; color: var(--dim); }
-
-/* ===== Héros (accueil) ===== */
 .hero {
   min-height: calc(100vh - var(--header-h));
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -254,7 +233,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   position: absolute; width: 28px; height: 28px; pointer-events: none;
   transition: border-color .35s, width .35s, height .35s;
 }
-/* Au survol du logo : les coins s'allument et s'étendent légèrement */
 .hero-tilt:hover .corner,
 .hero-tilt:focus-visible .corner {
   width: 34px; height: 34px; border-color: rgba(0,230,118,.95);
@@ -264,11 +242,8 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .corner-bl { bottom: -10px; left: -10px;  border-bottom: 2px solid rgba(0,230,118,.5); border-left: 2px solid rgba(0,230,118,.5);  border-bottom-left-radius: 10px; }
 .corner-br { bottom: -10px; right: -10px; border-bottom: 2px solid rgba(0,230,118,.5); border-right: 2px solid rgba(0,230,118,.5); border-bottom-right-radius: 10px; }
 
-/* ===== Barre d'outils (page Jeux) ===== */
 .toolbar { margin-bottom: 32px; }
 .toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-
-/* Recherche compacte */
 .search { position: relative; flex: 1 1 170px; max-width: 260px; min-width: 170px; }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); display: flex; pointer-events: none; }
 #searchInput {
@@ -298,7 +273,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 
 .toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
-/* Tri */
 .select-wrap { position: relative; }
 #sortSelect {
   appearance: none; -webkit-appearance: none; cursor: pointer;
@@ -315,7 +289,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .select-icon { left: 10px; }
 .select-chevron { right: 10px; }
 
-/* Bascule grille / liste */
 .view-toggle {
   display: flex; padding: 2px; border-radius: 999px;
   border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.02);
@@ -326,8 +299,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 }
 .view-toggle button:hover { color: var(--ink); }
 .view-toggle button.active { background: rgba(0,230,118,.15); color: var(--accent); }
-
-/* ===== Bouton jeu aléatoire ===== */
 .btn-random {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 6px 14px; border-radius: 999px;
@@ -351,7 +322,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   .btn-random { padding: 6px 10px; }
 }
 
-/* Filtres genre */
 .genre-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .chip {
   border-radius: 999px; padding: 4px 12px;
@@ -371,8 +341,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   margin-top: 10px; font-family: var(--font-mono); font-size: 10px;
   text-transform: uppercase; letter-spacing: .1em; color: var(--muted);
 }
-
-/* ===== Cartes jeux ===== */
 .games-grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
 .games-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -387,8 +355,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   transform: translateY(-6px); border-color: rgba(0,230,118,.25);
   box-shadow: 0 20px 50px -12px rgba(0,0,0,.5), 0 0 30px -5px rgba(0,230,118,.15);
 }
-
-/* Spotlight suivant la souris */
 .spot-card::before {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   opacity: 0; z-index: 1; pointer-events: none; transition: opacity .4s;
@@ -424,7 +390,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   font-family: var(--font-mono); font-size: 10px; color: var(--muted);
 }
 
-/* Badge genre (couleurs injectées en JS depuis GENRE_STYLES) */
 .genre-badge {
   display: inline-flex; align-items: center; gap: 6px;
   border-radius: 999px; padding: 4px 10px; border: 1px solid;
@@ -435,7 +400,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .genre-badge.small { padding: 2px 8px; font-size: 9px; }
 .cover .genre-badge { position: absolute; top: 12px; left: 12px; }
 
-/* Bouton Jouer */
 .btn-play {
   display: inline-flex; align-items: center; gap: 7px;
   margin-top: 20px; align-self: flex-start;
@@ -448,7 +412,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .btn-play:active { transform: scale(.96); }
 .btn-play svg { flex-shrink: 0; }
 
-/* Vue liste */
 .game-card.row { flex-direction: row; align-items: center; gap: 16px; padding: 12px; }
 .game-card.row:hover { transform: none; border-color: rgba(0,230,118,.25); background: rgba(14,26,20,.9); }
 .cover-list {
@@ -464,7 +427,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .game-card.row p { margin-top: 4px; }
 .game-card.row .btn-play { margin-top: 0; padding: 8px 14px; font-size: 12px; flex-shrink: 0; }
 
-/* État vide */
 .empty {
   border-radius: 16px; padding: 64px 24px; text-align: center;
   border: 1px dashed rgba(255,255,255,.1); background: rgba(255,255,255,.02);
@@ -484,7 +446,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 }
 .empty-reset:hover { background: rgba(0,230,118,.2); }
 
-/* ===== Actualités ===== */
 .news-list { display: flex; flex-direction: column; gap: 14px; }
 .news-card {
   overflow: hidden; border-radius: 16px;
@@ -534,7 +495,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   border-color: var(--accent); background: var(--accent); color: var(--on-accent);
 }
 
-/* Accordéon : grid 0fr → 1fr (hauteur fluide) */
 .acc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.4,0,.2,1); }
 .acc-body.open { grid-template-rows: 1fr; }
 .acc-inner { overflow: hidden; min-height: 0; }
@@ -545,12 +505,10 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .news-rich b { color: var(--ink); font-weight: 600; }
 .news-rich i { color: #7d9c8b; }
 
-/* ===== Footer ===== */
 .site-footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; }
 .footer-line { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .3em; color: var(--muted); }
 .footer-sub { margin-top: 6px; font-size: 14px; color: var(--dim); }
 
-/* ===== Responsive ===== */
 @media (min-width: 640px) {
   .page { padding: 64px 24px; }
   .header-inner { padding: 0 24px; }
@@ -583,7 +541,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   .game-card.row .tags { display: none; }
 }
 
-/* ===== Accessibilité : mouvement réduit ===== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -593,19 +550,12 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   .hero-in, .reveal { opacity: 1; }
 }
 
-/* ============================================================
-   PAGE FICHE JEU + LIGHTBOX
-   ============================================================ */
-
-/* Cartes de la grille : cliquables */
 .game-card { cursor: pointer; }
 
-/* Cible d'un lien vers une news (décalage sous le header fixe) */
 .news-card { scroll-margin-top: 80px; }
 
 .detail-wrap { max-width: 960px; }
 
-/* ===== Bouton retour ===== */
 .btn-back {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 18px; border-radius: 999px;
@@ -617,7 +567,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .btn-back svg { transition: transform .2s; }
 .btn-back:hover svg { transform: translateX(-3px); }
 
-/* ===== Héros de la fiche ===== */
 .detail-hero { display: flex; gap: 32px; margin-top: 28px; align-items: flex-start; }
 .detail-cover {
   position: relative; flex-shrink: 0; width: min(380px, 100%);
@@ -636,13 +585,11 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 
 .btn-play-big { margin-top: 28px; padding: 14px 28px; font-size: 15px; border-radius: 12px; }
 
-/* ===== Sections de la fiche ===== */
 .detail-section { margin-top: 56px; }
 .detail-kicker { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .4em; color: var(--accent); }
 .detail-section h3 { margin-top: 10px; font-family: var(--font-display); font-size: 24px; font-weight: 700; }
 .detail-desc { margin-top: 14px; max-width: 65ch; color: var(--dim); font-size: 15px; line-height: 1.75; }
 
-/* ===== Galerie ===== */
 .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 18px; }
 .shot {
   display: block; width: 100%; padding: 0;
@@ -665,7 +612,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .shots-empty-title { margin-top: 14px; font-family: var(--font-display); font-weight: 600; }
 .shots-empty-sub { margin-top: 4px; font-size: 13px; color: var(--muted); }
 
-/* ===== Journal du jeu (news liées) ===== */
 .journal-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
 .journal-item {
   display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
@@ -680,14 +626,12 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
 .journal-arrow { flex-shrink: 0; color: var(--muted); transition: transform .2s, color .2s; }
 .journal-item:hover .journal-arrow { transform: translateX(3px); color: var(--accent); }
 
-/* ===== Bas de fiche ===== */
 .detail-actions {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 16px; margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--border);
 }
 .detail-actions .btn-play-big { margin-top: 0; }
 
-/* ===== Visionneuse (lightbox) ===== */
 .lightbox {
   position: fixed; inset: 0; z-index: 200;
   display: grid; place-items: center;
@@ -717,7 +661,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   font-family: var(--font-mono); font-size: 12px; color: var(--muted);
 }
 
-/* ===== Responsive fiche ===== */
 @media (max-width: 767px) {
   .detail-hero { flex-direction: column; align-items: center; text-align: center; }
   .detail-cover { width: 100%; max-width: 420px; }
@@ -729,7 +672,6 @@ main { position: relative; z-index: 1; padding-top: var(--header-h); }
   .detail-actions .btn-play-big { align-self: center; }
 }
 
-/* ===== Pagination des actualités ===== */
 .news-pagination {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
   gap: 6px; margin-top: 32px;
