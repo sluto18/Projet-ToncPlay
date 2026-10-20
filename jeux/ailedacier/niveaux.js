@@ -1,26 +1,12 @@
 'use strict';
-/* ══════════════════════════════════════════════════════════════════
-   AILE D'ACIER — niveaux.js
-   Base de données de campagne : 30 niveaux en rotation Terre / Océan
-   / Galaxie, en trois actes, + nouveaux biomes de décor.
-   À charger AVANT script.js (les peintres ci-dessous n'utilisent
-   les outils de script.js qu'au moment de jouer).
-   ══════════════════════════════════════════════════════════════════ */
 
 const NB_NIVEAUX = 30;
-
-/* Courbe de difficulté saturée : 0 → 14 sur les 30 niveaux, pour que
-   vitesses et PV de boss restent jouables jusqu'au bout. */
 function diffNiveau(n){ return Math.min(14, (n - 1) * 0.55); }
-
-/* Suffixes des boss : chaque monde accueille 10 niveaux */
 const SUFFIXES_BOSS = ['', ' MK-II', ' MK-III', ' MK-IV', ' MK-V',
                        ' MK-VI', ' MK-VII', ' MK-VIII', ' MK-IX', ' MK-X'];
 
-/* Les 30 niveaux — Acte I (reconnaissance), II (contre-attaque),
-   III (assaut final). tauxTir : part d'ennemis armés. */
 const NIVEAUX = [
-  // ═ ACTE I ═
+  //  ACTE I 
   { env:'terre',   secteur:'PLAINES DU SUD',          biomes:['prairie','foret','prairie','foret','prairie','foret'],       patrons:['ligne','mur','colonne'],                                                intervalle:4.8, duree:32, tourelles:11,  tauxTir:0.30, vitesseFond:100 },
   { env:'ocean',   secteur:'LAGON TURQUOISE',         variante:'lagon',      patrons:['ligne','essaim','colonne','mur'],                   intervalle:4.6, duree:35, tauxTir:0.36, vitesseFond:85  },
   { env:'galaxie', secteur:"CEINTURE D'ASTÉROÏDES",   variante:'asteroides', patrons:['zigzags','ligne','asteroides','embuscade'],          intervalle:4.4, duree:38, tauxTir:0.42, vitesseFond:70  },
@@ -31,7 +17,7 @@ const NIVEAUX = [
   { env:'ocean',   secteur:'ABYSSES DU KRAKEN',       variante:'abysses',    patrons:['meduses','bombardier','cercle','essaim','plongeons'], intervalle:3.2, duree:50, tauxTir:0.72, vitesseFond:80  },
   { env:'galaxie', secteur:'NÉBULEUSE ÉCARLATE',      variante:'nebuleuse',  patrons:['serpent','cercle','zigzags','embuscade','bombardier'], intervalle:3.0, duree:52, tauxTir:0.78, vitesseFond:80  },
   { env:'terre',   secteur:'BASE SECRÈTE K-7',        biomes:['base','prairie','base','base','desert','base'],              patrons:['plongeons','cercle','helicos','tank','bombardier','chasseurs','essaim'], intervalle:2.8, duree:54, tourelles:5,   tauxTir:0.85, vitesseFond:115 },
-  // ═ ACTE II ═
+  //  ACTE II 
   { env:'ocean',   secteur:'LA BANQUISE',             variante:'banquise',   patrons:['ligne','mur','colonne','essaim','meduses'],          intervalle:3.8, duree:46, tauxTir:0.70, vitesseFond:85  },
   { env:'galaxie', secteur:"L'HORIZON DES ÉVÉNEMENTS",variante:'trounoir',   patrons:['asteroides','serpent','zigzags','cercle','embuscade'], intervalle:3.6, duree:48, tauxTir:0.74, vitesseFond:75  },
   { env:'terre',   secteur:'VOLCANS EN FURIE',        biomes:['volcan','volcan','desert','volcan','volcan','volcan'],        patrons:['V','plongeons','helicos','tank','croiseurs','essaim'],                   intervalle:3.5, duree:50, tourelles:6,   tauxTir:0.78, vitesseFond:110 },
@@ -42,7 +28,7 @@ const NIVEAUX = [
   { env:'galaxie', secteur:'DÉBRIS ORBITAUX',         variante:'asteroides', patrons:['asteroides','serpent','zigzags','embuscade','croiseurs'], intervalle:3.0, duree:60, tauxTir:0.90, vitesseFond:80  },
   { env:'terre',   secteur:'LA GRANDE SYLVE',         biomes:['foret','neige','foret','foret','neige','foret'],              patrons:['V','cercle','croiseurs','tank','chasseurs','plongeons'],                 intervalle:2.9, duree:60, tourelles:4.5, tauxTir:0.92, vitesseFond:110 },
   { env:'ocean',   secteur:'ABYSSES SANS FOND',       variante:'abysses',    patrons:['meduses','bombardier','cercle','essaim','raies','plongeons'], intervalle:2.8, duree:62, tauxTir:0.94, vitesseFond:85 },
-  // ═ ACTE III ═
+  //  ACTE III 
   { env:'galaxie', secteur:'NUÉE MAGNÉTIQUE',         variante:'nebuleuse',  patrons:['serpent','cercle','zigzags','asteroides','croiseurs','embuscade'], intervalle:2.8, duree:62, tauxTir:0.96, vitesseFond:80 },
   { env:'terre',   secteur:'MIRAGE DE CENDRE',        biomes:['desert','volcan','desert','volcan','desert','volcan'],        patrons:['plongeons','helicos','croiseurs','tank','essaim','chasseurs','mines'],    intervalle:2.7, duree:64, tourelles:4,   tauxTir:0.98, vitesseFond:115 },
   { env:'ocean',   secteur:'GLACE ÉTERNELLE',         variante:'banquise',   patrons:['meduses','raies','essaim','colonne','mines','cercle'], intervalle:2.7, duree:64, tauxTir:1,    vitesseFond:85  },
@@ -55,8 +41,6 @@ const NIVEAUX = [
   { env:'galaxie', secteur:'CŒUR DU PULSAR',          variante:'pulsar',     patrons:['serpent','asteroides','croiseurs','zigzags','mines','embuscade','bombardier'], intervalle:2.3, duree:72, tauxTir:1, vitesseFond:90 },
 ];
 
-/* ─── Biomes des actes II & III (peintres appelés par script.js) ─── */
-
 const BIOMES_SUPPLEMENTAIRES = {
   volcan: {
     base:'#4a3b3e',
@@ -68,7 +52,6 @@ const BIOMES_SUPPLEMENTAIRES = {
         c.fillStyle = 'rgba(0,0,0,.22)';
         for (let i = 0; i < 6; i++) c.fillRect((rng() * L) | 0, y + ((rng() * 20) | 0), 9, 6);
       }
-      // deux coulées de lave serpentantes
       for (let k = 0; k < 2; k++){
         const cx = 100 + rng() * (L - 200);
         for (let y = 0; y < 720; y += 6){
@@ -78,7 +61,6 @@ const BIOMES_SUPPLEMENTAIRES = {
           c.fillStyle = '#ffd24a'; c.fillRect(x - 5, y + 1, 10, 4);
         }
       }
-      // cratères
       for (let k = 0; k < 3; k++){
         const x = 70 + rng() * (L - 140), y = 80 + rng() * 560, r = 20 + rng() * 22;
         c.fillStyle = '#241b1e'; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
@@ -100,14 +82,13 @@ const BIOMES_SUPPLEMENTAIRES = {
       c.fillStyle = '#c9a93e';
       for (let y = 20; y < 720; y += 120)
         for (let x = 10; x < L; x += 44) c.fillRect(x, y + 7, 20, 2);
-      // îlots : buildings aux fenêtres allumées
       for (let y = 44; y < 700; y += 120){
         for (let x = 50; x < L - 90; x += 130){
           const w = 36 + ((rng() * 40) | 0), h = 34 + ((rng() * 44) | 0);
           const bx = x + ((rng() * 30) | 0), by = y + ((rng() * 30) | 0);
           if (bx + w > L - 20 || by + h > 716) continue;
           c.fillStyle = '#39404c'; c.fillRect(bx, by, w, h);
-          c.fillStyle = '#4a525e'; c.fillRect(bx, by, w, 5);   // acrotère clair
+          c.fillStyle = '#4a525e'; c.fillRect(bx, by, w, 5);   
           for (let fy = by + 9; fy < by + h - 5; fy += 8)
             for (let fx = bx + 6; fx < bx + w - 5; fx += 9){
               c.fillStyle = rng() < 0.55 ? '#ffd24a' : '#2a2f38';
@@ -119,8 +100,6 @@ const BIOMES_SUPPLEMENTAIRES = {
     },
   },
 };
-
-/* ─── Variante océan « banquise » : icebergs + brume ─── */
 
 const VARIANTE_BANQUISE = {
   bandes:['#8fb8cf', '#84aec8', '#98c0d6', '#8ab2cc'],

@@ -12,7 +12,6 @@
 </head>
 <body>
 
-<!-- ══════════════ ÉCRAN 0 : ACCUEIL ANIMÉ ══════════════ -->
 <section id="ecran-accueil">
   <div class="accueil-scene">
     <canvas id="canvas-accueil" width="540" height="560"></canvas>
@@ -24,7 +23,6 @@
   </div>
 </section>
 
-<!-- ══════════════ ÉCRAN 1 : LA CARTE DE CAMPAGNE ══════════════ -->
 <section id="ecran-carte" class="cache">
   <header class="entete">
     <canvas id="logo" width="60" height="55"></canvas>
@@ -60,7 +58,6 @@
     <div id="defilement-carte">
       <div id="contenu-carte">
         <svg id="trace"></svg>
-        <!-- Les nœuds de niveau sont injectés par script.js -->
       </div>
     </div>
   </div>
@@ -70,8 +67,6 @@
        Mobile : joystick à gauche, bouton TIR à droite</p>
   </footer>
 </section>
-
-<!-- Modale maison de confirmation (réinitialisation) -->
 <div id="voile-modale">
   <div class="modale">
     <p>Effacer toute la progression ?</p>
@@ -81,8 +76,6 @@
     </div>
   </div>
 </div>
-
-<!-- ══════════════ ÉCRAN 2 : LE JEU ══════════════ -->
 <section id="ecran-jeu" class="cache">
   <div id="cadre-jeu">
     <canvas id="jeu" width="540" height="720"></canvas>
@@ -97,6 +90,8 @@
 <footer id="pied-page">
   <p>©Sluto — Ce jeu fait partie du <a href="../../index.html">Projet ToncPlay</a></p>
 </footer>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="../../js/intro.js"></script>
 <script src="niveaux.js"></script>
 <script src="script.js"></script>
 </body>

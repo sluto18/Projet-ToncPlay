@@ -1,15 +1,6 @@
 'use strict';
-/* ══════════════════════════════════════════════════════════════════
-   AILE D'ACIER v2 — shoot'em up vertical rétro
-   v2 : environnements alternés, difficulté adoucie, 11 patrons de
-   vagues, 4 nouveaux ennemis, biomes terrestres, écran d'accueil.
-   Tout est dessiné par code (aucune image externe).
-   ══════════════════════════════════════════════════════════════════ */
-
-/* ════════ 1. CONSTANTES & UTILITAIRES ════════ */
-
-const L = 540, H = 720;              // résolution logique du canvas de jeu
-const CADENCES = [0.18, 0.16, 0.14, 0.11];   // cadence de tir par niveau d'arme
+const L = 540, H = 720;              
+const CADENCES = [0.18, 0.16, 0.14, 0.11];   
 
 const COULEURS_ENV = { terre:'#3f8f4f', ocean:'#3e9ad0', galaxie:'#9a6fd8' };
 const NOMS_ENV_LONG = {
@@ -21,7 +12,7 @@ const COUL_BALLES = {
   rouge:   { b:'#c22f35', c:'#ffb0a6' },
   ambre:   { b:'#c96e0e', c:'#ffe1a0' },
   magenta: { b:'#8a2fb8', c:'#f0b0ff' },
-  ombre:   { b:'#2c3548', c:'#8fa0c0' },   // bombes du bombardier
+  ombre:   { b:'#2c3548', c:'#8fa0c0' },  
 };
 
 function nomBoss(env, niveau){
@@ -34,9 +25,6 @@ function alea(a, b){ return a + Math.random() * (b - a); }
 function aleaR(rng, a, b){ return a + rng() * (b - a); }
 function borne(v, min, max){ return v < min ? min : v > max ? max : v; }
 function choix(liste){ return liste[(Math.random() * liste.length) | 0]; }
-
-/* Générateur pseudo-aléatoire seedé (Mulberry32) :
-   chaque niveau retrouve toujours "ses" décors. */
 function mulberry32(seed){
   let a = seed >>> 0;
   return function(){
@@ -46,8 +34,6 @@ function mulberry32(seed){
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-
-/* Interpolation angulaire (canons qui traquent le joueur) */
 function diffAngle(a, b){ return Math.atan2(Math.sin(b - a), Math.cos(b - a)); }
 function lerpAngle(a, cible, max){
   const d = diffAngle(a, cible);
@@ -59,11 +45,7 @@ function cvAux(w, h){
   cv.width = w; cv.height = h;
   return cv;
 }
-
-/* État des entrées, fusionné clavier + tactile */
 const entrees = { g:false, d:false, h:false, b:false, tir:false, joyActif:false, joyX:0, joyY:0 };
-
-/* Texte canvas (Press Start 2P pour les titres, VT323 pour le courant) */
 function texte(ctx, s, x, y, taille, couleur, align = 'left', police = '"Press Start 2P"'){
   ctx.font = taille + 'px ' + police + ',"VT323",monospace';
   ctx.textAlign = align;
@@ -71,8 +53,6 @@ function texte(ctx, s, x, y, taille, couleur, align = 'left', police = '"Press S
   ctx.fillStyle = couleur;
   ctx.fillText(s, x, y);
 }
-
-/* ════════ 2. MOTEUR AUDIO (SFX + musique chiptune) ════════ */
 
 const Son = {
   ctx:null, master:null, actif:true, dernierTir:0,
@@ -85,13 +65,10 @@ const Son = {
     this.master = this.ctx.createGain();
     this.master.gain.value = 0.5;
     this.master.connect(this.ctx.destination);
-    // Tampon de bruit réutilisable pour le charley (sinon : createBuffer
-    // + remplissage toutes les ~0,45 s → tension GC + thread audio)
     const nCh = Math.floor(this.ctx.sampleRate * 0.03);
     this.bufCharley = this.ctx.createBuffer(1, nCh, this.ctx.sampleRate);
     const dCh = this.bufCharley.getChannelData(0);
     for (let i = 0; i < nCh; i++) dCh[i] = (Math.random() * 2 - 1) * (1 - i / nCh);
-    // Tampon de bruit long pour les explosions (zéro allocation par explosion)
     const nEx = Math.floor(this.ctx.sampleRate * 0.6);
     this.bufExplosion = this.ctx.createBuffer(1, nEx, this.ctx.sampleRate);
     const dEx = this.bufExplosion.getChannelData(0);
@@ -148,12 +125,12 @@ const Son = {
   impact(){ this.note(200, 0.05, { type:'square', vol:0.03, glide:120 }); },
   explosion(force = 1){
     const maintenant = performance.now();
-    if (maintenant - (this.dernierBoom || 0) < 90) return;   // max ~11 détonations/s
+    if (maintenant - (this.dernierBoom || 0) < 90) return;   
     this.dernierBoom = maintenant;
     if (this.ctx && this.actif && this.bufExplosion){
       const t = this.ctx.currentTime;
       const src = this.ctx.createBufferSource();
-      src.buffer = this.bufExplosion;                       // référence partagée, zéro copie
+      src.buffer = this.bufExplosion;                       
       const f = this.ctx.createBiquadFilter();
       f.type = 'lowpass';
       f.frequency.setValueAtTime(1600 * Math.min(2, force), t);
@@ -161,9 +138,9 @@ const Son = {
       const g = this.ctx.createGain();
       g.gain.value = 0.15 * force;
       src.connect(f); f.connect(g); g.connect(this.master);
-      src.start(t, Math.random() * 0.2, 0.32);              // tranche aléatoire du tampon
+      src.start(t, Math.random() * 0.2, 0.32);            
     }
-    this.note(90, 0.25, { type:'triangle', vol:0.09, glide:36 });   // le boum sub-grave
+    this.note(90, 0.25, { type:'triangle', vol:0.09, glide:36 });   
   },
   joueurTouche(){
     this.bruit(0.5, 0.25, 900);
@@ -196,8 +173,6 @@ const Son = {
   },
   basculer(){ this.actif = !this.actif; return this.actif; },
 };
-
-/* Petits motifs de 16 pas (croches) — le style suit l'environnement */
 const MOTIFS = {
   terre:   { tempo:132, onde:'square',   basse:[45,45,52,45, 41,41,48,41, 43,43,50,43, 40,40,47,40], lead:[69,72,76,0, 74,72,74,0, 69,72,76,0, 79,76,74,72] },
   ocean:   { tempo:104, onde:'triangle', basse:[50,50,57,50, 48,48,55,48, 46,46,53,46, 45,45,52,45], lead:[62,65,69,0, 65,62,65,0, 63,66,70,0, 66,63,62,0] },
@@ -205,7 +180,6 @@ const MOTIFS = {
   carte:   { tempo:96,  onde:'triangle', basse:[48,48,55,48, 45,45,52,45, 41,41,48,41, 43,43,50,43], lead:[67,0,64,0, 69,67,64,0, 65,0,69,0, 67,64,62,0] },
 };
 
-/* Séquenceur à lookahead : planifie les notes juste avant qu'elles tombent */
 const Musique = {
   style:null, pas:0, minuteur:null, prochainTemps:0, boost:1,
 
@@ -230,14 +204,12 @@ const Musique = {
       if (b) Son.note(440 * Math.pow(2, (b - 69) / 12), secPas * 0.95, { t, type:'triangle', vol:0.085 });
       const l = m.lead[p];
       if (l) Son.note(440 * Math.pow(2, (l - 69) / 12), secPas * 0.9, { t, type:m.onde, vol:0.045 });
-      if (p % 2 === 1) Son.charley(t);   // charley discret (tampon réutilisé)
+      if (p % 2 === 1) Son.charley(t);  
       this.pas = (p + 1) % 16;
       this.prochainTemps += secPas;
     }
   },
 };
-
-/* ════════ 3. PROGRESSION (localStorage) ════════ */
 
 const Progression = {
   donnees:{ debloque:1, etoiles:{}, records:{}, record:0 },
@@ -270,11 +242,6 @@ const Progression = {
     return Object.values(this.donnees.etoiles).reduce((a, b) => a + b, 0);
   },
 };
-
-/* ════════ 4. ATELIER PIXEL ART ════════
-   1 caractère = 1 pixel. Les sprites symétriques ne sont
-   définis qu'à moitié puis miroités. */
-
 const PAL = {
   W:'#eef6ff', w:'#a8bcd4', d:'#4e5f78', k:'#141c2c',
   c:'#5cf7e4', C:'#179e94',
@@ -288,9 +255,6 @@ const DEMI_JOUEUR = [
   ".....c", "....Wc", "....Wc", "...WWc", "...WwC",
   "..WWwC", ".WWwWc", "WwwW.C", "WwR...", "WW...o", "....wo",
 ];
-
-/* Vaisseau d'escorte — demi-gauche (4 colonnes), miroir → 8×8 : un mini-chasseur
-   blanc à cockpit cyan et tuyères ambre, même famille que le leader */
 const DEMI_ESCORTE = [
   "...W",
   "..Wc",
@@ -311,22 +275,21 @@ const SPRITE_RAIDER = [
   "..gGGGg..", "..gGoGg..", "..gGGGg..", "...gGg...", "...oOo...", "....o....",
 ];
 
-const DEMI_ZIGZAG = [   // éclaireur rapide, cyan
+const DEMI_ZIGZAG = [   
   "c....", "Cc...", ".Cc..", ".cCc.", "..cCc", "..cWc", "...cc", "....c",
 ];
 
-const DEMI_PLONGEUR = [  // kamikaze, dard ambre
+const DEMI_PLONGEUR = [ 
   "o.....", "Oo....", ".Oo...", ".yOo..", "..yOo.",
   "..yOo.", "...yOo", "...yOo", "....ky",
 ];
 
-const DEMI_BOMBARDIER = [ // gros porteur olive/gris (16 de large)
+const DEMI_BOMBARDIER = [ 
   ".d.....d", ".dww...d", ".dwwd..d", "..dwwddd", "..dwwwwW",
   ".dwwwWcW", ".dwwwWkW", ".dwwwWkW", "..dwwWkW", "..dwwwWw", "...ddwwW",
 ];
 const PAL_BOMBARDIER = { d:'#3a4030', w:'#8a9464', W:'#aeb884', c:'#5cf7e4', k:'#20261a' };
 
-/* — nouveaux ennemis : croiseur, mine, hélico, chasseur, raie, méduse — */
 const DEMI_CROISEUR = [
   "w......", ".dd....", ".dww...", ".dwww..", ".dwwwW.",
   "ddwwwWw", "dwwWcWw", "dwwwwww", ".dwwwww", "..dwww.", "...dd..",
@@ -363,7 +326,6 @@ const DEMI_TOURELLE = [
   "....dww", "...dwWo", "..ddwWo", ".GGddww", "GGGGddw", "GGGGGGd",
 ];
 
-/* — TERRE : forteresse angulaire (le Gardien d'acier) — */
 const DEMI_BOSS_TERRE = [
   ".dddd.......",
   "dAAAAAd.....",
@@ -381,7 +343,6 @@ const DEMI_BOSS_TERRE = [
   ".....daad...",
 ];
 
-/* — OCÉAN : kraken (manteau bombé, ventouses, cinq tentacules) — */
 const DEMI_BOSS_OCEAN = [
   ".....dd.....",
   "...dAAAAd...",
@@ -399,7 +360,6 @@ const DEMI_BOSS_OCEAN = [
   "...dA...dA.A",
 ];
 
-/* — GALAXIE : cristal (losange, cœur de nébuleuse piqué de lueurs) — */
 const DEMI_BOSS_GALAXIE = [
   "......d.....",
   ".....dAd....",
@@ -417,7 +377,6 @@ const DEMI_BOSS_GALAXIE = [
   ".....dAd....",
 ];
 
-/* la silhouette de chaque monde */
 const DEMIS_BOSS = {
   terre:   DEMI_BOSS_TERRE,
   ocean:   DEMI_BOSS_OCEAN,
@@ -447,7 +406,6 @@ const DEFS_BONUS = {
   O: { fenetre:'#c79bff', glyphe:GLYPHE_O,      couleur:'#241348' },
 };
 
-/* Petit décor terrestre */
 const SPRITE_ARBRE = [
   "..GGG..", ".GGgGG.", ".GGgGG.", "GGgGgGG", "GGGGGGG", "..GdG..", "..ddd..",
 ];
@@ -492,8 +450,6 @@ function creerSprite(lignes, palette, echelle = 3){
   });
   return cv;
 }
-
-/* Version monochrome d'un sprite (flash blanc à l'impact) */
 function teinter(cv, couleur){
   const t = cvAux(cv.width, cv.height);
   const c = t.getContext('2d');
@@ -518,8 +474,6 @@ function fabriquerSpriteBonus(def){
   });
   return spr;
 }
-
-/* Bibliothèque de sprites */
 const SPRITES = {
   joueur:    creerSprite(miroir(DEMI_JOUEUR), PAL, 3),
   escorte:  creerSprite(miroir(DEMI_ESCORTE), PAL, 3),
@@ -560,10 +514,6 @@ SPRITES.bonus = {};
 for (const [type, def] of Object.entries(DEFS_BONUS)){
   SPRITES.bonus[type] = fabriquerSpriteBonus(def);
 }
-
-/* ════════ 5. DÉCORS & PARALLAX ════════ */
-
-/* Une nappe pré-rendue qui défile verticalement en boucle */
 class CoucheDefilante {
   constructor(cv, vitesse){
     this.cv = cv;
@@ -572,9 +522,6 @@ class CoucheDefilante {
   }
   maj(dt){ this.o = (this.o + this.v * dt) % this.cv.height; }
   dessiner(ctx){
-    // Défilement SOUS-PIXEL : positions fractionnaires + interpolation.
-    // (en coordonnées entières, un fond à 100 px/s avance de 1,67 px par
-    // frame → pas de 1 px, 2 px, 1 px… : c'était la saccade)
     const h = this.cv.height;
     ctx.imageSmoothingEnabled = true;
     let y = this.o - h;
@@ -587,12 +534,9 @@ class CoucheDefilante {
       }
       y += h;
     }
-    ctx.imageSmoothingEnabled = false;   // les sprites restent bien nets
+    ctx.imageSmoothingEnabled = false;   
   }
 }
-
-/* ——— TERRE : 5 BIOMES qui s'enchaînent avec bords déchiquetés ——— */
-
 function peindreRoute(c, y){
   c.fillStyle = '#70747c'; c.fillRect(0, y + 2, L, 20);
   c.fillStyle = '#8b9099'; c.fillRect(0, y + 2, L, 4);
@@ -611,8 +555,6 @@ function peindreRiviere(c, rng, eau, clair){
   }
   return cx;
 }
-
-/* Sème un sprite décoratif en évitant éventuellement une zone */
 function semer(c, rng, spr, nb, ok){
   const w = spr.width, h = spr.height;
   for (let i = 0; i < nb; i++){
@@ -621,15 +563,13 @@ function semer(c, rng, spr, nb, ok){
     c.drawImage(spr, x | 0, y | 0);
   }
 }
-
-/* Équipements de la base militaire (dessinés au trait, pas en sprites) */
 function dessinerRadar(c, x, y){
   c.fillStyle = '#39424e'; c.fillRect(x - 14, y - 14, 28, 28);
   c.strokeStyle = '#8b939f'; c.lineWidth = 3;
   c.beginPath(); c.arc(x, y, 12, 0, 7); c.stroke();
   c.beginPath(); c.arc(x, y, 6, 0, 7); c.stroke();
   c.strokeStyle = 'rgba(92,247,228,.9)';
-  c.beginPath(); c.moveTo(x, y); c.lineTo(x + 11, y - 8); c.stroke();   // faisceau
+  c.beginPath(); c.moveTo(x, y); c.lineTo(x + 11, y - 8); c.stroke();  
   c.fillStyle = '#ffb020'; c.fillRect(x - 2, y - 2, 4, 4);
 }
 function dessinerBunker(c, x, y){
@@ -673,7 +613,7 @@ const TERRAINS_TERRE = {
         c.fillStyle = 'rgba(10,40,22,.25)';
         for (let i = 0; i < 6; i++) c.fillRect((rng() * L) | 0, y + ((rng() * 20) | 0), 8, 5);
       }
-      const lx = aleaR(rng, 90, L - 90), ly = aleaR(rng, 130, 590);   // clairière-lac
+      const lx = aleaR(rng, 90, L - 90), ly = aleaR(rng, 130, 590);  
       c.fillStyle = '#1d4f2a'; c.beginPath(); c.ellipse(lx, ly, 68, 40, 0, 0, 7); c.fill();
       c.fillStyle = '#2f6fd8'; c.beginPath(); c.ellipse(lx, ly, 58, 32, 0, 0, 7); c.fill();
       c.fillStyle = '#5ea0f2'; c.beginPath(); c.ellipse(lx - 8, ly - 6, 34, 18, 0, 0, 7); c.fill();
@@ -689,7 +629,7 @@ const TERRAINS_TERRE = {
         c.fillStyle = tons[(rng() * 3) | 0];
         c.fillRect(0, y, L, 48);
       }
-      c.strokeStyle = 'rgba(170,125,60,.5)'; c.lineWidth = 3;   // dunes en arcs
+      c.strokeStyle = 'rgba(170,125,60,.5)'; c.lineWidth = 3;   
       for (let i = 0; i < 10; i++){
         c.beginPath(); c.arc(rng() * L, rng() * 700, 30 + rng() * 46, Math.PI * 1.15, Math.PI * 1.85); c.stroke();
       }
@@ -714,7 +654,7 @@ const TERRAINS_TERRE = {
       for (let i = 0; i < 8; i++){
         c.beginPath(); c.arc(rng() * L, rng() * 700, 26 + rng() * 40, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
       }
-      peindreRiviere(c, rng, '#a8ccf0', '#e2f2ff');   // rivière gelée
+      peindreRiviere(c, rng, '#a8ccf0', '#e2f2ff');   
       semer(c, rng, SPRITES.sapin, 13);
       semer(c, rng, SPRITES.rocher, 4);
     },
@@ -741,14 +681,12 @@ const TERRAINS_TERRE = {
       for (let i = 0; i < 3; i++) dessinerBunker(c, 80 + rng() * (L - 160), 160 + rng() * 500);
       for (let i = 0; i < 2; i++) dessinerCiterne(c, 80 + rng() * (L - 160), 120 + rng() * 480);
       c.strokeStyle = 'rgba(20,24,32,.5)'; c.lineWidth = 2; c.setLineDash([8, 6]);
-      c.strokeRect(14, 14, L - 28, 692);   // clôture
+      c.strokeRect(14, 14, L - 28, 692);  
       c.setLineDash([]);
     },
   },
 };
 Object.assign(TERRAINS_TERRE, BIOMES_SUPPLEMENTAIRES);
-
-/* Assemble les bandes de biomes (720 px chacune) avec bords déchiquetés */
 function fabriquerTerrain(seed, biomes){
   const rng = mulberry32(seed);
   const cv = cvAux(L, biomes.length * 720);
@@ -760,7 +698,7 @@ function fabriquerTerrain(seed, biomes){
     c.beginPath(); c.rect(0, 0, L, 720); c.clip();
     b.peindre(c, rng);
     c.restore();
-    if (i > 0){   // le biome précédent mord en dents de scie sur le nouveau
+    if (i > 0){  
       c.fillStyle = TERRAINS_TERRE[biomes[i - 1]].base;
       c.fillRect(0, i * 720 - 20, L, 20);
       for (let x = -13; x < L; x += 26){
@@ -836,8 +774,6 @@ class DecorTerre {
     ctx.imageSmoothingEnabled = false;
   }
 }
-
-/* ——— OCÉAN : 3 variantes (lagon / tempête / abysses) ——— */
 
 const PALETTES_OCEAN = {
   lagon:    { bandes:['#1a6ab0', '#1963a3', '#1a6ab0', '#1f6cb4'], houle:'rgba(130,205,235,.42)', ecume:'rgba(238,250,255,.9)',  alphaEcume:.6,  iles:true,  pluie:false, plancton:false, corail:true,  delaiIle:[5, 10] },
@@ -972,20 +908,20 @@ class DecorOcean {
   dessiner(ctx){
     ctx.drawImage(this.fond, 0, 0);
     this.houle.dessiner(ctx);
-    for (const p of this.plancton){   // lucioles bioluminescentes
+    for (const p of this.plancton){   
       ctx.globalAlpha = 0.25 + 0.25 * Math.sin(p.ph);
       ctx.fillStyle = '#5cf7e4';
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
     }
     ctx.globalAlpha = 1;
-    for (const co of this.coraux){   // amas coralliens
+    for (const co of this.coraux){  
       for (let k = 0; k < 5; k++){
         const a = co.t + k * 1.26, r = 3 + (k % 2) * 2;
         ctx.fillStyle = k % 2 ? '#ff7ad9' : '#ff9a6a';
         ctx.beginPath(); ctx.arc(co.x + Math.cos(a) * (6 + k * 3), co.y + Math.sin(a) * (4 + k * 2), r, 0, 7); ctx.fill();
       }
     }
-    ctx.imageSmoothingEnabled = true;   // îles/icebergs : glissement sous-pixel
+    ctx.imageSmoothingEnabled = true;  
     for (const p of this.iles){
       ctx.globalAlpha = 0.45;
       ctx.drawImage(p.spr.ombre, p.x + 9, p.y + 13);
@@ -996,7 +932,7 @@ class DecorOcean {
     ctx.globalAlpha = this.p.alphaEcume;
     this.ecume.dessiner(ctx);
     ctx.globalAlpha = 1;
-    if (this.brume) this.brume.dessiner(ctx);   // brume glaciale
+    if (this.brume) this.brume.dessiner(ctx);   
     if (this.p.pluie){   // pluie battante de la tempête
       ctx.strokeStyle = 'rgba(200,225,255,.22)'; ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -1005,8 +941,6 @@ class DecorOcean {
     }
   }
 }
-
-/* ——— GALAXIE : 3 variantes (astéroïdes / comètes / nébuleuse) ——— */
 
 function fabriquerNebuleuses(seed, teintes, nb = 5){
   const rng = mulberry32(seed);
@@ -1127,7 +1061,7 @@ class DecorGalaxie {
     this.temps += dt;
     if (this.trouNoir)
       for (const p of this.trouNoir.particules){
-        p.a += (0.9 + 160 / Math.max(60, p.r)) * dt;   // spirale accélérée
+        p.a += (0.9 + 160 / Math.max(60, p.r)) * dt;   
         p.r -= 36 * dt;
         if (p.r < 24){ p.r = alea(380, 460); p.a = alea(0, 6.28); }
       }
@@ -1154,7 +1088,6 @@ class DecorGalaxie {
   dessiner(ctx){
     ctx.fillStyle = '#05060f'; ctx.fillRect(0, 0, L, H);
     this.nebuleuses.dessiner(ctx);
-        // — variante TROU NOIR : disque d'accrétion + matière aspirée —
     if (this.trouNoir){
       const t = this.trouNoir;
       for (let k = 0; k < 5; k++){
@@ -1178,7 +1111,6 @@ class DecorGalaxie {
       ctx.strokeStyle = 'rgba(200,180,255,.9)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(t.cx, t.cy, 27, 0, 7); ctx.stroke();
     }
-    // — variante PULSAR : faisceaux balayants + étoile qui pulse —
     if (this.pulsar){
       const p = this.pulsar;
       ctx.save();
@@ -1201,7 +1133,7 @@ class DecorGalaxie {
     }
     this.etoilesLoin.dessiner(ctx);
     if (this.asteroides) this.asteroides.dessiner(ctx);
-    ctx.imageSmoothingEnabled = true;   // planètes : glissement sous-pixel
+    ctx.imageSmoothingEnabled = true;   
     for (const p of this.planetes) ctx.drawImage(p.cv, p.x, p.y);
     ctx.imageSmoothingEnabled = false;
     this.etoilesMoyen.dessiner(ctx);
@@ -1213,7 +1145,6 @@ class DecorGalaxie {
     }
   }
 }
-/* ════════ 6. PARTICULES & EXPLOSIONS ════════ */
 
 class Particule {
   constructor(x, y, vx, vy, duree, type, opts = {}){
@@ -1253,8 +1184,6 @@ class Particule {
 
 function explosion(jeu, x, y, force = 1){
   jeu.secousse = Math.min(14, jeu.secousse + 4 * force);
-  // en survie dense : au-delà de 240 particules vivantes, les explosions
-  // comptent pour un tiers — le décor doit défiler, pas hoqueter
   const dense = jeu.particules.length < 240;
   const k = dense ? 1 : 0.35;
   for (let i = 0; i < Math.round(9 * force * k); i++){
@@ -1272,11 +1201,6 @@ function explosion(jeu, x, y, force = 1){
       { couleur: 'rgba(255,220,150,1)', taille: 40 * Math.sqrt(force) }));
   Son.explosion(force);
 }
-
-/* ════════ 7. ENTITÉS ════════ */
-
-/* Cache de sprites de balles ennemies : 1 drawImage au lieu de
-   3 arcs géométriques par balle (jusqu'à 140 balles par frame). */
 const SPRITES_BALLES = {};
 function spriteBalle(couleur, rayon){
   const cle = couleur + '_' + rayon;
@@ -1309,7 +1233,7 @@ class Balle {
   }
   distanceA(e){
     const dx = e.x - this.x, dy = e.y - this.y;
-    return Math.sqrt(dx * dx + dy * dy);   // nettement plus rapide que Math.hypot
+    return Math.sqrt(dx * dx + dy * dy);   
   }
   dessiner(ctx){
     if (this.amie){
@@ -1322,11 +1246,6 @@ class Balle {
     }
   }
 }
-
-/* Tableau des ennemis — tire:false = jamais de tir.
-   Communs : drone, raider, zigzag, plongeur, croiseur, mine, tank,
-   bombardier. Terre : tourelle, helico, chasseur. Océan : raie,
-   meduse. Galaxie : serpentTete/segment, asteroide. */
 const TYPES_ENNEMIS = {
   drone:      { hp:1, score:100, rayon:15, tirCd:2.8 },
   raider:     { hp:2, score:150, rayon:14, tirCd:1.7 },
@@ -1356,22 +1275,22 @@ class Ennemi {
     this.ph = opts.ph ?? 0;
     this.vy = opts.vy ?? 70;
     this.vx = opts.vx ?? 0;
-    this.a0 = opts.a0 ?? 0;            // roue tournante
+    this.a0 = opts.a0 ?? 0;           
     this.r = opts.r ?? 110;
     this.vRot = opts.vRot ?? 0.7;
-    this.yCible = opts.yCible ?? 110;  // stationnement
+    this.yCible = opts.yCible ?? 110;  
     this.stationnaire = opts.stationnaire ?? 3;
     this.phase = 0; this.vyFuite = 40;
-    this.yDecl = opts.yDecl ?? 150;    // plongeur : altitude de déclenchement
-    this.eca = opts.eca ?? 22;         // segment : distance au chef
-    this.chef = opts.chef ?? null;     // segment : ennemi suivi
-    this.index = opts.index ?? 0;      // segment : rang (ondulation)
+    this.yDecl = opts.yDecl ?? 150;   
+    this.eca = opts.eca ?? 22;         
+    this.chef = opts.chef ?? null;     
+    this.index = opts.index ?? 0;      
     this.peutTirer = (opts.peutTirer ?? true) && (t.tire !== false);
     this.tirCd = t.tirCd * (opts.tirCd ?? 1);
     this.cd = alea(0.6, 1.8);
     this.vitesseTir = opts.vitesseTir ?? 170;
     this.fileTirs = [];
-    this.rot = alea(0, 6.28);   // astéroïde : angle de rotation
+    this.rot = alea(0, 6.28);  
     this.forme = type === 'asteroide' ? Array.from({ length: 8 }, () => alea(0.7, 1.3)) : null;
   }
 
@@ -1406,7 +1325,7 @@ class Ennemi {
         }
         this.x = this.x0 + Math.sin(this.age * 1.1) * 16;
         break;
-      case 'plongeon':   // kamikaze : verrouille le joueur puis pique dessus
+      case 'plongeon':   
         if (this.phase === 0){
           this.y += 95 * dt;
           if (this.y >= this.yDecl){
@@ -1421,7 +1340,7 @@ class Ennemi {
           this.y += this.dirY * this.vitesse * dt;
         }
         break;
-      case 'suivant':   // segment d'hydre : suit l'ennemi de devant
+      case 'suivant':   
         if (this.chef && !this.chef.mort){
           const dx = this.chef.x - this.x, dy = this.chef.y - this.y;
           const d = Math.hypot(dx, dy);
@@ -1429,18 +1348,18 @@ class Ennemi {
             this.x += dx / d * 300 * dt;
             this.y += dy / d * 300 * dt;
           }
-        } else {   // chef détruit : le segment devient un drone libre
+        } else {  
           this.comp = 'sinus';
           this.x0 = this.x; this.amp = 46; this.om = 1.4;
           this.ph = alea(0, 6.28); this.vy = 80;
           this.y += this.vy * dt;
         }
         break;
-      case 'serpent':   // tête d'hydre : grand slalom descendant
+      case 'serpent':   
         this.y += 72 * dt;
         this.x = this.x0 + Math.sin(this.age * 1.5) * this.amp;
         break;
-      case 'strafe':   // hélico : descend, patrouille en horizontal, repart
+      case 'strafe':   
         if (this.phase === 0){
           this.y += 80 * dt;
           if (this.y >= this.yCible) this.phase = 1;
@@ -1453,13 +1372,11 @@ class Ennemi {
           this.y += this.vyFuite * dt;
         }
         break;
-      case 'descente':  // mur : tout droit
+      case 'descente':  
         this.x += this.vx * dt;
         this.y += this.vy * dt;
         break;
     }
-
-    // Tirs — période de grâce de 3 s en début de niveau
     if (jeu.temps > 3 && this.peutTirer && this.y > 30 && this.y < 480 && this.age > 0.4){
       this.cd -= dt;
       if (this.cd <= 0 && this.fileTirs.length === 0){
@@ -1472,14 +1389,14 @@ class Ennemi {
       this.fileTirs[0] -= dt;
       while (this.fileTirs.length && this.fileTirs[0] <= 0){
         this.fileTirs.shift();
-        if (this.type === 'bombardier'){   // lâcher de bombe lourde
+        if (this.type === 'bombardier'){   
           jeu.tirEnnemi(this.x + alea(-14, 14), this.y + 24,
             Math.PI / 2 + alea(-0.06, 0.06), 148, { couleur:'ombre', rayon:7 });
-        } else if (this.type === 'croiseur'){   // éventail de 3
+        } else if (this.type === 'croiseur'){   
           const a = jeu.angleVersJoueur(this.x, this.y);
           for (let k = -1; k <= 1; k++)
             jeu.tirEnnemi(this.x, this.y + 12, a + k * 0.32, this.vitesseTir);
-        } else if (this.type === 'meduse'){   // couronne de bulles
+        } else if (this.type === 'meduse'){   
           for (let k = 0; k < 6; k++)
             jeu.tirEnnemi(this.x, this.y, k * Math.PI / 3, this.vitesseTir * 0.7, { couleur:'magenta' });
         } else if (this.type === 'helico' || this.type === 'chasseur'){   // rafale vers le bas
@@ -1496,7 +1413,6 @@ class Ennemi {
   }
 
   dessiner(ctx){
-    // hydre : orbes violets dessinés à la main
     if (this.type === 'serpentTete' || this.type === 'segment'){
       const tete = this.type === 'serpentTete';
       const rr = tete ? 11 : 8 + Math.sin(this.age * 6 + this.index * 1.1);
@@ -1513,7 +1429,6 @@ class Ennemi {
       }
       return;
     }
-        // mine : cœur rouge qui clignote
     if (this.type === 'mine'){
       const spr = SPRITES.mine;
       const px = Math.round(this.x - spr.width / 2), py = Math.round(this.y - spr.height / 2);
@@ -1529,7 +1444,6 @@ class Ennemi {
       }
       return;
     }
-    // hélico : rotor qui tourne par-dessus le fuselage
     if (this.type === 'helico'){
       const spr = SPRITES.helico;
       const px = Math.round(this.x - spr.width / 2), py = Math.round(this.y - spr.height / 2);
@@ -1551,7 +1465,6 @@ class Ennemi {
       }
       return;
     }
-    // méduse : dôme qui pulse + tentacules ondulantes
     if (this.type === 'meduse'){
       const spr = SPRITES.meduse;
       const px = Math.round(this.x - spr.width / 2), py = Math.round(this.y - spr.height / 2);
@@ -1578,7 +1491,6 @@ class Ennemi {
       }
       return;
     }
-    // astéroïde : rocher polygonal en rotation
     if (this.type === 'asteroide'){
       ctx.fillStyle = this.flash > 0 ? '#ffffff' : '#6b5a44';
       ctx.beginPath();
@@ -1603,8 +1515,6 @@ class Ennemi {
     }
   }
 }
-
-/* Tourelle ancrée au sol : défile avec le terrain, traque puis canarde */
 class Tourelle {
   constructor(x){
     this.x = x; this.y = -30;
@@ -1648,8 +1558,6 @@ class Tourelle {
     }
   }
 }
-
-/* Boss de fin de niveau : PV et agressivité indexés sur le niveau */
 class Boss {
   constructor(jeu){
     this.env = jeu.spec.env;
@@ -1724,7 +1632,7 @@ class Boss {
         this.ptCd = 0.75;
         break;
       }
-      case 'rideau': {   // mur de tirs avec couloir de survie (plus large tôt)
+      case 'rideau': {   
         const vR = v * 0.62;
         const demiTrou = 64 + Math.max(0, 6 - this.niveau) * 6;
         const couloir = alea(95, L - 95);
@@ -1736,7 +1644,7 @@ class Boss {
         this.ptCd = 0.6;
         break;
       }
-      case 'invasion': {   // renforts latéraux
+      case 'invasion': {  
         const cote = Math.random() < 0.5 ? -1 : 1;
         for (let k = 0; k < 2; k++){
           jeu.ennemis.push(new Ennemi('raider',
@@ -1759,7 +1667,7 @@ class Boss {
       return true;
     }
 
-    if (this.etat === 'mourir'){   // longue agonie explosante
+    if (this.etat === 'mourir'){   
       this.minuteurMort -= dt;
       this.explosionTimer -= dt;
       if (this.explosionTimer <= 0){
@@ -1769,8 +1677,6 @@ class Boss {
       this.y += 10 * dt;
       return this.minuteurMort > 0;   // false → retiré du jeu
     }
-
-    // passage de phase (66 % puis 33 % des PV)
     const ratio = this.hp / this.hpMax;
     const phaseVoulue = ratio > 0.66 ? 1 : ratio > 0.33 ? 2 : 3;
     if (phaseVoulue > this.phase){
@@ -1783,12 +1689,9 @@ class Boss {
       return true;
     }
 
-    // déplacement : grand balancement ample
     const cibleX = L / 2 + Math.sin(this.age * 0.55) * (L / 2 - 120);
     this.x += (cibleX - this.x) * Math.min(1, 1.4 * dt);
     this.y = 105 + Math.sin(this.age * 0.8) * 12;
-
-    // enchaînement des patterns avec pauses
     if (this.pause > 0){
       this.pause -= dt;
       if (this.pause <= 0) this.lancerPattern(this.phase);
@@ -1798,8 +1701,6 @@ class Boss {
       if (this.ptCd <= 0) this.emettre(jeu, this.phase);
       if (this.ptTemps >= this.dureePattern){ this.pattern = null; this.pause = alea(0.7, 1.1); }
     }
-
-    // canons latéraux traqueurs (phase 2 et 3)
     if (this.phase >= 2){
       this.canonG = lerpAngle(this.canonG, jeu.angleVersJoueur(this.x - 33, this.y), 2.6 * dt);
       this.canonD = lerpAngle(this.canonD, jeu.angleVersJoueur(this.x + 33, this.y), 2.6 * dt);
@@ -1825,7 +1726,6 @@ class Boss {
       ctx.drawImage(SPRITES.bossBlanc[this.env], px, py);
       ctx.globalAlpha = 1;
     }
-    // canons orientables
     const pal = PALETTES_BOSS[this.env];
     for (const c of [{ cx: this.x - 33, a: this.canonG }, { cx: this.x + 33, a: this.canonD }] ){
       ctx.save();
@@ -1835,7 +1735,6 @@ class Boss {
       ctx.fillStyle = pal.a; ctx.fillRect(10, -2.5, 9, 5);
       ctx.restore();
     }
-    // œil central qui guette le joueur
     const a = jeu.angleVersJoueur(this.x, this.y + 4);
     ctx.fillStyle = '#0c0614';
     ctx.beginPath(); ctx.arc(this.x, this.y + 4, 8, 0, 7); ctx.fill();
@@ -1845,8 +1744,6 @@ class Boss {
     ctx.beginPath(); ctx.arc(this.x + Math.cos(a) * 2.5, this.y + 4 + Math.sin(a) * 2.5, 2.5, 0, 7); ctx.fill();
   }
 }
-
-/* ════════ LES CAPSULES DE BONUS ════════ */
 
 class Bonus {
   constructor(x, y, type){
@@ -1870,26 +1767,22 @@ class Bonus {
   }
 }
 
-/* ════════ LES VAISSEAUX D'ESCORTE ════════ */
-
 class DroneEscorte {
   constructor(cote){
-    this.cote = cote;                 // -1 : aile gauche, +1 : aile droite
-    this.xDepart = L / 2 + cote * 130;   // point d'entrée de la glissade d'arrivée
+    this.cote = cote;                 
+    this.xDepart = L / 2 + cote * 130;   
     this.yDepart = H + 40;
     this.x = this.xDepart; this.y = this.yDepart;
     this.age = 0;
-    this.integration = 0;             // 0 → 1 : courte arrivée avant le verrouillage
+    this.integration = 0;             
   }
   maj(dt, joueur){
     this.age += dt;
-    // poste de formation : VERROUILLÉ sur le leader — plus aucun décalage
     const cibleX = joueur.x + this.cote * 36;
-    const cibleY = joueur.y + 4 + Math.sin(this.age * 3 + this.cote) * 3;   // flottement
+    const cibleY = joueur.y + 4 + Math.sin(this.age * 3 + this.cote) * 3;   
     if (this.integration < 1){
-      // 0,45 s de glissade depuis l'extérieur, puis verrou définitif
       this.integration = Math.min(1, this.integration + dt * 2.2);
-      const e = 1 - Math.pow(1 - this.integration, 3);   // easing de rentrée
+      const e = 1 - Math.pow(1 - this.integration, 3);   
       this.x = this.xDepart + (cibleX - this.xDepart) * e;
       this.y = this.yDepart + (cibleY - this.yDepart) * e;
     } else {
@@ -1898,7 +1791,6 @@ class DroneEscorte {
     }
   }
   dessiner(ctx, joueur){
-    // flamme de propulsion (désynchronisée de l'aile opposée, ça vit)
     const f = 4 + Math.sin(performance.now() * 0.05 + this.cote * 2) * 2;
     ctx.fillStyle = '#c96e0e';
     ctx.beginPath();
@@ -1908,7 +1800,6 @@ class DroneEscorte {
     ctx.beginPath();
     ctx.moveTo(this.x - 1.5, this.y + 11); ctx.lineTo(this.x + 1.5, this.y + 11);
     ctx.lineTo(this.x, this.y + 12 + f * 0.55); ctx.closePath(); ctx.fill();
-    // le petit vaisseau s'incline comme son leader (même gîte, même écrasement)
     const g = (joueur && joueur.gite) || 0;
     const spr = SPRITES.escorte;
     ctx.save();
@@ -1920,33 +1811,30 @@ class DroneEscorte {
   }
 }
 
-/* ════════ LE JOUEUR ════════ */
-
 class Joueur {
   constructor(){
     this.x = L / 2;
-    this.y = H + 60;              // il entre en scène par le bas
+    this.y = H + 60;             
     this.vies = 3;
-    this.arme = 0;                // 0 → 3 : simple, double, triple, maximal
-    this.bouclier = 0;            // secondes restantes
+    this.arme = 0;                
+    this.bouclier = 0;            
     this.invincible = 0;
     this.cdTir = 0;
-    this.rayon = 9;               // hitbox réduite, bien shmup
-    this.etat = 'entree';         // entree → actif → respawn → mort → envol
+    this.rayon = 9;             
+    this.etat = 'entree';        
     this.minuteur = 0;
-    this.immunise = false;        // invulnérabilité de fin de niveau
-    this.poussee = 1;             // multiplicateur de flamme (envol final)
-    this.sifflement = false;      // son de départ, joué une seule fois
-    this.gite = 0;                // inclinaison latérale (-1 gauche … +1 droite)
-    this.drones = [];             // escadrille en orbite (0 à 2 satellites)
+    this.immunise = false;       
+    this.poussee = 1;             
+    this.sifflement = false;      
+    this.gite = 0;                
+    this.drones = [];             
   }
 
   maj(dt, jeu){
     this.invincible = Math.max(0, this.invincible - dt);
     this.bouclier = Math.max(0, this.bouclier - dt);
     this.cdTir = Math.max(0, this.cdTir - dt);
-    this.gite -= this.gite * Math.min(1, 6 * dt);   // la gîte retombe d'elle-même
-    // l'escadrille orbite tant que le vaisseau est en scène
+    this.gite -= this.gite * Math.min(1, 6 * dt);   
     if (this.etat !== 'mort' && this.etat !== 'respawn')
       for (const d of this.drones) d.maj(dt, this);
 
@@ -1964,35 +1852,31 @@ class Joueur {
       }
       return;
     }
-        if (this.etat === 'envol'){   // séquence de fin : recentrage puis montée
+        if (this.etat === 'envol'){   
       this.minuteur += dt;
       this.x += (L / 2 - this.x) * Math.min(1, 3.2 * dt);
       if (this.minuteur < 0.9){
-        this.y += (430 - this.y) * Math.min(1, 2.6 * dt);   // placement au centre
+        this.y += (430 - this.y) * Math.min(1, 2.6 * dt);   
       } else {
         if (!this.sifflement){
           this.sifflement = true;
           this.vitesseEnvol = 240;
-          Son.note(240, 0.9, { type:'triangle', vol:0.05, glide:1200 });   // sifflement de départ
+          Son.note(240, 0.9, { type:'triangle', vol:0.05, glide:1200 });  
         }
-        this.vitesseEnvol += 430 * dt;   // accélération franche
+        this.vitesseEnvol += 430 * dt;   
         this.poussee = 2.4;
         this.y -= this.vitesseEnvol * dt;
       }
       return;
     }
     if (this.etat !== 'actif') return;
-
-    // déplacement : clavier + joystick fusionnés
     let dx = (entrees.d ? 1 : 0) - (entrees.g ? 1 : 0) + entrees.joyX;
     let dy = (entrees.b ? 1 : 0) - (entrees.h ? 1 : 0) + entrees.joyY;
     const norme = Math.hypot(dx, dy);
     if (norme > 1){ dx /= norme; dy /= norme; }
     this.x = borne(this.x + dx * 340 * dt, 18, L - 18);
     this.y = borne(this.y + dy * 340 * dt, 46, H - 26);
-    this.gite += (borne(dx, -1, 1) - this.gite) * Math.min(1, 14 * dt);   // …et prend dès qu'on dérive
-
-    // tir maintenu
+    this.gite += (borne(dx, -1, 1) - this.gite) * Math.min(1, 14 * dt);   
     if (entrees.tir && this.cdTir <= 0){
       this.tirer(jeu);
       this.cdTir = CADENCES[this.arme];
@@ -2008,11 +1892,9 @@ class Joueur {
     ];
     for (const m of motifs[this.arme]){
       jeu.balles.push(new Balle(this.x + m.dx, this.y - 14, m.vx, -640, { amie: true }));
-      // flash au canon : micro-particule blanche à la bouche du tir
       jeu.particules.push(new Particule(this.x + m.dx, this.y - 16, m.vx * 0.15, -90,
         0.05, 'feu', { taille: 4 }));
     }
-    // les escorteurs tirent en même temps que le vaisseau, depuis leur nez
     for (const d of this.drones){
       jeu.balles.push(new Balle(d.x, d.y - 12, 0, -640, { amie: true }));
       jeu.particules.push(new Particule(d.x, d.y - 14, 0, -90, 0.05, 'feu', { taille: 3 }));
@@ -2021,10 +1903,10 @@ class Joueur {
   }
 
   toucher(jeu){
-    if (this.immunise) return;   // intouchable dès la mort du boss
+    if (this.immunise) return;   
     if (this.invincible > 0 || this.etat !== 'actif') return;
-    if (jeu.chaine > 0) jeu.chaine = 0;   // tout dégât subi brise la chaîne
-    if (this.bouclier > 0){   // le bouclier encaisse le coup
+    if (jeu.chaine > 0) jeu.chaine = 0;   
+    if (this.bouclier > 0){   
       this.bouclier = 0;
       this.invincible = 1;
       Son.bouclier();
@@ -2033,8 +1915,8 @@ class Joueur {
       return;
     }
     this.vies--;
-    this.arme = Math.max(0, this.arme - 1);        // on perd un niveau d'arme…
-    if (this.drones.length > 0) this.drones.pop(); // …et un drone de l'escadrille
+    this.arme = Math.max(0, this.arme - 1);       
+    if (this.drones.length > 0) this.drones.pop(); 
     explosion(jeu, this.x, this.y, 1.6);
     Son.joueurTouche();
     if (this.vies <= 0){
@@ -2047,21 +1929,17 @@ class Joueur {
   }
 
   dessiner(ctx){
-    // l'escadrille d'abord (derrière le vaisseau), sauf mort/réapparition
     if (this.etat !== 'mort' && this.etat !== 'respawn')
       for (const d of this.drones) d.dessiner(ctx, this);
     if (this.etat === 'mort' || this.etat === 'respawn') return;
     if (this.invincible > 0 && ((this.invincible * 9) | 0) % 2 === 0) return;   // clignote
 
     const spr = SPRITES.joueur;
-
-    // inclinaison : écrasement horizontal (ailes en plan) + léger roulis
     const g = this.gite || 0;
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.scale(1 - 0.28 * Math.abs(g), 1);   // jusqu'à 28 % plus étroit à pleine dérive
-    ctx.rotate(g * 0.10);                   // ~6° de roulis
-    // flamme de propulsion (dessous, elle vacille) — coordonnées relatives
+    ctx.scale(1 - 0.28 * Math.abs(g), 1);   
+    ctx.rotate(g * 0.10);                  
     const f = (5 + Math.sin(performance.now() * 0.045) * 2.5) * this.poussee;
     ctx.fillStyle = '#c96e0e';
     ctx.beginPath();
@@ -2074,8 +1952,6 @@ class Joueur {
 
     ctx.drawImage(spr, -spr.width / 2, -spr.height / 2);
     ctx.restore();
-
-    // bulle de bouclier tournante
     if (this.bouclier > 0){
       const visible = this.bouclier >= 2 || ((performance.now() * 0.006 | 0) % 2 === 0);
       if (visible){
@@ -2092,8 +1968,6 @@ class Joueur {
     }
   }
 }
-
-/* Les lignes du générique de fin de campagne */
 function fabriquerLignesGenerique(){
   return [
     { s: "AILE D'ACIER",              t: 18, c: '#ffb020', f: '"Press Start 2P"' },
@@ -2117,23 +1991,18 @@ function fabriquerLignesGenerique(){
     { s: 'FIN',                       t: 12, c: '#8fa0c0', f: '"Press Start 2P"' },
   ];
 }
-
-/* Pool de patrons du mode survie, par monde, par ordre d'apparition */
 const PATRONS_SURVIE = {
   terre:   ['ligne','mur','colonne','essaim','V','plongeons','tank','helicos','chasseurs','croiseurs','bombardier','mines'],
   ocean:   ['ligne','essaim','colonne','mur','cercle','raies','meduses','plongeons','embuscade','croiseurs','bombardier','mines'],
   galaxie: ['zigzags','ligne','essaim','embuscade','cercle','serpent','asteroides','plongeons','croiseurs','bombardier','mines'],
 };
 
-/* ════════ 8. LA CLASSE JEU : un niveau entier, de l'intro au boss ════════ */
-
 class Jeu {
   constructor(niveau){
-    this.survie = niveau === 0;              // 0 = mode survie
+    this.survie = niveau === 0;              
     this.niveau = this.survie ? 0 : niveau;
-    this.diff = this.survie ? 1 : diffNiveau(niveau);   // courbe saturée sur 30 niveaux
+    this.diff = this.survie ? 1 : diffNiveau(niveau);   
     if (this.survie){
-      // les trois mondes pré-générés : rotations sans à-coup
       this.decors = {
         terre:   new DecorTerre(9007, 100, ['prairie','foret','desert','neige','base','volcan','cite','prairie']),
         ocean:   new DecorOcean(9011, 90, 'tempete'),
@@ -2146,8 +2015,8 @@ class Jeu {
         tauxTir:0.35, vitesseFond:100,
       };
       this.decor = this.decors.terre;
-      this.vagueSurvie = 0;         // compteur de vagues
-      this.prochaineRotation = 45;  // changement de monde toutes les 45 s
+      this.vagueSurvie = 0;         
+      this.prochaineRotation = 45;  
     } else {
       this.spec = NIVEAUX[niveau - 1];
       this.decor = this.spec.env === 'terre'
@@ -2161,29 +2030,27 @@ class Jeu {
     this.bonus = []; this.particules = []; this.messages = [];
     this.boss = null;
     this.score = 0;
-    this.prochainPalierVie = 20000;   // vie bonus tous les 25 000 points
+    this.prochainPalierVie = 20000;  
     this.secousse = 0;
-    this.ralenti = 0;                 // chrono du ralenti dramatique (mort du boss)
-    this.chaine = 0;                  // destructions enchaînées (≤ 2 s d'intervalle)
-    this.tempsChaine = 0;             // temps restant avant expiration
-    this.multiMax = 1;                // meilleur multiplicateur atteint dans le niveau
+    this.ralenti = 0;                
+    this.chaine = 0;                 
+    this.tempsChaine = 0;            
+    this.multiMax = 1;               
     this.temps = 0;
     this.minuteurEtat = 0;
-    this.etat = 'intro';              // intro → vague → alerte → boss → victoire / defaite
+    this.etat = 'intro';             
     this.pause = false;
     this.prochaineVague = 1.2;
     this.prochaineTourelle = 5;
-    this.dernierPatron = null;        // anti-répétition des vagues
-    this.bonusGarantiFait = false;    // une capsule P offerte en début de niveau
-    this.bonusODonne = false;         // un drone offert vers 40 s
-    this.boutons = [];                // zones cliquables des écrans (victoire, pause…)
+    this.dernierPatron = null;        
+    this.bonusGarantiFait = false;    
+    this.bonusODonne = false;        
+    this.boutons = [];              
     this.etoileJouee = [false, false, false];
     this.nouveauRecord = false;
   }
-
-  /* — services aux entités — */
   tirEnnemi(x, y, angle, v, opts = {}){
-    if (!opts.rayon){   // plafond uniquement pour les balles standard
+    if (!opts.rayon){   
       let nb = 0;
       for (const b of this.balles) if (!b.amie) nb++;
       if (nb > 140) return;
@@ -2193,12 +2060,12 @@ class Jeu {
   }
   angleVersJoueur(x, y){
     const j = this.joueur;
-    if (j.etat !== 'actif') return Math.PI / 2;   // droit vers le bas
+    if (j.etat !== 'actif') return Math.PI / 2;   
     return Math.atan2(j.y - y, j.x - x);
   }
 
   bossVaincu(){
-    if (this.etat === 'defaite') return;   // sécurité : la partie est déjà perdue
+    if (this.etat === 'defaite') return;   
     const b = this.boss;
     b.etat = 'mourir';
     b.minuteurMort = 2.1;
@@ -2206,10 +2073,9 @@ class Jeu {
     const gainBoss = Math.round(b.score * this.multiplicateur());
     this.score += gainBoss;
     this.palierVie();
-    this.message(b.x, b.y, '+' + gainBoss, '#ffd97a', 1.4);   // prime du boss (chaîne comprise)
+    this.message(b.x, b.y, '+' + gainBoss, '#ffd97a', 1.4);   
     Musique.arreter();
-    this.ralenti = 0.45;   // petit temps suspendu avant l'envol
-    // le pilote devient intouchable et le ciel se nettoie aussitôt
+    this.ralenti = 0.45;   
     this.joueur.immunise = true;
     for (let i = this.balles.length - 1; i >= 0; i--)
       if (!this.balles[i].amie) this.balles.splice(i, 1);
@@ -2219,22 +2085,19 @@ class Jeu {
     this.etat = 'envol';
     this.minuteurEtat = 0;
     const j = this.joueur;
-    // si le pilote était en pleine réapparition, on le remet en scène
     if (j.etat === 'respawn'){ j.etat = 'actif'; j.x = L / 2; j.y = H - 90; }
     if (j.etat === 'actif'){
       j.etat = 'envol';
       j.minuteur = 0;
     }
   }
-
-  /* Rotation de monde en survie : transition filmée entre les deux décors */
   lancerRotationSurvie(){
     const envs = ['terre', 'ocean', 'galaxie'];
     const envSortant = this.spec.env;
     const env = envs[(envs.indexOf(envSortant) + 1) % 3];
     this.spec.env = env;
     this.spec.tourelles = env === 'terre' ? 8 : 0;
-    this.decor = this.decors[env];            // l'entrant défile dès maintenant
+    this.decor = this.decors[env];            
     this.message(L / 2, 300, NOMS_ENV_LONG[env], '#5cf7e4', 1.8);
     Musique.demarrer(env);
     this.transition = {
@@ -2246,31 +2109,24 @@ class Jeu {
            : 'rentree',
       facteur: envSortant === 'ocean' ? 6 : envSortant === 'terre' ? 5 : 0.3,
     };
-    // le souffle de la transition
     if (this.transition.type === 'versEspace')
-      Son.note(180, 1.4, { type:'triangle', vol:0.06, glide:1200 });   // remontée
+      Son.note(180, 1.4, { type:'triangle', vol:0.06, glide:1200 });  
     else if (this.transition.type === 'rentree')
-      Son.note(420, 2.0, { type:'triangle', vol:0.06, glide:70 });     // mise en orbite
+      Son.note(420, 2.0, { type:'triangle', vol:0.06, glide:70 });    
     else
-      Son.bruit(0.8, 0.10, 2400);                                      // traversée
+      Son.bruit(0.8, 0.10, 2400);                                      
   }
-
-  /* Décor sortant, transformé, par-dessus l'entrant */
   dessinerSortant(ctx){
     const tr = this.transition;
     const p = Math.min(1, tr.t / tr.duree);
     if (tr.type === 'versOcean'){
-      // TRAVERSÉE : la terre défile sous nous, glisse et s'efface
       this.dessinerDecorTrans(ctx, tr.sortant, 1 - p, 1 + 0.6 * p, 760 * p * p);
       this.dessinerTrainees(ctx, p, 0.35);
     } else {
-      // PERCÉE DE SURFACE : on remonte, l'océan se précipite vers nous,
-      // la vague d'écume traverse l'écran, l'éclat révèle l'espace
       const echelle = 1 + 1.9 * Math.min(1, p / 0.55);
       const dy = 520 * p * p;
       const alpha = p < 0.55 ? 1 : Math.max(0, 1 - (p - 0.55) / 0.3);
       this.dessinerDecorTrans(ctx, tr.sortant, alpha, echelle, dy);
-      // la crête d'écume qui descend (la surface qu'on traverse)
       if (p > 0.18 && p < 0.72){
         const yB = -70 + ((p - 0.18) / 0.54) * (H + 140);
         for (const [coul, lw] of [['rgba(232,246,255,.85)', 13], ['rgba(255,255,255,.95)', 4]]){
@@ -2282,7 +2138,6 @@ class Jeu {
           ctx.stroke();
         }
       }
-      // l'éblouissement de la surface, qui s'ouvre sur les étoiles
       const e = p < 0.2 ? 0
               : p < 0.55 ? (p - 0.2) / 0.35
               : Math.max(0, 1 - (p - 0.55) / 0.4);
@@ -2293,22 +2148,17 @@ class Jeu {
     }
   }
 
-  /* APPROCHE ORBITALE : le terrain apparaît dans un disque grandissant
-     cerclé d'atmosphère, pendant que les étoiles s'estompent */
   dessinerTransition(ctx){
     const tr = this.transition;
     const p = Math.min(1, tr.t / tr.duree);
-    // le ciel d'étoiles s'efface doucement
     this.dessinerDecorTrans(ctx, tr.sortant, 1 - p, 1, 0);
-    // la planète : le terrain visible dans un disque qui grandit
-    const rr = Math.max(1, 460 * (1 - Math.pow(1 - p, 2.2)));   // freinage d'arrivée
+    const rr = Math.max(1, 460 * (1 - Math.pow(1 - p, 2.2)));  
     ctx.save();
     ctx.beginPath();
     ctx.arc(L / 2, H / 2, rr, 0, 7);
     ctx.clip();
     tr.entrant.dessiner(ctx);
     ctx.restore();
-    // liseré atmosphérique
     ctx.strokeStyle = 'rgba(92,247,228,.5)';
     ctx.lineWidth = 7;
     ctx.beginPath(); ctx.arc(L / 2, H / 2, rr, 0, 7); ctx.stroke();
@@ -2317,7 +2167,6 @@ class Jeu {
     ctx.beginPath(); ctx.arc(L / 2, H / 2, rr + 5, 0, 7); ctx.stroke();
   }
 
-  /* Dessine un décor avec alpha / échelle / décalage vertical */
   dessinerDecorTrans(ctx, decor, alpha, echelle, dy){
     if (alpha <= 0.01) return;
     ctx.save();
@@ -2329,7 +2178,6 @@ class Jeu {
     ctx.restore();
   }
 
-  /* Traînées de vitesse verticales (traversée / rentrée) */
   dessinerTrainees(ctx, p, intens){
     ctx.strokeStyle = 'rgba(255,240,220,.6)';
     ctx.lineWidth = 2;
@@ -2347,7 +2195,7 @@ class Jeu {
   joueurElimine(){
     this.etat = 'defaite';
     this.minuteurEtat = 0;
-    this.tempsVol = this.temps;   // temps de vol figé à l'instant du crash
+    this.tempsVol = this.temps;  
     Musique.arreter();
     if (this.survie){
       const ancien = Progression.donnees.recordSurvie || 0;
@@ -2364,20 +2212,19 @@ class Jeu {
     const ancien = Progression.donnees.record;
     this.nouveauRecord = this.score > ancien;
     Progression.donnees.record = Math.max(ancien, this.score);
-    // record du secteur (sauvegardé par Progression.victoire, juste après)
     const ancienNiveau = Progression.donnees.records[this.niveau] || 0;
     this.nouveauRecordNiveau = this.score > ancienNiveau;
     Progression.donnees.records[this.niveau] = Math.max(ancienNiveau, this.score);
     Progression.victoire(this.niveau, this.etoiles);
 
-    if (this.niveau === NB_NIVEAUX){   // ══ LE GRAND FINAL ══
+    if (this.niveau === NB_NIVEAUX){   
       Progression.donnees.campagneTerminee = true;
       Progression.sauvegarder();
       this.etat = 'generique';
       this.lignesGen = fabriquerLignesGenerique();
       this.dureeGen = (H + 60 + (this.lignesGen.length - 1) * 38 - 170) / 80 + 1;
-      this.joueur.etat = 'mort';   // il a quitté la scène : place au cinématique
-      Musique.demarrer('carte');   // le thème du menu porte le générique
+      this.joueur.etat = 'mort';   
+      Musique.demarrer('carte');   
     } else {
       this.etat = 'victoire';
       Son.fanfare();
@@ -2385,7 +2232,7 @@ class Jeu {
   }
 
   calculerEtoiles(){
-    const v = this.joueur.vies;   // 3 vies → 3★, 2 vies → 2★, sinon 1★
+    const v = this.joueur.vies;   
     return v >= 3 ? 3 : v === 2 ? 2 : 1;
   }
 
@@ -2396,37 +2243,35 @@ class Jeu {
     else Musique.demarrer(this.spec.env);
   }
 
-  /* — fabrique de vagues : 12 patrons, anti-répétition, densité indexée — */
   fabriquerVague(){
     if (this.survie){
       this.vagueSurvie++;
-      // le sac de patrons s'agrandit d'un cran par vague
       const pool = PATRONS_SURVIE[this.spec.env];
       this.spec.patrons = pool.slice(0, Math.min(pool.length, 5 + this.vagueSurvie));
     }
-    const debutVague = this.ennemis.length;   // repère pour les renforts
+    const debutVague = this.ennemis.length;  
     let patron = choix(this.spec.patrons);
     if (patron === this.dernierPatron && this.spec.patrons.length > 1)
-      patron = choix(this.spec.patrons);   // on évite deux fois le même
+      patron = choix(this.spec.patrons);   
     this.dernierPatron = patron;
 
     const d = this.diff;
-    const accel = Math.min(2.3, 1 + d * 0.04);   // vitesses bornées…
-    const vTir = Math.min(315, 135 + d * 11);    // …(la campagne, plafonnée à 289, ne change pas)
+    const accel = Math.min(2.3, 1 + d * 0.04);  
+    const vTir = Math.min(315, 135 + d * 11);    
     const taux = this.spec.tauxTir;
     const drone = (x, y, comp, opts = {}) =>
       this.ennemis.push(new Ennemi('drone', x, y, comp, Object.assign(
         { peutTirer: Math.random() < taux, vitesseTir: vTir }, opts)));
 
     switch (patron){
-      case 'ligne': {   // rangée qui descend en serpentant ensemble
+      case 'ligne': {   
         const nb = 4 + Math.min(3, (d / 3) | 0);
         const cx = alea(130, L - 130), amp = alea(26, 55), ph = alea(0, 6.28);
         for (let i = 0; i < nb; i++)
           drone(cx + (i - (nb - 1) / 2) * 52, -28, 'sinus', { amp, om: 1.4, ph, vy: 72 * accel });
         break;
       }
-      case 'mur': {   // rideau droit avec un trou aléatoire
+      case 'mur': {   
         const nb = 7 + Math.min(2, (d / 4) | 0);
         const x0 = alea(30, 90), pas = (L - 60 - x0) / (nb - 1);
         const trou = (Math.random() * nb) | 0;
@@ -2437,14 +2282,14 @@ class Jeu {
         }
         break;
       }
-      case 'colonne': {   // file indienne sur un flanc
+      case 'colonne': {  
         const cote = Math.random() < 0.5 ? alea(70, 170) : alea(L - 170, L - 70);
         const nb = 3 + Math.min(2, (d / 4) | 0);
         for (let i = 0; i < nb; i++)
           drone(cote, -28 - i * 48, 'sinus', { amp: 42, om: 1.8, ph: i * 0.9, vy: 82 * accel });
         break;
       }
-      case 'V': {   // formation en V derrière un meneur
+      case 'V': {   
         const nb = 5 + (d >= 6 ? 2 : 0);
         const cx = alea(150, L - 150);
         for (let i = 0; i < nb; i++){
@@ -2453,7 +2298,7 @@ class Jeu {
         }
         break;
       }
-      case 'cercle': {   // roue qui tourne en descendant
+      case 'cercle': {   
         const nb = 7 + Math.min(3, (d / 3) | 0);
         const r = alea(80, 130);
         const vRot = alea(0.55, 0.9) * (Math.random() < 0.5 ? -1 : 1);
@@ -2461,14 +2306,14 @@ class Jeu {
           drone(L / 2, -150, 'anneau', { a0: i * Math.PI * 2 / nb, r, vRot, vy: 55 * accel, tirCd: 1.2 });
         break;
       }
-      case 'essaim': {   // nuée désordonnée
+      case 'essaim': {   
         const nb = 8 + Math.min(4, (d / 2) | 0);
         for (let i = 0; i < nb; i++)
           drone(alea(60, L - 60), -28 - alea(0, 190), 'sinus',
             { amp: alea(20, 60), om: alea(1.2, 2.2), ph: alea(0, 6.28), vy: alea(78, 98) * accel });
         break;
       }
-      case 'embuscade': {   // raiders qui traversent par les côtés
+      case 'embuscade': {  
         const nb = 2 + (d >= 3 ? 2 : 0);
         for (let i = 0; i < nb; i++){
           const gauche = i % 2 === 0;
@@ -2477,7 +2322,7 @@ class Jeu {
         }
         break;
       }
-      case 'zigzags': {   // éclaireurs cyan ultra-rapides en tresse
+      case 'zigzags': {  
         const nb = 2 + Math.min(2, (d / 3) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('zigzag', alea(120, L - 120), -26 - i * 70, 'sinus',
@@ -2485,14 +2330,14 @@ class Jeu {
               peutTirer: Math.random() < taux * 0.5, vitesseTir: vTir }));
         break;
       }
-      case 'plongeons': {   // kamikazes qui piquent sur le joueur
+      case 'plongeons': {  
         const nb = 2 + Math.min(3, (d / 2) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('plongeur', alea(60, L - 60), -26 - i * 64, 'plongeon',
             { yDecl: alea(110, 190), vitesseTir: vTir }));
         break;
       }
-      case 'serpent': {   // hydre : une tête + sa chaîne de segments
+      case 'serpent': {   
         const tete = new Ennemi('serpentTete', alea(150, L - 150), -30, 'serpent',
           { amp: alea(120, 160), tirCd: 1, vitesseTir: vTir });
         this.ennemis.push(tete);
@@ -2506,34 +2351,34 @@ class Jeu {
         }
         break;
       }
-      case 'bombardier': {   // porteurs qui stationnent et lâchent des bombes
+      case 'bombardier': {  
         const nb = 1 + (d >= 5 ? 1 : 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('bombardier', alea(90, L - 90), -44, 'hover',
             { yCible: alea(100, 145), stationnaire: 5.5, tirCd: 2.6, vitesseTir: vTir }));
         break;
       }
-            case 'croiseurs': {   // communs : éventails disciplinés
+            case 'croiseurs': {  
         const nb = 2 + Math.min(1, (d / 5) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('croiseur', alea(120, L - 120), -36 - i * 80, 'sinus',
             { amp: alea(30, 55), om: 0.9, ph: i * 1.6, vy: 46 * accel, vitesseTir: vTir }));
         break;
       }
-      case 'mines': {   // communs : champ de mines dérivantes
+      case 'mines': {  
         const nb = 5 + Math.min(4, (d / 2) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('mine', alea(40, L - 40), -24 - alea(0, 260), 'sinus',
             { amp: alea(10, 30), om: alea(0.6, 1.1), ph: alea(0, 6.28), vy: alea(40, 60) }));
         break;
       }
-      case 'helicos': {   // TERRE : patrouilles d'hélicos
+      case 'helicos': {   
         for (let i = 0; i < 2; i++)
           this.ennemis.push(new Ennemi('helico', alea(190, L - 190), -30 - i * 90, 'strafe',
             { yCible: alea(120, 170), stationnaire: 5 + d * 0.2, vitesseTir: vTir + 20 }));
         break;
       }
-      case 'chasseurs': {   // TERRE : escadrille en rase-mottes
+      case 'chasseurs': {  
         const nb = 3 + Math.min(2, (d / 4) | 0);
         const gauche = Math.random() < 0.5;
         for (let i = 0; i < nb; i++)
@@ -2541,7 +2386,7 @@ class Jeu {
             { vx: (gauche ? 1 : -1) * alea(200, 240), tirCd: 1.2, vitesseTir: vTir + 40 }));
         break;
       }
-      case 'raies': {   // OCÉAN : planeuses majestueuses
+      case 'raies': {   
         const nb = 2 + Math.min(1, (d / 6) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('raie', alea(180, L - 180), -30 - i * 70, 'sinus',
@@ -2549,7 +2394,7 @@ class Jeu {
               tirCd: 1.2, vitesseTir: vTir - 15 }));
         break;
       }
-      case 'meduses': {   // OCÉAN : dérive de méduses
+      case 'meduses': {  
         const nb = 3 + Math.min(3, (d / 3) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('meduse', alea(50, L - 50), -24 - alea(0, 200), 'sinus',
@@ -2557,14 +2402,14 @@ class Jeu {
               tirCd: 1.4, vitesseTir: vTir + 20 }));
         break;
       }
-      case 'asteroides': {   // GALAXIE : gabarits dérivants qui se scindent
+      case 'asteroides': {   
         const nb = 3 + Math.min(2, (d / 4) | 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('asteroide', alea(50, L - 50), -30 - alea(0, 240), 'sinus',
             { amp: alea(20, 60), om: alea(0.4, 0.8), ph: alea(0, 6.28), vy: alea(55, 80) }));
         break;
       }
-      case 'tank': {   // blindés qui stationnent et canardent
+      case 'tank': {   
         const nb = 1 + (d >= 6 ? 1 : 0);
         for (let i = 0; i < nb; i++)
           this.ennemis.push(new Ennemi('tank', alea(90, L - 90), -40, 'hover',
@@ -2574,13 +2419,11 @@ class Jeu {
       }
     }
     if (this.survie){
-      // RENFORTS : le volume, lui, n'a pas de plafond
       const renforts = this.ennemis.length < 46 ? Math.min(16, (this.vagueSurvie / 5) | 0) : 0;
       for (let i = 0; i < renforts; i++)
         this.ennemis.push(new Ennemi('drone', alea(40, L - 40), -30 - alea(0, 320), 'sinus',
           { amp: alea(20, 60), om: alea(1.2, 2.2), ph: alea(0, 6.28), vy: alea(78, 105) * accel,
             peutTirer: Math.random() < taux, vitesseTir: vTir }));
-      // vagues profondes : ennemis plus coriaces et plus nerveux
       const kHp = 1 + Math.min(2, this.vagueSurvie * 0.012);
       const kTir = Math.max(0.55, 1 - this.vagueSurvie * 0.004);
       for (let i = debutVague; i < this.ennemis.length; i++){
@@ -2590,10 +2433,7 @@ class Jeu {
     }
   }
 
-  /* — mise à jour générale — */
   maj(dt){
-    // ralenti dramatique : le monde tourne au ralenti, mais le chrono
-    // du ralenti, lui, s'écoule en temps réel
     if (this.ralenti > 0){
       this.ralenti -= dt;
       dt *= 0.4;
@@ -2601,13 +2441,11 @@ class Jeu {
     this.temps += dt;
     this.minuteurEtat += dt;
     this.secousse = Math.max(0, this.secousse - 26 * dt);
-    // la chaîne expire si on ne détruit plus rien
     if (this.chaine > 0){
       this.tempsChaine -= dt;
       if (this.tempsChaine <= 0) this.chaine = 0;
     }
     this.decor.maj(dt);
-    // transition de monde (survie) : le décor sortant accélère puis s'efface
     if (this.transition){
       this.transition.t += dt;
       this.transition.sortant.maj(dt * (1 + this.transition.facteur * (this.transition.t / this.transition.duree)));
@@ -2622,19 +2460,15 @@ class Jeu {
 
       case 'vague':
         if (this.survie){
-          // rotation des mondes toutes les 45 s, avec transition filmée
           if (this.temps > this.prochaineRotation){
             this.prochaineRotation += 45;
             this.lancerRotationSurvie();
           }
-          // la pression monte SANS PLAFOND : les vitesses dérivées sont bornées,
-          // mais le volume, la cadence et l'endurance ennemis ne le sont jamais
           this.spec.intervalle = Math.max(1.25, 4.2 * Math.pow(0.994, this.vagueSurvie));
           this.spec.tauxTir = Math.min(1, 0.35 + this.vagueSurvie * 0.02);
           this.diff = 1 + this.vagueSurvie * 0.5;
         }
         if (this.temps < this.spec.duree){
-          // une capsule P offerte vers 10 s : la montée en puissance se mérite vite
           if (!this.bonusGarantiFait && this.temps > 10){
             this.bonusGarantiFait = true;
             this.bonus.push(new Bonus(alea(80, L - 80), -30, 'P'));
@@ -2677,15 +2511,13 @@ class Jeu {
         }
         break;
 
-      case 'envol':   // montée finale : étincelles de poussée puis victoire
+      case 'envol':   
         if (this.joueur.minuteur > 0.9)
           this.particules.push(new Particule(this.joueur.x + alea(-6, 6), this.joueur.y + 20,
             alea(-30, 30), alea(220, 400), 0.3, 'etincelle', { couleur:'#5cf7e4' }));
         if (this.joueur.y < -60) this.passerVictoire();
         break;
     }
-
-    // — entités —
     for (let i = this.ennemis.length - 1; i >= 0; i--)
       if (!this.ennemis[i].maj(dt, this)) this.ennemis.splice(i, 1);
     for (let i = this.tourelles.length - 1; i >= 0; i--)
@@ -2704,8 +2536,6 @@ class Jeu {
 
     this.gererCollisions();
   }
-
-  /* — collisions — */
   gererCollisions(){
     const j = this.joueur;
 
@@ -2720,7 +2550,7 @@ class Jeu {
           cible = this.boss; sorte = 'boss';
         }
         if (cible){
-          this.impact(b.x, b.y);   // étincelles d'impact
+          this.impact(b.x, b.y); 
           this.balles.splice(i, 1);
           if (sorte === 'boss'){
             this.boss.toucher(1, this);
@@ -2746,8 +2576,6 @@ class Jeu {
         j.toucher(this);
       }
     }
-
-    // corps à corps + ramassage
     if (j.etat === 'actif'){
       for (let i = this.ennemis.length - 1; i >= 0; i--){
         const e = this.ennemis[i];
@@ -2770,29 +2598,21 @@ class Jeu {
       }
     }
   }
-
-    /* Étincelles d'impact : la balle éclabousse en traits blancs */
   impact(x, y){
     for (let k = 0; k < 3; k++){
-      const a = alea(0.2, Math.PI - 0.2);   // demi-cercle bas : la balle arrive d'en dessous
+      const a = alea(0.2, Math.PI - 0.2);   
       const v = alea(70, 240);
       this.particules.push(new Particule(x, y, Math.cos(a) * v, Math.sin(a) * v,
         alea(0.12, 0.26), 'etincelle', { couleur: '#eafffb' }));
     }
   }
-
-  /* Texte flottant (scores, bonus) — file plafonnée à 8 pour rester lisible */
   message(x, y, texte, couleur = '#ffd97a', duree = 0.7){
     this.messages.push({ x: borne(x, 46, L - 46), y, texte, age: 0, couleur, duree });
     if (this.messages.length > 8) this.messages.shift();
   }
-
-    /* Multiplicateur courant : un palier tous les 4 points, plafonné à ×8 */
   multiplicateur(){
     return Math.min(8, 1 + ((this.chaine / 4) | 0));
   }
-
-  /* Un point de chaîne par destruction ; annonce les paliers */
   enregistrerKill(x, y){
     const avant = this.multiplicateur();
     this.chaine++;
@@ -2801,24 +2621,22 @@ class Jeu {
     if (m > this.multiMax) this.multiMax = m;
     if (m > avant && m >= 2){
       this.message(x, y - 30, 'CHAÎNE ×' + m + ' !', '#ffe94a', 0.9);
-      Son.note(330 * m, 0.12, { type: 'square', vol: 0.05 });   // ding montant
+      Son.note(330 * m, 0.12, { type: 'square', vol: 0.05 });  
     }
     return m;
   }
 
   detruireEnnemi(e){
-    e.mort = true;   // les segments d'hydre le lisent pour se libérer
+    e.mort = true;   
     explosion(this, e.x, e.y, (e.type === 'tank' || e.type === 'bombardier') ? 2.2 : 1);
     const gain = e.score * this.enregistrerKill(e.x, e.y);
     this.score += gain;
     this.palierVie();
-    this.message(e.x, e.y - 8, '+' + gain);      // score flottant, chaîne comprise
-    // la mine détruite libère une couronne de tirs
+    this.message(e.x, e.y - 8, '+' + gain);     
     if (e.type === 'mine')
       for (let k = 0; k < 8; k++)
         this.tirEnnemi(e.x + Math.cos(k * Math.PI / 4) * 20, e.y + Math.sin(k * Math.PI / 4) * 20,
                        k * Math.PI / 4, 170);
-    // l'astéroïde se scinde en deux fragments (drones cachés dedans)
     if (e.type === 'asteroide')
       for (const s of [-1, 1])
         this.ennemis.push(new Ennemi('drone', e.x + s * 14, e.y, 'descente',
@@ -2872,8 +2690,6 @@ class Jeu {
       }
     }
   }
-
-  /* — rendu — */
   dessiner(ctx){
     this.boutons.length = 0;
     ctx.save();
@@ -2881,7 +2697,7 @@ class Jeu {
       ctx.translate((Math.random() - 0.5) * this.secousse, (Math.random() - 0.5) * this.secousse);
 
     if (this.transition && this.transition.type === 'rentree'){
-      this.dessinerTransition(ctx);   // rentrée : les deux mondes dans l'ordre inverse
+      this.dessinerTransition(ctx);  
     } else {
       this.decor.dessiner(ctx);
       if (this.transition) this.dessinerSortant(ctx);
@@ -2916,16 +2732,12 @@ class Jeu {
     texte(ctx, String(this.score).padStart(7, '0'), L - 8, 12, 14, '#e8eefc', 'right');
     if (this.survie)
       texte(ctx, 'VAGUE ' + this.vagueSurvie, L - 8, 34, 10, '#ffd97a', 'right');
-
-    // jauges arme / bouclier
     for (let i = 0; i < j.arme; i++){ ctx.fillStyle = '#ffb020'; ctx.fillRect(8 + i * 13, 36, 9, 5); }
     if (j.bouclier > 0){
       ctx.fillStyle = '#123f3a'; ctx.fillRect(8, 46, 82, 5);
       ctx.fillStyle = (j.bouclier < 2 && (this.temps * 6 | 0) % 2 === 0) ? '#ffffff' : '#5cf7e4';
       ctx.fillRect(8, 46, 82 * Math.min(1, j.bouclier / 8), 5);
     }
-
-        // la chaîne : multiplicateur + jauge du temps restant (haut-centre)
     if (this.chaine > 0){
       const m = this.multiplicateur();
       const coul = m >= 2 ? '#ffd97a' : '#8fa0c0';
@@ -2935,8 +2747,6 @@ class Jeu {
       ctx.fillStyle = coul;
       ctx.fillRect(L / 2 - 28, 19, 56 * Math.max(0, this.tempsChaine / 2), 3);
     }
-
-    // barre de vie du boss
     if (this.boss && this.boss.etat !== 'mourir'){
       const bw = 330, bx = (L - bw) / 2, by = 34;
       texte(ctx, this.boss.nom, L / 2, 22, 9, '#ffb0a6', 'center');
@@ -2963,7 +2773,7 @@ class Jeu {
   }
 
   dessinerAlerte(ctx){
-    if (Math.sin(this.minuteurEtat * 14) < -0.3) return;   // clignotement
+    if (Math.sin(this.minuteurEtat * 14) < -0.3) return;   
     ctx.fillStyle = 'rgba(60,4,8,.35)';
     ctx.fillRect(0, H / 2 - 110, L, 190);
     texte(ctx, '!!  ALERTE  !!', L / 2, H / 2 - 84, 26, '#ff5040', 'center');
@@ -2977,8 +2787,6 @@ class Jeu {
     ctx.fillRect(0, 0, L, H);
     texte(ctx, 'SECTEUR NETTOYÉ !', L / 2, 178, 20, '#ffb020', 'center');
     texte(ctx, this.spec.secteur, L / 2, 214, 14, '#e8eefc', 'center');
-
-    // les étoiles apparaissent une à une, avec un "pop"
     for (let i = 0; i < 3; i++){
       const tApp = 0.9 + i * 0.5;
       const gagnee = i < this.etoiles;
@@ -3009,8 +2817,6 @@ class Jeu {
     this.dessinerBouton(ctx, bx + bw + esp, by, bw, bh, 'CARTE', 'carte');
     texte(ctx, 'R : rejouer · C : carte', L / 2, H - 78, 10, '#5c688a', 'center');
   }
-
-    /* Le générique de fin de campagne */
   dessinerGenerique(ctx){
     const t = this.minuteurEtat;
     const termine = t > this.dureeGen;
@@ -3018,7 +2824,6 @@ class Jeu {
     ctx.fillRect(0, 0, L, H);
 
     if (!termine){
-      // les lignes défilent de bas en haut, avec fondu aux bords
       this.lignesGen.forEach((l, i) => {
         const y = H + 60 + i * 38 - t * 80;
         if (y < -30 || y > H + 40) return;
@@ -3029,7 +2834,6 @@ class Jeu {
         ctx.globalAlpha = 1;
       });
       texte(ctx, 'ESPACE · TOUCHER : PASSER', L / 2, H - 38, 10, '#5c688a', 'center');
-      // toute la surface sert à passer (le clic comme le toucher la déclenchent)
       this.boutons.push({ x: 0, y: 0, w: L, h: H, action: 'passer' });
     } else {
       texte(ctx, 'MERCI PILOTE', L / 2, H / 2 - 96, 20, '#ffb020', 'center');
@@ -3041,15 +2845,12 @@ class Jeu {
       this.dessinerBouton(ctx, (L - bw) / 2, H - 150, bw, bh, 'RETOUR À LA CARTE', 'carte');
       texte(ctx, 'C : carte', L / 2, H - 78, 10, '#5c688a', 'center');
     }
-    // l'escadre file vers l'horizon, par-dessus le générique
     this.dessinerEscadreFin(ctx, t);
   }
-
-  /* L'escadre en croisière (les ailiers réels du joueur, s'il en a) */
   dessinerEscadreFin(ctx, t){
     const x = L / 2 + Math.sin(t * 0.55) * 18;
     const y = 118 + Math.sin(t * 1.4) * 5;
-    const g = Math.cos(t * 0.55) * 0.35;   // gîte de croisière
+    const g = Math.cos(t * 0.55) * 0.35;   
     const cotes = [-36, 36];
     this.joueur.drones.forEach((d, k) => {
       const ex = x + cotes[k], ey = y + 4 + Math.sin(t * 3 + cotes[k]) * 3;
@@ -3069,7 +2870,6 @@ class Jeu {
       ctx.drawImage(SPRITES.escorte, -SPRITES.escorte.width / 2, -SPRITES.escorte.height / 2);
       ctx.restore();
     });
-    // le leader, flamme puis coque
     const f = 6 + Math.sin(performance.now() * 0.045) * 2.5;
     ctx.fillStyle = '#c96e0e';
     ctx.beginPath();
@@ -3089,13 +2889,12 @@ class Jeu {
 
   dessinerDefaite(ctx){
     const t = this.minuteurEtat;
-    const a = Math.min(1, Math.max(0, (t - 0.7) / 0.6));   // laisse l'explosion respirer
+    const a = Math.min(1, Math.max(0, (t - 0.7) / 0.6));  
     if (a <= 0) return;
     ctx.globalAlpha = a;
     ctx.fillStyle = 'rgba(24,4,10,.82)';
     ctx.fillRect(0, 0, L, H);
     if (this.survie){
-      // ══ TABLEAU DE VOL ══
       texte(ctx, 'PARTIE TERMINÉE', L / 2, 168, 20, '#ff5040', 'center');
       const mins = (this.tempsVol / 60) | 0, secs = (this.tempsVol % 60) | 0;
       texte(ctx, 'VAGUES SURVÉCUES', L / 2, 222, 9, '#8fa0c0', 'center');
@@ -3148,8 +2947,6 @@ class Jeu {
   }
 }
 
-/* ════════ 9. ACCUEIL ANIMÉ, CARTE & ENTRÉES ════════ */
-
 const application = {
   jeu: null,
   ctx: null,
@@ -3157,30 +2954,28 @@ const application = {
   ecran: 'accueil',
 };
 
-/* ————— L'accueil : titre lettre à lettre + vaisseau en orbite ————— */
-
-const LA = 540, HA = 560;   // dimensions logiques du canvas d'accueil
+const LA = 540, HA = 560;   
 const canvasAccueil = document.getElementById('canvas-accueil');
 const ctxA = canvasAccueil.getContext('2d');
 ctxA.imageSmoothingEnabled = false;
 
 const accueil = {
   t: 0,
-  etoiles: [],       // champ d'étoiles qui dérive
-  trainee: [],       // traînée du vaisseau
-  comete: null,      // étoile filante
+  etoiles: [],       
+  trainee: [],       
+  comete: null,      
   prochainComete: 2.5,
 };
 
 function positionVaisseauAccueil(){
-  const a = accueil.t * 0.75;               // angle sur l'ellipse
-  const cx = LA / 2, cy = 185;              // centre = le titre
+  const a = accueil.t * 0.75;               
+  const cx = LA / 2, cy = 185;              
   const rx = 195, ry = 78;
   const x = cx + Math.cos(a) * rx;
   const y = cy + Math.sin(a) * ry;
   const vx = -Math.sin(a), vy = Math.cos(a);
-  const rot = Math.atan2(vx, -vy);          // le nez suit la trajectoire
-  const profondeur = Math.sin(a);           // > 0 : devant le titre
+  const rot = Math.atan2(vx, -vy);         
+  const profondeur = Math.sin(a);           
   const echelle = 0.75 + 0.45 * (profondeur + 1) / 2;
   return { x, y, rot, profondeur, echelle };
 }
@@ -3233,13 +3028,10 @@ function dessinerAccueil(){
   const t = accueil.t;
   ctxA.fillStyle = '#070a12';
   ctxA.fillRect(0, 0, LA, HA);
-
-  // champ d'étoiles
   for (const e of accueil.etoiles){
     ctxA.fillStyle = e.t > 2.4 ? '#ffffff' : e.t > 1.4 ? '#8fa0c0' : '#4a5f88';
     ctxA.fillRect(e.x, e.y, e.t, e.t);
   }
-  // étoile filante
   if (accueil.comete){
     const co = accueil.comete, a = Math.max(0, 1 - co.age / 0.8);
     ctxA.strokeStyle = 'rgba(220,240,255,' + (a * 0.8).toFixed(2) + ')';
@@ -3252,14 +3044,10 @@ function dessinerAccueil(){
 
   const v = positionVaisseauAccueil();
   const fonduVaisseau = Math.min(1, t * 1.5);
-
-  // traînée + vaisseau DERrière le titre (haut de l'ellipse)
   if (v.profondeur <= 0){
     dessinerTraineeAccueil();
     dessinerVaisseauAccueil(v, 0.8 * fonduVaisseau);
   }
-
-  // ————— le titre, lettre par lettre —————
   const mot = "AILE D'ACIER";
   ctxA.font = '34px "Press Start 2P","VT323",monospace';
   ctxA.textAlign = 'left';
@@ -3272,15 +3060,13 @@ function dessinerAccueil(){
     if (e > 0){
       const ease = 1 - Math.pow(1 - e, 3);
       ctxA.globalAlpha = ease;
-      const y = 168 - 60 * (1 - ease);   // les lettres tombent en place
+      const y = 168 - 60 * (1 - ease);  
       ctxA.fillStyle = '#7a3c00'; ctxA.fillText(mot[i], lx + 3, y + 3);
       ctxA.fillStyle = '#ffb020'; ctxA.fillText(mot[i], lx, y);
       ctxA.globalAlpha = 1;
     }
     lx += largeurs[i];
   }
-
-  // sous-titre + encadrés ambre
   if (t > 1.1){
     const a = Math.min(1, (t - 1.1) / 0.6);
     ctxA.globalAlpha = a;
@@ -3290,18 +3076,13 @@ function dessinerAccueil(){
     ctxA.fillRect(LA / 2 + 130, 309, 70, 2);
     ctxA.globalAlpha = 1;
   }
-
-  // traînée + vaisseau DEVANT le titre (bas de l'ellipse)
   if (v.profondeur > 0){
     dessinerTraineeAccueil();
     dessinerVaisseauAccueil(v, fonduVaisseau);
   }
-
-  // panneau bas : progression du pilote
   if (t > 1.5){
     const a = Math.min(1, (t - 1.5) / 0.6);
     ctxA.globalAlpha = a;
-    // badge de campagne terminée
     if (Progression.donnees.campagneTerminee){
       const bx = LA / 2 - 150, by = 428;
       ctxA.fillStyle = '#11162a';
@@ -3333,8 +3114,6 @@ function dessinerTraineeAccueil(){
   }
   ctxA.globalAlpha = 1;
 }
-
-/* Chemin serpentin généré pour les 30 niveaux */
 const PAS_CARTE = 66;
 const HAUTEUR_CARTE = NB_NIVEAUX * PAS_CARTE + 100;
 
@@ -3348,15 +3127,14 @@ function pointsCarte(){
 const SVG_CADENAS = '<svg class="cadenas" viewBox="0 0 24 24"><path fill="currentColor" d="M17 10V7a5 5 0 0 0-10 0v3H5v11h14V10h-2zM9 7a3 3 0 0 1 6 0v3H9V7z"/></svg>';
 const SVG_ETOILE_NOEUD = '<svg class="etoile" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17l-6.1 3.6 1.4-6.8L2.2 9.1l6.9-.8z"/></svg>';
 
-/* Trace un chemin en courbes S passant par les points donnés */
 function cheminSVG(points){
   let d = 'M ' + points[0][0] + ' ' + points[0][1];
   for (let i = 1; i < points.length; i++){
     const [x0, y0] = points[i - 1], [x1, y1] = points[i];
-    if (Math.abs(x1 - x0) > Math.abs(y1 - y0)){   // segment surtout horizontal
+    if (Math.abs(x1 - x0) > Math.abs(y1 - y0)){   
       const mx = (x0 + x1) / 2;
       d += ' C ' + mx + ' ' + y0 + ', ' + mx + ' ' + y1 + ', ' + x1 + ' ' + y1;
-    } else {                                       // segment surtout vertical
+    } else {                                      
       const my = (y0 + y1) / 2;
       d += ' C ' + x0 + ' ' + my + ', ' + x1 + ' ' + my + ', ' + x1 + ' ' + y1;
     }
@@ -3367,7 +3145,7 @@ function cheminSVG(points){
 function dessinerFondCarte(){
   const cv = document.getElementById('fond-carte');
   const r = cv.parentElement.getBoundingClientRect();
-  if (r.width < 5) return;   // écran caché : on repeindra à l'affichage
+  if (r.width < 5) return;   
   cv.width = r.width | 0;
   cv.height = r.height | 0;
   const c = cv.getContext('2d');
@@ -3400,7 +3178,6 @@ function construireCarte(){
   svg.innerHTML = '';
 
   const points = pointsCarte();
-  // le contenu garde exactement les proportions du viewBox, à toute largeur
   contenu.style.aspectRatio = '430 / ' + HAUTEUR_CARTE;
   svg.setAttribute('viewBox', '0 0 430 ' + HAUTEUR_CARTE);
   svg.setAttribute('preserveAspectRatio', 'none');
@@ -3444,8 +3221,6 @@ function construireCarte(){
     el.addEventListener('click', () => ouvrirPanneauNiveau(n));
     contenu.appendChild(el);
   });
-
-    // le panneau d'information, créé une seule fois
   if (!document.getElementById('panneau-niveau')){
     const carte = document.getElementById('carte-monde');
     const volet = document.createElement('div');
@@ -3460,8 +3235,6 @@ function construireCarte(){
   document.getElementById('stat-etoiles').textContent = Progression.totalEtoiles() + '/' + (NB_NIVEAUX * 3);
   document.getElementById('stat-record').textContent = Progression.donnees.record;
   dessinerFondCarte();
-
-  // on amène le niveau courant au centre de la fenêtre
   const courant = Math.min(debloque, NB_NIVEAUX) - 1;
   const yCible = points[Math.max(0, courant)][1];
   requestAnimationFrame(() => {
@@ -3469,8 +3242,6 @@ function construireCarte(){
                                    - defile.clientHeight * 0.45);
   });
 }
-
-/* ————— La fiche de secteur (clic sur un nœud) ————— */
 
 function fermerPanneauNiveau(){
   document.getElementById('panneau-niveau').classList.remove('ouvert');
@@ -3511,8 +3282,6 @@ function ouvrirPanneauNiveau(n){
   Son.initialiser();
   Son.note(520, 0.06, { type:'square', vol:0.03 });   // petit clic d'interface
 }
-
-/* ————— Cycle de vie des écrans ————— */
 
 function montrerEcran(nom){
   application.ecran = nom;
@@ -3563,14 +3332,11 @@ function allerCarte(){
   Musique.demarrer('carte');
 }
 
-/* ————— La boucle principale ————— */
-
 function boucle(t){
   requestAnimationFrame(boucle);
   let dt = (t - application.dernierT) / 1000;
   application.dernierT = t;
-  dt = Math.min(Math.max(dt, 0), 0.034);   // frame long → tout ralentit d'un chouïa,
-                                           // plutôt qu'un à-coup visible du décor
+  dt = Math.min(Math.max(dt, 0), 0.034);   
   if (application.ecran === 'jeu' && application.jeu){
     if (!application.jeu.pause) application.jeu.maj(dt);
     application.jeu.dessiner(application.ctx);
@@ -3596,8 +3362,6 @@ function activerBoutonJeu(b){
   }
 }
 
-/* ————— Clavier : flèches + ZQSD/WASD (mêmes touches physiques) + Espace ————— */
-
 const TOUCHES_CODEES = {
   ArrowLeft: 'g', ArrowRight: 'd', ArrowUp: 'h', ArrowDown: 'b',
   KeyW: 'h', KeyA: 'g', KeyS: 'b', KeyD: 'd',
@@ -3606,13 +3370,11 @@ const TOUCHES_CODEES = {
 
 window.addEventListener('keydown', e => {
   premierGeste();
-  // accueil : Entrée / Espace lance la campagne
   if (application.ecran === 'accueil' && (e.code === 'Enter' || e.code === 'Space')){
     e.preventDefault();
     allerCarte();
     return;
   }
-    // générique de fin : Espace/Entrée pour passer (ou quitter au panneau final)
   if (application.jeu && application.jeu.etat === 'generique' &&
       (e.code === 'Enter' || e.code === 'Space')){
     e.preventDefault();
@@ -3651,8 +3413,6 @@ window.addEventListener('keyup', e => {
   if (t){ entrees[t] = false; e.preventDefault(); }
 });
 
-/* ————— Son & modale de réinitialisation ————— */
-
 function basculerSon(){
   Son.initialiser();
   const actif = Son.basculer();
@@ -3671,8 +3431,6 @@ document.getElementById('bouton-confirmer').addEventListener('click', () => {
   voile.classList.remove('ouvert');
 });
 
-/* ————— Clics sur les boutons dessinés au canvas (souris) ————— */
-
 const canvas = document.getElementById('jeu');
 canvas.addEventListener('pointerdown', e => {
   premierGeste();
@@ -3685,8 +3443,6 @@ canvas.addEventListener('pointerdown', e => {
     if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h){ activerBoutonJeu(b); return; }
   }
 });
-
-/* ————— Contrôles tactiles : joystick virtuel + bouton de tir ————— */
 
 const overlay = document.getElementById('overlay-tactile');
 const baseJoystick = document.getElementById('base-joystick');
@@ -3732,7 +3488,6 @@ function relacherJoystick(){
 overlay.addEventListener('touchstart', e => {
   e.preventDefault();
   Son.initialiser();
-  // priorité aux boutons dessinés au canvas (victoire, pause…)
   if (application.jeu && application.jeu.boutons.length){
     const r = canvas.getBoundingClientRect();
     for (const t of e.changedTouches){
@@ -3752,7 +3507,7 @@ overlay.addEventListener('touchstart', e => {
       positionnerJoystick(t.clientX, t.clientY);
       majJoystick(t);
     } else {
-      idsTir.add(t.identifier);   // moitié droite = tir aussi
+      idsTir.add(t.identifier);  
       rafraichirTir();
     }
   }
@@ -3791,28 +3546,20 @@ btnTir.addEventListener('touchcancel', finBtnTir, { passive: false });
 btnPause.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); }, { passive: false });
 btnPause.addEventListener('click', () => { if (application.jeu) application.jeu.basculerPause(); });
 
-/* ————— Première interaction : on réveille l'audio (contrainte navigateur) ————— */
-
 function premierGeste(){
   Son.initialiser();
   if (!application.jeu && !Musique.style && application.ecran !== 'jeu') Musique.demarrer('carte');
 }
 window.addEventListener('pointerdown', premierGeste);
 
-/* ════════ 10. DÉMARRAGE ════════ */
-
 Progression.charger();
 application.ctx = canvas.getContext('2d');
-application.ctx.imageSmoothingEnabled = false;   // pixels bien nets
-
-// champ d'étoiles de l'accueil
+application.ctx.imageSmoothingEnabled = false;   
 for (let i = 0; i < 70; i++)
   accueil.etoiles.push({
     x: Math.random() * LA, y: Math.random() * HA,
     t: 1 + Math.random() * 2.5, v: 8 + Math.random() * 30,
   });
-
-// pré-chargement des polices canvas
 if (document.fonts && document.fonts.load){
   document.fonts.load('34px "Press Start 2P"');
   document.fonts.load('22px "VT323"');
@@ -3820,19 +3567,13 @@ if (document.fonts && document.fonts.load){
 
 construireCarte();
 window.addEventListener('resize', dessinerFondCarte);
-
-// petit logo pixel art de l'écran carte
 (function dessinerLogo(){
   const c = document.getElementById('logo').getContext('2d');
   c.imageSmoothingEnabled = false;
   c.drawImage(SPRITES.joueur, 12, 11);
 })();
-
-// accueil → carte, retour accueil
 document.getElementById('bouton-jouer').addEventListener('click', allerCarte);
 document.getElementById('bouton-accueil').addEventListener('click', () => montrerEcran('accueil'));
-
-// le mode survie, déverrouillé une fois la campagne terminée
 const boutonSurvie = document.getElementById('bouton-survie');
 function majBoutonSurvie(){
   const ok = !!Progression.donnees.campagneTerminee;
