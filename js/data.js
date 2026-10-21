@@ -373,6 +373,12 @@ Infiltrez les salles serveurs pour pirater et récolter de précieux fragments d
 
 const NEWS = [
   {
+    img: 'images/logo.png',
+    title: 'Le Forum ToncPlay est en ligne',
+    date: '21/10/2026',
+    text: 'Le chantier est terminé, la communauté a désormais son QG ! <b>Le Forum ToncPlay</b> ouvre officiellement ses portes.<br><br>Venez partager vos meilleurs scores, signaler des bugs, proposer des idées de jeux ou simplement discuter entre joueurs. Que ce soit pour débattre des meilleures stratégies ou pour glisser une suggestion aux développeurs, cet espace est le vôtre.<br><br>Rejoignez la discussion dès maintenant et faites vivre la communauté !'
+  },
+  {
     img: 'jaquette/kraken.png',
     title: 'Sortie de Protocole Kraken',
     date: '20/10/2026',
