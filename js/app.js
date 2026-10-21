@@ -44,6 +44,8 @@
     chevronLeft: '<path d="m15 18-6-6 6-6"/>',
     chevronRight:'<path d="m9 18 6-6-6-6"/>',
     dice: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/>',
+    message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    alert:   '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 20h16a2 2 0 0 0 1.73-2Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
   };
   const icon = (name, size) =>
     `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
@@ -56,6 +58,7 @@
     { id: 'accueil', label: 'Accueil',    icon: 'home'    },
     { id: 'jeux',    label: 'Jeux',       icon: 'gamepad' },
     { id: 'actus',   label: 'Actualités', icon: 'news'    },
+    { id: 'forum',   label: 'Forum',      icon: 'message' }, // ← nouveau
   ];
 
   function buildNav() {
