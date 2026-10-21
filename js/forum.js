@@ -1,38 +1,23 @@
 (function () {
   'use strict';
 
-  /* ============================================================
-     1) ⚠️ CONFIGURATION — LES SEULES LIGNES À MODIFIER ⚠️
-     ------------------------------------------------------------
-     Dashboard Supabase → ⚙ Project Settings → API :
-       • « Project URL »  → SUPABASE_URL
-       • « anon public »  → SUPABASE_ANON_KEY
-     (La clé « anon » est PUBLIABLE : c'est celle du visiteur,
-     protégée par les politiques RLS du script SQL. Ne JAMAIS
-     mettre la clé « service_role » ici — voir GUIDE §5.)
-     ============================================================ */
 const SUPABASE_URL      = 'https://zdqfwohllyuhdcorxieg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkcWZ3b2hsbHl1aGRjb3J4aWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1Mjk0OTIsImV4cCI6MjEwODEwNTQ5Mn0.P7SM20pWVNIILw7OsVMUpWywrKuhGQsA0sZMQ7GbHVE';
 
-  /* Réglages du forum — librement adaptables (gardez-les en
-     cohérence avec les contraintes du script supabase-forum.sql) */
   const FORUM = {
-    topicsPerPage: 8,    // sujets par page de forum
-    postsPerPage:  6,    // messages par page de sujet
-    maxPseudo: 30,       // longueur max du pseudo
-    maxTitle:  150,      // longueur max du titre d'un sujet
-    maxChars: 1000,      // longueur max d'un message
-    cooldown: 10,        // anti-spam : secondes entre 2 publications (0 = off)
-    storageDemo:   'toncplay_forum_v2_demo',   // clé localStorage (mode démo)
-    storagePseudo: 'toncplay_forum_pseudo',    // pseudo mémorisé
-    storageToken:  'toncplay_forum_token',     // jeton de propriété
+    topicsPerPage: 8,    
+    postsPerPage:  6,   
+    maxPseudo: 30,     
+    maxTitle:  150,      
+    maxChars: 1000,    
+    cooldown: 10,      
+    storageDemo:   'toncplay_forum_v2_demo',   
+    storagePseudo: 'toncplay_forum_pseudo',    
+    storageToken:  'toncplay_forum_token',    
   };
 
   const TAGLINE = 'Le QG des discussions du Projet ToncPlay : catégories, forums, sous-forums et sujets.';
 
-  /* ============================================================
-     2) CLIENT SUPABASE (ou mode démo si clés d'exemple)
-     ============================================================ */
   const isConfigured = !SUPABASE_URL.includes('VOTRE-PROJET')
                     && !SUPABASE_ANON_KEY.includes('VOTRE_CLE')
                     && typeof window.supabase !== 'undefined';
@@ -41,9 +26,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
 
-  /* ============================================================
-     3) RACCOURCIS DOM + ÉTAT INTERNE
-     ============================================================ */
   const $  = (sel, ctx) => (ctx || document).querySelector(sel);
   const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
 
@@ -56,30 +38,22 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     cooldownTimer: null,
   };
 
-  /* Palette des avatars — les teintes de la charte ToncPlay.
-     Modifiez / ajoutez librement vos couleurs (#rrggbb). */
   const AVATAR_COLORS = ['#00e676', '#2dff97', '#6bb6ff', '#4dd0e1', '#ffb74d', '#ff8a65', '#ba68c8', '#f06292'];
 
-  /* ============================================================
-     4) PETITS UTILITAIRES
-     ============================================================ */
 
-  /* Échappe le HTML : INDISPENSABLE avant d'injecter du texte
-     d'un visiteur dans innerHTML (protection anti-XSS). */
   function esc(str) {
     return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
   }
 
-  /* Hash stable d'une chaîne (couleur d'avatar) */
+
   function hashString(str) {
     let h = 0;
     for (const c of String(str || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
     return h;
   }
 
-  /* '#00e676' + 0.12 → 'rgba(0,230,118,.12)' */
   function hexToRgba(hex, alpha) {
     const n = parseInt(hex.slice(1), 16);
     return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
@@ -90,13 +64,11 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return 'color:' + c + ';background:' + hexToRgba(c, .12) + ';border-color:' + hexToRgba(c, .35);
   }
 
-  /* Initiales du pseudo : « Jean Dupont » → « JD » */
   function initials(pseudo) {
     const parts = String(pseudo || '?').trim().split(/\s+/);
     return ((parts[0][0] || '?') + (parts[1] ? parts[1][0] : '')).toUpperCase();
   }
 
-  /* « à l'instant », « il y a 5 min », « il y a 2 h », … */
   function timeAgo(iso) {
     const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
     if (s < 45)   return "à l'instant";
@@ -106,22 +78,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  /* « 12/03/2026 à 14:35 » (info-bulle des dates) */
   function fullDate(iso) {
     return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
          + ' à ' + new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  /* Pseudo mémorisé d'une visite à l'autre */
   function savedPseudo() { try { return localStorage.getItem(FORUM.storagePseudo) || ''; } catch (e) { return ''; } }
   function savePseudo(v) { try { localStorage.setItem(FORUM.storagePseudo, v); } catch (e) {} }
 
-  /* ----- JETON DE PROPRIÉTÉ ------------------------------------
-     Chaque navigateur génère UNE FOIS un jeton aléatoire (il sert
-     de « preuve d'identité » sans compte utilisateur). En base,
-     on ne stocke que son EMPREINTE SHA-256 : jamais le jeton lui-
-     même. C'est cette empreinte qui permet de modifier/supprimer
-     SES messages et SES sujets — et uniquement eux. */
   function getToken() {
     let t = null;
     try { t = localStorage.getItem(FORUM.storageToken); } catch (e) {}
@@ -137,10 +101,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
-    /* Repli hors contexte sécurisé (page ouverte en file://) :
-       n'affecte QUE le mode démo local. En production (GitHub
-       Pages = https) crypto.subtle est toujours disponible et
-       c'est le vrai SHA-256 attendu par les fonctions SQL. */
     let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
     for (let i = 0; i < str.length; i++) {
       const c = str.charCodeAt(i);
@@ -151,7 +111,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   }
 
   let tokenHashPromise = null;
-  function getTokenHash() {           /* mémoïsé : un seul hachage par session */
+  function getTokenHash() {          
     if (!tokenHashPromise) tokenHashPromise = sha256Hex(getToken());
     return tokenHashPromise;
   }
@@ -164,7 +124,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     setTimeout(() => { zone.textContent = text; }, 50);
   }
 
-  /* Erreurs techniques → messages « humains » */
   function friendlyError(err) {
     const raw = (err && (err.message || err.msg || err.hint || err.details)) || String(err || '');
     if (/failed to fetch|networkerror|load failed/i.test(raw))
@@ -185,9 +144,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return 'Erreur inconnue — ouvrez la console (F12) pour les détails.';
   }
 
-  /* ============================================================
-     5) ICÔNES SVG INLINE (même style que js/app.js)
-     ============================================================ */
   const ICONS = {
     folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
     chat:   '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
@@ -206,21 +162,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     (ICONS[name] || '') + '</svg>';
 
-  /* ============================================================
-     6) ACCÈS AUX DONNÉES — DEUX ADAPTATEURS, UNE MÊME INTERFACE
-     ------------------------------------------------------------
-     api.getHome()                     → { categories, forums }
-     api.getForum(forumId, page)       → { forum, subs, topics, total }
-     api.getTopic(topicId, page)       → { topic, posts, total }
-     api.getRawPost(postId)            → texte brut d'un message (édition)
-     api.createTopic(forumId, title, author, content, hash) → { id }
-     api.createPost(topicId, author, content, hash)
-     api.editPost(postId, token, content)   / deletePost(postId, token)
-     api.deleteTopic(topicId, token)        / incrementViews(topicId)
-     ============================================================ */
 
-  /* ---------- 6a. MODE DÉMO : localStorage = la base ---------- */
-  const DEMO_HASH = 'f'.repeat(58) + 'c0ffee';   // empreinte factice des données d'exemple
+  const DEMO_HASH = 'f'.repeat(58) + 'c0ffee';  
 
   const DemoDB = {
     d: null,
@@ -239,7 +182,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       catch (e) { console.warn('[Forum] localStorage indisponible :', e); }
     },
 
-    /* — une ligne forum_overview (stats + dernier message) — */
     overviewOf(f) {
       const d = this.d;
       const topics = d.topics.filter(t => t.forum_id === f.id);
@@ -264,7 +206,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       };
     },
 
-    /* — une ligne topic_overview (stats + noms du forum) — */
     topicOverviewOf(t) {
       const d = this.d;
       const posts = d.posts.filter(p => p.topic_id === t.id)
@@ -285,9 +226,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     },
   };
 
-  /* Jeu de données d'exemple : 3 catégories, 9 forums (dont 3
-     sous-forums), 19 sujets, 30 messages — la même structure que
-     les données du script SQL, version « animée » pour tester. */
   function demoSeed() {
     const now = Date.now();
     const iso = min => new Date(now - min * 60000).toISOString();
@@ -322,7 +260,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     forum(8,  3, null, 'Bugs & problèmes',      'Un jeu qui plante, une page qui déconne ? Dites tout.');
     forum(9,  3, null, 'FAQ & astuces',         'Questions fréquentes et bonnes astuces.');
 
-    /* Minutes pour iso() : M = 1 minute, H = 1 heure, J = 1 jour */
     const M = 1, H = 60 * M, J = 24 * H;
     topic(1,  1, "Règles du forum — lisez-moi d'abord", 'Sluto', true, 42, 7 * J, [
       ['Sluto', 7 * J, "Trois règles, pas plus :\n1. Soyez sympas, on est là pour jouer.\n2. Pas de spam, Roger lit tout (il voit TOUT, même la nuit).\n3. Un bug ? Direction « Entraide » avec un maximum de détails."],
@@ -397,8 +334,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return d;
   }
 
-  /* Comparaison d'identifiants tolérante ("3" ≡ 3) : les id démo sont
-     numériques, ceux de Supabase sont des UUID (texte). */
   const byId = (arr, id) => arr.find(x => String(x.id) === String(id));
 
   const DemoAPI = {
@@ -513,14 +448,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     },
   };
 
-  /* ---------- 6b. MODE RÉEL : Supabase ---------- */
   const SupaAPI = {
     isDemo: false,
 
     async getHome() {
-      /* Équivalent SQL :
-         select * from forum_categories order by position ;
-         select * from forum_overview ;            (stats précalculées) */
       const [cats, fours] = await Promise.all([
         db.from('forum_categories').select('*').order('position'),
         db.from('forum_overview').select('*'),
@@ -531,7 +462,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     },
 
     async getForum(forumId, page) {
-      /* Le forum (+ sa fiche stats), ses sous-forums, ses sujets paginés */
       const f = await db.from('forum_overview').select('*').eq('id', forumId).limit(1);
       if (f.error) throw f.error;
       const forum = (f.data || [])[0] || null;
@@ -541,8 +471,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         db.from('forum_overview').select('*').eq('parent_id', forumId).order('position'),
         db.from('topic_overview').select('*', { count: 'exact' })
           .eq('forum_id', forumId)
-          .order('is_pinned', { ascending: false })      /* épinglés d'abord */
-          .order('last_activity_at', { ascending: false }) /* puis activité récente */
+          .order('is_pinned', { ascending: false })      
+          .order('last_activity_at', { ascending: false })
           .range((page - 1) * FORUM.topicsPerPage, page * FORUM.topicsPerPage - 1),
       ]);
       if (subs.error) throw subs.error;
@@ -571,7 +501,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     },
 
     async createTopic(forumId, title, author, content, hash) {
-      /* 1) le sujet… (RLS vérifie longueurs + forum non verrouillé) */
       const t = await db.from('forum_topics')
         .insert({ forum_id: forumId, title, author, author_token_hash: hash })
         .select('id').single();
@@ -587,7 +516,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       const { error } = await db.from('forum_posts')
         .insert({ topic_id: topicId, author, author_token_hash: hash, content });
       if (error) throw error;
-      /* last_activity_at du sujet est mise à jour par le trigger SQL */
     },
 
     async editPost(postId, token, content) {
@@ -616,12 +544,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
   const api = isConfigured ? SupaAPI : DemoAPI;
 
-  /* ============================================================
-     7) GABARITS DE RENDU
-     ============================================================ */
-
-  /* Attributs d'animation en cascade : .reveal de style.css, avec
-     un décalage progressif (identique à la section Jeux). */
   function rvA(animate, i, base) {
     const cls = base ? base + ' ' : '';
     if (!animate) return 'class="' + cls + 'reveal done"';
@@ -633,8 +555,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return '<span class="forum-badge forum-badge--' + type + '">' + esc(label) + '</span>';
   }
 
-  /* Fil d'Ariane : Forum › Catégorie › [Forum parent ›] Forum › …
-     items = { label, nav?, id?, plain?, current? } */
   function crumbNav(items) {
     return '<nav class="forum-crumb" aria-label="Fil d\u2019Ariane">' + items.map((it, i) => {
       const sep = i ? '<span class="crumb-sep" aria-hidden="true">›</span>' : '';
@@ -645,8 +565,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     }).join('') + '</nav>';
   }
 
-  /* Une ligne FORUM (accueil) : icône + nom + description + sous-forums
-     en chips + compteurs + dernier message cliquable. */
   function forumRowHTML(f, subs, animate, gi, ri) {
     const last = f.last_activity
       ? '<button type="button" class="row-last" data-fnav="topic" data-id="' + f.last_topic_id + '" data-page="' +
@@ -679,7 +597,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     '</article>';
   }
 
-  /* Une ligne SUJET (dans un forum) */
   function topicRowHTML(t, animate, i) {
     const replies = Math.max(0, (t.post_count || 1) - 1);
     const pinned = !!t.is_pinned, locked = !!t.is_locked;
@@ -706,8 +623,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     '</article>';
   }
 
-  /* Texte d'un message → HTML sûr : échappement anti-XSS, liens
-     http(s) cliquables, retours à la ligne conservés. */
   function renderPost(text) {
     let safe = esc(text);
     safe = safe.replace(/(https?:\/\/[^\s<]+)/g,
@@ -715,7 +630,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return safe.replace(/\r?\n/g, '<br>');
   }
 
-  /* Une carte MESSAGE dans un sujet */
   function postHTML(p, index, myHash, animate) {
     const mine = p.author_token_hash === myHash;
     return '<article ' + rvA(animate, Math.min(index, 10), 'forum-msg spot-card') + ' data-post="' + p.id + '">' +
@@ -740,7 +654,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     '</article>';
   }
 
-  /* Pagination — réutilise .page-btn / .page-ellipsis de style.css */
   const ELL = '<span class="page-ellipsis">…</span>';
   function pagerHTML(view, id, page, pages) {
     if (pages <= 1) return '';
@@ -758,7 +671,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     '</nav>';
   }
 
-  /* Squelettes de chargement (le temps des requêtes réseau) */
   function skeletonHTML() {
     const row = () => '<article class="forum-row skeleton"><span class="row-icon"></span>' +
       '<div class="row-main"><span class="sk-line w40"></span><span class="sk-line w90"></span></div>' +
@@ -766,7 +678,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     return row() + row() + row();
   }
 
-  /* État d'erreur complet */
   function crashHTML(msg) {
     return '<div class="empty forum-crash">' +
       '<div class="empty-icon">' + icon('chat', 22) + '</div>' +
@@ -776,7 +687,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     '</div>';
   }
 
-  /* Validation côté client (le SQL revalide côté serveur via RLS) */
   function validate(v) {
     const pseudo = (v.pseudo || '').trim().replace(/\s+/g, ' ');
     if (pseudo.length < 2) return 'Indiquez un pseudo (2 caractères min).';
@@ -799,9 +709,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     el.dataset.type = type || '';
   }
 
-  /* ============================================================
-     8) VUES (mini-SPA)
-     ============================================================ */
 
   async function render(animate) {
     const root = $('#forumRoot');
@@ -830,7 +737,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /* ---------- 8a. ACCUEIL : catégories → forums → sous-forums ---------- */
   async function renderHome(root, animate) {
     const data = await api.getHome();
     const subOf = {};
@@ -866,7 +772,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     }).join('');
   }
 
-  /* ---------- 8b. FORUM : sous-forums + liste paginée des sujets ---------- */
   async function renderForumView(root, animate) {
     const r = await api.getForum(state.forumId, state.page);
     if (!r.forum) { state.view = 'home'; return renderHome(root, animate); }
@@ -926,14 +831,13 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       pagerHTML('forum', forum.id, state.page, pages);
   }
 
-  /* ---------- 8c. SUJET : messages paginés + réponse / édition ---------- */
   async function renderTopicView(root, animate) {
     await api.incrementViews(state.topicId);
     const r = await api.getTopic(state.topicId, state.page);
     if (!r.topic) { state.view = 'home'; return renderHome(root, animate); }
     const topic = r.topic;
     state.topicId = topic.id;
-    state.forumId = topic.forum_id;                  /* retour / suppression */
+    state.forumId = topic.forum_id;              
     const pages = Math.max(1, Math.ceil(r.total / FORUM.postsPerPage));
     $('#forumCount').hidden = true;
     const sub = $('#forumSub');
@@ -942,7 +846,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     const myHash   = await getTokenHash();
     const replies  = Math.max(0, (topic.post_count || 1) - 1);
     const locked   = !!(topic.is_locked || topic.forum_locked);
-    /* L'auteur peut supprimer SON sujet seulement s'il n'a pas reçu de réponses */
     const mineTopic = topic.author_token_hash === myHash && (topic.post_count || 1) <= 1;
 
     root.innerHTML =
@@ -987,14 +890,13 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     if (!locked) wireReplyForm(r.total);
   }
 
-  /* Formulaire de réponse (bas de sujet) */
   function replyFormHTML(topic) {
     return '<form class="forum-form" id="forumReplyForm" novalidate>' +
       '<p class="form-title">' + icon('reply', 15) + ' Répondre</p>' +
       '<div class="form-field">' +
         '<label class="form-label" for="frPseudo">Pseudo</label>' +
         '<input id="frPseudo" type="text" maxlength="' + FORUM.maxPseudo + '" autocomplete="nickname" ' +
-          'placeholder="Ex : Sluto" value="' + esc(savedPseudo()) + '">' +
+          'placeholder="Ex : Roger" value="' + esc(savedPseudo()) + '">' +
       '</div>' +
       '<div class="form-field">' +
         '<div class="form-label-row">' +
@@ -1026,7 +928,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       cnt.classList.toggle('warn', ta.value.length >= FORUM.maxChars * .9);
     };
     ta.addEventListener('input', refresh); refresh();
-    ta.addEventListener('keydown', e => {         /* comfort : Ctrl/Cmd + Entrée */
+    ta.addEventListener('keydown', e => {        
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         form.requestSubmit ? form.requestSubmit() : btn.click();
@@ -1036,7 +938,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
     if (Date.now() < state.cooldownUntil) startCooldown();
 
-    /* — LA soumission : async/await, zéro rechargement — */
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const p = pseudo.value.trim().replace(/\s+/g, ' ');
@@ -1061,7 +962,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     });
   }
 
-  /* ---------- 8d. NOUVEAU SUJET ---------- */
   async function renderNewTopicView(root, animate) {
     const r = await api.getForum(state.forumId, 1);
     if (!r.forum || r.forum.is_locked) { state.view = 'forum'; return renderForumView(root, animate); }
@@ -1085,7 +985,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         '<div class="form-field">' +
           '<label class="form-label" for="ftPseudo">Pseudo</label>' +
           '<input id="ftPseudo" type="text" maxlength="' + FORUM.maxPseudo + '" autocomplete="nickname" ' +
-            'placeholder="Ex : Sluto" value="' + esc(savedPseudo()) + '">' +
+            'placeholder="Ex : Roger" value="' + esc(savedPseudo()) + '">' +
         '</div>' +
         '<div class="form-field">' +
           '<label class="form-label" for="ftTitle">Titre du sujet</label>' +
@@ -1161,9 +1061,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     });
   }
 
-  /* ============================================================
-     9) ÉDITION EN LIGNE + SUPPRESSION (2 clics de confirmation)
-     ============================================================ */
 
   async function startEditPost(btn) {
     const card = btn.closest('.forum-msg');
@@ -1184,8 +1081,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
   }
 
-  /* Premier clic sur « Supprimer » → le bouton s'arme (« Confirmer ? »)
-     pendant 4 s. Second clic → suppression effective. */
   function armButton(btn) {
     btn.dataset.armed = '1';
     btn.dataset.prev  = btn.innerHTML;
@@ -1202,9 +1097,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     btn.disabled = false;
   }
 
-  /* ============================================================
-     10) NAVIGATION INTERNE + ACTIONS (délégation d'événements)
-     ============================================================ */
   function initActions() {
     const root = $('#forumRoot');
 
@@ -1225,7 +1117,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         }
       }
 
-      /* ----- actions ----- */
       const act = e.target.closest('[data-faction]');
       if (!act) return;
       const { faction, id } = act.dataset;
@@ -1271,8 +1162,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       }
     });
 
-    /* Spotlight au survol (même effet que les cartes jeux : les
-       variables --mx/--my pilotent le halo des .spot-card) */
     root.addEventListener('mousemove', e => {
       const card = e.target.closest('.spot-card');
       if (!card) return;
@@ -1281,14 +1170,11 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       card.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
 
-    /* Termine proprement l'animation .reveal (même logique qu'app.js) */
     root.addEventListener('animationend', e => {
       if (e.animationName === 'revealUp') e.target.classList.add('done');
     });
   }
 
-  /* Compte à rebours anti-spam affiché DANS le bouton d'envoi
-     (le formulaire visible, quel qu'il soit) */
   function startCooldown() {
     clearInterval(state.cooldownTimer);
     const tick = () => {
@@ -1316,14 +1202,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     state.cooldownTimer = setInterval(tick, 1000);
   }
 
-  /* Rafraîchit les « il y a X min » une fois par minute */
   function refreshDates() {
     $$('time[data-iso]', $('#forumRoot')).forEach(t => { t.textContent = timeAgo(t.dataset.iso); });
   }
 
-  /* ============================================================
-     11) MODE DÉMO — bandeau d'information
-     ============================================================ */
   function showDemoBanner() {
     const banner = $('#forumBanner');
     if (!banner) return;
@@ -1339,22 +1221,16 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     if (sub) sub.textContent = 'Forum en mode démo — les discussions restent locales à votre navigateur.';
   }
 
-  /* ============================================================
-     12) DÉMARRAGE
-     ============================================================ */
   function init() {
     if (!isConfigured) showDemoBanner();
     initActions();
 
-    /* Quand on (re)vient sur la section Forum via la navigation du
-       site, on rejoue l'animation d'apparition en cascade — exactement
-       comme le fait app.js pour la section Jeux. */
     document.addEventListener('click', e => {
       if (e.target.closest('[data-nav="forum"]')) render(true);
     });
 
-    render(true);                       /* ← chargement initial */
-    setInterval(refreshDates, 60000);   /* ← dates toujours justes */
+    render(true);                       
+    setInterval(refreshDates, 60000);   
   }
 
   document.addEventListener('DOMContentLoaded', init);
