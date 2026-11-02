@@ -1,5 +1,16 @@
 const GAMES = [
   {
+    img: 'jaquette/cartono.jpg',
+    title: 'Cartono',
+    desc: 'Extrayez le papier, ondulez le carton, convergez les chaînes. Devenez la légende de l\'embalage.',
+    link: 'jeux/cartono/index.html',
+    genre: 'Gestion',
+    tags: ['Gestion', 'Statégie', 'Pixel Art'],
+    date: '02/11/2026',
+    iso: '2026-11-02',
+    screens: ['images/screens/cartono/1.png', 'images/screens/cartono/2.png', 'images/screens/cartono/3.png', 'images/screens/cartono/4.png']
+  },
+  {
     img: 'jaquette/kraken.png',
     title: 'Procole Kraken',
     desc: 'Infiltrez un datacenter, piratez des données et échappez au redoutable Spectre-Réseau !',
@@ -372,6 +383,12 @@ Infiltrez les salles serveurs pour pirater et récolter de précieux fragments d
 
 
 const NEWS = [
+  {
+    img: 'jaquette/cartono.jpg',
+    title: 'Sortie de Cartono',
+    date: '02/11/2026',
+    text: 'Sortez le scotch et les cutters, <b>Cartono</b> débarque officiellement sur ToncPlay !<br><br>Inspiré des plus grands maîtres de l\'automatisation (façon <i>Factorio</i> ou <i>Shapez.io</i>), plongez dans un univers entièrement conçu en carton brut. Organisez vos lignes de montage, pliez, découpez, assemblez et optimisez vos chaînes de production de boîtes à l\'infini.<br><br>Prêt à bâtir l\'usine éco-responsable ultime ? À vos marques, prêts, emballez !',
+  },
   {
     img: 'images/logo.png',
     title: 'Le Forum ToncPlay est en ligne',
