@@ -4,11 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CARTONO — Tycoon de la cartonnerie</title>
-<!-- Polices pixel : Silkscreen (titres/boutons) + VT323 (textes). Aucune image : tout est dessiné au canvas. -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<!-- SDK CrazyGames v3, chargé avant le jeu. Le jeu reste pleinement jouable
+     sans lui (tests locaux, autre hébergement) : script.js protège chaque appel. -->
+<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 <link rel="stylesheet" href="style.css">
+<!-- Bilingue FR/EN : dictionnaires AVANT le moteur du jeu.
+     La police « Press Start 2 » de l'intro d'origine est remplacée par
+     Silkscreen, déjà déclarée dans style.css (fonts/slkscr.ttf) : aucun
+     appel réseau vers Google Fonts, tout reste local au dossier. -->
+<script src="js/lang.js"></script>
+<!-- Animation du studio Projet ToncPlay, AVANT le script du jeu -->
+<script src="js/intro.js"></script>
 </head>
 <body>
 <canvas id="game"></canvas>

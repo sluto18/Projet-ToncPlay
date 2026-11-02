@@ -2,6 +2,25 @@
    CARTONO — feuille de style
    ════════════════════════════════════════════════════════════ */
 
+@font-face{
+  font-family:'Silkscreen';
+  src:url('fonts/slkscr.ttf') format('truetype');
+  font-weight:400;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Silkscreen';
+  src:url('fonts/slkscrb.ttf') format('truetype');
+  font-weight:700;
+  font-display:swap;
+}
+@font-face{
+  font-family:'VT323';
+  src:url('fonts/VT323-Regular.ttf') format('truetype');
+  font-weight:400;
+  font-display:swap;
+}
+
 *{ margin:0; padding:0; box-sizing:border-box; }
 html,body{ height:100%; overflow:hidden; }
 body{
@@ -20,4 +39,30 @@ body{
   cursor:default;
   touch-action:none;
   -webkit-user-select:none;
+}
+/* ── Footer sticky (version site) ── */
+#site-footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  z-index:1000;
+  background:rgba(23,18,16,.92);
+  border-top:2px solid #4a3a28;
+  padding:4px 0;
+  text-align:center;
+}
+#site-footer p{
+  font-family:'VT323', monospace;
+  font-size:16px;
+  color:#8a755c;
+  margin:0;
+}
+#site-footer a{
+  color:#c99e6a;
+  text-decoration:none;
+}
+#site-footer a:hover{
+  color:#e08a3c;
+  text-decoration:underline;
 }
