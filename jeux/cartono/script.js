@@ -4,15 +4,6 @@
    ────────────────────────────────────────────────────────────────────
  */
 
-/* ══════════════ 0. BILINGUE FR/EN ══════════════
-   Dictionnaires chargés par index.html (js/lang.js) AVANT script.js.
-   - T('ui.cle')  : chaîne d'interface, interpolations {M} {N} {X} {Y} {V}
-   - setLang('fr'|'en') : bascule + persistance (localStorage cartono.lang)
-   - applyLang() : traduit EN PROFONDEUR les données de jeu (ITEMS, MACHINES,
-     FACTORIES, GRADES, RESEARCH, ACHIEVEMENTS, TUT, LETTERS, CAT_LABELS)
-     et met à jour <html lang> + <title>. Les const de données gardent leur
-     identité (mêmes objets mutés) : sauvegardes et icônes inchangées. */
-
 const LANGS=['fr','en'];
 let LANG_CUR='fr';
 function LANG(){ return (window.CARTONO_LANG&&window.CARTONO_LANG[LANG_CUR])||window.CARTONO_LANG.fr; }
@@ -396,7 +387,7 @@ const ACHIEVEMENTS=[
 
 const DIRS = [ {x:1,y:0},{x:0,y:1},{x:-1,y:0},{x:0,y:-1} ]; 
 
-const ARC=Math.PI/4;                            // 0,7854 case
+const ARC=Math.PI/4;                            
 function pathLenFor(b,entryDir){
   if(b.curve) return ARC;
   if(entryDir!==undefined){
@@ -449,8 +440,8 @@ const tf    = { value:'', focused:false };
 
 let canvas, ctx, W=0, H=0;
 let TILE=32, S=2, ox=0, oy=0, hudH=46, barH=88, sideW=230;
-let gameX=0, gameY=0, gameW=0, gameH=0;      // canvas de jeu exact (grille + mur)
-let blockX=0, blockY=0, blockW=0, blockH=0;  // bloc assemblé : HUD + jeu + colonne + barre
+let gameX=0, gameY=0, gameW=0, gameH=0;      
+let blockX=0, blockY=0, blockW=0, blockH=0;  
 let hudX=0, hudY=0, sideX=0, sideY=0, sideH=0, barY=0;
 let uid=0, animT=0, toolOrder=[], bootSave=null;
 let barTip=null, homeArmed=false;
@@ -649,28 +640,45 @@ function outCells(m){
 
 const CG = {
   sdk:null, ready:false, dataReady:false, mutedBySDK:false,
-  useData(){ return (this.dataReady&&this.sdk&&this.sdk.data)||null; },
+  useData(){
+    /* SDK désactivé : l'accès à sdk.data lui-même peut lever (getter du
+       bundle) — ne jamais laisser l'intégration interrompre le jeu */
+    try{ return (this.dataReady&&this.sdk&&this.sdk.data)||null; }
+    catch(e){ return null; }
+  },
   muted(){ return this.mutedBySDK; },   /* priorité sur le réglage interne (règle CG) */
   ev(name,arg){
-    if(!this.ready||!this.sdk||!this.sdk.game) return;
-    const fn=this.sdk.game[name];
-    if(typeof fn!=='function') return;
-    try{ (arg===undefined)?fn.call(this.sdk.game):fn.call(this.sdk.game,arg); }catch(e){}
+    /* corps ENTIER sous try : sur un domaine non-CrazyGames le SDK est
+       "disabled" et l'accès à sdk.game[...] peut lever synchrone — une
+       exception ici interrompait doPromotion au milieu (usine marquée
+       signée sans avancer). Ne jamais laisser l'intégration casser le jeu. */
+    try{
+      if(!this.ready||!this.sdk||!this.sdk.game) return;
+      const fn=this.sdk.game[name];
+      if(typeof fn!=='function') return;
+      const r=(arg===undefined)?fn.call(this.sdk.game):fn.call(this.sdk.game,arg);
+      if(r&&typeof r.then==='function'&&typeof r.catch==='function') r.catch(()=>{});
+    }catch(e){}
   },
   init(){
     const SDK=window.CrazyGames&&window.CrazyGames.SDK;
     if(!SDK) return Promise.resolve(false);
-    this.sdk=SDK;
+    try{ this.sdk=SDK; }catch(e){ this.sdk=null; }
     const ok=()=>{
-      this.ready=true;
-      this.dataReady=!!(SDK.data&&typeof SDK.data.setItem==='function');
-      try{ const s=SDK.game&&SDK.game.settings; this.mutedBySDK=!!(s&&s.muteAudio); }catch(e){}
-      if(SDK.game&&typeof SDK.game.addSettingsChangeListener==='function'){
-        try{ SDK.game.addSettingsChangeListener(ns=>{
-          CG.mutedBySDK=!!(ns&&ns.muteAudio);
-          if(CG.mutedBySDK&&typeof stopMusic==='function') stopMusic();  /* coupe aussi la musique en cours */
-        }); }catch(e){}
-      }
+      /* tout le démarrage sous try : ok() servait de gestionnaire
+         d'erreur à SDK.init() — s'il levait lui-même, la promesse
+         rejetait et restait non gérée (Uncaught in promise) */
+      try{
+        this.ready=true;
+        this.dataReady=!!(SDK.data&&typeof SDK.data.setItem==='function');
+        const s=SDK.game&&SDK.game.settings; this.mutedBySDK=!!(s&&s.muteAudio);
+        if(SDK.game&&typeof SDK.game.addSettingsChangeListener==='function'){
+          SDK.game.addSettingsChangeListener(ns=>{
+            CG.mutedBySDK=!!(ns&&ns.muteAudio);
+            if(CG.mutedBySDK&&typeof stopMusic==='function') stopMusic();  /* coupe aussi la musique en cours */
+          });
+        }
+      }catch(e){}
       return true;
     };
     return (typeof SDK.init==='function')?SDK.init().then(ok,ok):Promise.resolve(ok());
@@ -687,7 +695,15 @@ function cgProgressPct(){
    miroir. Même API synchrone que localStorage. */
 function stGet(k){
   const d=CG.useData();
-  if(d){ try{ const v=d.getItem(k); if(v!==undefined&&v!==null) return v; }catch(e){} }
+  if(d){
+    try{
+      const v=d.getItem(k);
+      /* certains environnements renvoient une promesse rejetée sdkDisabled
+         au lieu d'une valeur : retomber sur localStorage dans ce cas */
+      if(v&&typeof v.then==='function'){ if(typeof v.catch==='function') v.catch(()=>{}); }
+      else if(v!==undefined&&v!==null) return v;
+    }catch(e){}
+  }
   try{ return localStorage.getItem(k); }catch(e){ return null; }
 }
 function stSet(k,v){
@@ -906,7 +922,7 @@ let winMoney=0, winSci=0, rateT=0, saveT=0;
 
 function tick(){
   state.time+=DT; state.stats.playTime+=DT; state.career.playTime+=DT;
-  reserved.clear();                              // réservations valables un tick
+  reserved.clear();                             
   for(const e of state.entities) if(e.soldThisTick) e.soldThisTick=null;
 
   for(const e of state.entities){
@@ -1380,7 +1396,7 @@ function rebuildToolOrder(){
   const lockedDock=dockLocked();
   let types=(CATS.find(c=>c[0]===state.barCat)||CATS[0])[1]
     .filter(t=>MACHINES[t]&&state.unlocked.includes(t)&&!(lockedDock&&isDock(t)));
-  if(!types.length){                    // onglet vide (rien de débloqué) : repli
+  if(!types.length){                   
     for(const [cat,ts] of CATS){
       const a=ts.filter(t=>MACHINES[t]&&state.unlocked.includes(t)&&!(lockedDock&&isDock(t)));
       if(a.length){ state.barCat=cat; types=a; break; }
@@ -2042,7 +2058,7 @@ function drawFloor(){
   for(let x=ox-WALL+8;x<ox+gw*TILE;x+=24){ R(x,oy-WALL+3,3,3,'#5a4830'); R(x,oy+gh*TILE+WALL-6,3,3,'#5a4830'); }
   for(let y=0;y<gh;y++) for(let x=0;x<gw;x++)
     R(ox+x*TILE,oy+y*TILE,TILE,TILE,(x+y)%2?'#231b13':'#261e15');
-  drawObstacles();   // murs porteurs des missions spéciales
+  drawObstacles();   
 }
 
 function drawObstacles(){
@@ -2820,7 +2836,7 @@ function drawSide(){
     cy+=18;
   }
 
-  if(allGoalsDone()){
+  if(allGoalsDone()&&!state.factoryDone[state.factoryIdx]){
     R(x+8,cy,w-16,84,'#3a2a1a');
     ctx.lineWidth=2; ctx.strokeStyle='#e08a3c'; ctx.strokeRect(x+8,cy,w-16,84);
     txt(T('ui.sidePromoTitle'),x+16,cy+16,8,'#ffd9a0','left','s');
@@ -2828,6 +2844,14 @@ function drawSide(){
     txt(T('ui.sidePromoL2'),x+16,cy+48,15,'#e6d6b8');
     button(x+16,cy+56,w-32,20,T('ui.sidePromoBtn'),()=>openModal('promo'),{primary:true,pulse:true,small:true});
     cy+=94;
+  }
+  else if(allGoalsDone()&&state.factoryDone[state.factoryIdx]){
+    /* usine rejouée après signature : pas de dossier, le replay est libre */
+    R(x+8,cy,w-16,46,'#241c15');
+    ctx.lineWidth=1; ctx.strokeStyle='#4a3a28'; ctx.strokeRect(x+8,cy,w-16,46);
+    txt(T('ui.sideReplayL1'),x+16,cy+18,13,'#9c8a70');
+    txt(T('ui.sideReplayL2'),x+16,cy+33,13,'#9c8a70');
+    cy+=56;
   }
   if(state.inspect){
     if(state.entities.includes(state.inspect)) cy=drawSideMachine(x,w,cy);
@@ -3319,11 +3343,11 @@ function modalFrame(title){
   const w=Math.min(680,W-40), h=Math.min(560,H-40);
   const x=(W-w)/2, y=(H-h)/2;
   ctx.fillStyle='rgba(10,7,5,.74)'; ctx.fillRect(0,0,W,H);
-  hot(0,0,W,H,()=>closeModal(),'default');      // clic hors fenêtre = fermer
+  hot(0,0,W,H,()=>closeModal(),'default');    
   ctx.fillStyle='#0b0806'; ctx.fillRect(x+4,y+4,w,h);
   ctx.fillStyle='#2b221a'; ctx.fillRect(x,y,w,h);
   ctx.lineWidth=2; ctx.strokeStyle='#55432c'; ctx.strokeRect(x+1,y+1,w-2,h-2);
-  hot(x,y,w,h,noop);                            // …mais pas dans la fenêtre elle-même
+  hot(x,y,w,h,noop);                         
   txt(title,x+16,y+26,12,'#c99e6a','left','s');
   button(x+w-94,y+10,82,26,T('ui.modalClose'),()=>{ uiSnd('close'); closeModal(); },{small:true});
   return {x:x+14,y:y+42,w:w-28,h:h-54};
@@ -3913,9 +3937,9 @@ function checkAchievements(){
 function doPromotion(){
   if(state.factoryDone[state.factoryIdx]||!allGoalsDone()){ closeModal(); return; }
   state.factoryDone[state.factoryIdx]=true;
-  CG.ev('happytime');                            /* remise des clés : célébration CrazyGames */
-  CG.ev('reportGameCompletedPercentage',cgProgressPct());
-  closeModal();                                 
+  closeModal();
+  /* avancer le jeu AVANT tout événement SDK décoratif : une intégration
+     défaillante ne doit jamais laisser l'usine marquée signée sans progression */
   if(state.factoryIdx>=FACTORIES.length-1){
     openModal('win'); SFX.promo();
     toast(T('ui.toastCareer'),T('ui.toastCareerBody'),true);
@@ -3927,6 +3951,8 @@ function doPromotion(){
     SFX.promo();
     toast(T('ui.toastPromoSigned'),T('ui.toastPromoBody2')+FACTORIES[state.factoryIdx].name,true);
   }
+  CG.ev('happytime');                            /* remise des clés : célébration CrazyGames */
+  CG.ev('reportGameCompletedPercentage',cgProgressPct());
   saveGame();
 }
 function goHome(){ saveGame(); state.leaveTime=Date.now(); state.screen='home'; state.inRun=true; state.letter=null; state.letterGain=null; }
@@ -4105,6 +4131,18 @@ function applySave(d){
   }
   initGrid();
   rebuildToolOrder();
+  /* ── auto-réparation des sauvegardes bloquées ──
+     Ancien bug : la signature de la promotion était interrompue par une
+     erreur du SDK CrazyGames après factoryDone[i]=true mais AVANT
+     factoryIdx++ — l'usine restait marquée signée sans que la suite soit
+     débloquée (mission suivante verrouillée pour toujours). La signature
+     avait pourtant été acceptée : avancer jusqu'à la première usine non
+     signée. Idempotent (l'état réparé ne re-déclenche pas la condition). */
+  while(state.factoryDone[state.factoryIdx]&&state.factoryIdx<FACTORIES.length-1){
+    state.factoryIdx++;
+    state.maxFactoryIdx=Math.max(state.maxFactoryIdx,state.factoryIdx);
+    resetRun(state.factoryIdx);
+  }
   return d.t;
 }
 function exportString(){ return 'CARTO3.'+btoa(unescape(encodeURIComponent(JSON.stringify(serialize())))); }
@@ -4248,7 +4286,7 @@ function buildCursors(){
     P(1,0,B);                                              
     for(let x=2;x<=8;x++) P(x,10,B);                       
     for (let y = 11; y <= 15; y++) {
-      const t = 4 + Math.floor((y - 11) / 2); // t vaut : 4, 4, 5, 5, 6
+      const t = 4 + Math.floor((y - 11) / 2); 
       for (let x = t; x <= t + 2; x++) P(x, y, (x === t || x === t + 2) ? B : ((x % 2 === 0) ? F : K));
     }
   },0,0);
@@ -4393,4 +4431,4 @@ CG.init().then(()=>{
   try{ d=JSON.parse(stGet(SAVE_KEY)); }catch(e){ d=null; }
   if(d&&d.v>=3&&d.v<=5) applySave(d);
   CG.ev('reportGameCompletedPercentage',cgProgressPct());
-});
+}).catch(()=>{});   /* un rejet résiduel ne doit jamais remonter en console */
