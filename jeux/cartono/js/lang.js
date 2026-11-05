@@ -1,14 +1,7 @@
-/* ════════════════════════════════════════════════════════════════════
-   CARTONO — i18n : dictionnaires FR / EN
-   Chargé par index.html AVANT script.js (window.CARTONO_LANG).
-   script.js fournit T('ui.cle'), applyLang(), et mutale les données
-   (ITEMS/MACHINES/FACTORIES/… .name/.desc) selon la langue active.
-   ════════════════════════════════════════════════════════════════════ */
 'use strict';
 
 window.CARTONO_LANG = {
 
-/* ═════════════════ FRANÇAIS ═════════════════ */
 fr: {
   meta: {
     title: 'CARTONO — Tycoon de la cartonnerie',
@@ -144,23 +137,21 @@ fr: {
   ],
 
   tut: [
-    { title:'Faites tourner la boutique',
-      text:'On va y aller doucement, directeur. Prenez la MACHINE À PAPIER (onglet RUBANS… non : PAPIER, touche 1) et posez-la où bon vous semble. Elle occupe 4 cases (2×2). Repérez la goulotte ivoire à flèche : c’est sa SORTIE. Les trois autres faces — vous les reconnaîtrez à leurs encoches sombres — acceptent papier… pardon, acceptent tout ce qui arrive. La touche R l’oriente avant la pose.' },
-    { title:'Un quai, des camions',
-      text:'Les camions chargent DEPUIS l’extérieur : l’EXPÉDITION (onglet QUAI) se pose CONTRE UN MUR EXTÉRIEUR — le damier jaune et noir doit regarder dehors, la rotation est automatique. Ses trois faces intérieures vendent instantanément tout ce qui y entre. Approchez le fantôme du mur jusqu’à ce qu’il passe au vert.' },
-    { title:'Reliez tout ça',
-      text:'Deux écoles, directeur : ACCOLER les machines (une goulotte contre une face à encoches les nourrit directement), ou tracer des CONVOYEURS — cliquez et GLISSEZ : les rubans suivent la souris et posent même les virages tout seuls aux tournants. Objectif du conseil : voir des feuilles circuler et l’argent monter. Un papier vendu = 1 $. Et quand un obstacle barre la route : le RUBAN SOUTERRAIN (même onglet) — un clic sur l’entrée, un second sur la sortie, jusqu’à 5 cases plus loin, et le flux passe dessous.' },
-    { title:'Transformer, toujours transformer',
-      text:'Vendre du papier brut, c’est de la charitée. L’ONDULEUSE (onglet ONDULATION) avale 3 feuilles de papier et rend une plaque de carton ondulé — vendue 5 $, soit 5 fois le brut. Montage type : la goulotte de la machine à papier DANS une face à encoches de l’onduleuse, puis la goulotte de l’onduleuse vers le quai. Le papier entre par les faces sans goulotte : par ruban OU par machine accolée.' },
-    { title:'Le premier produit fini',
-      text:'Le carton ondulé, c’est l’économat. Les DIRIGEANTS, ils veulent du PRODUIT : l’ASSEMBLEUSE PETIT CARTON (onglet PRODUITS) prend 2 plaques et rend un petit carton à 15 $. Même montage : goulotte amont vers encoches aval, jusqu’au quai. Ce format, c’est la base de l’emballage — et de votre réputation.' },
-    { title:'Un flux, deux branches',
-      text:'Le RÉPARTITEUR (onglet RUBANS) partage un flux vers deux sorties — ou fusionne deux flux en un. Posé après la machine à papier, il nourrit l’onduleuse ET une seconde branche. Vous en aurez besoin dès le carton renforcé. Ce n’est pas obligatoire tout de suite : gardez-le en tête.' },
-    { title:'Vous êtes opérationnel',
-      text:'Ce que le conseil attend d’un directeur : surveillez les panneaux « ! » — c’est un bouchon, ça coûte de l’argent. Un CLIC GAUCHE sur une machine ouvre ses états et son AMÉLIORATION (colonne de droite) ; un CLIC DROIT annule tout ; R tourne, X démolit (50 % remboursés). Les OBJECTIFS sont dans la même colonne : remplis-les et le siège vous proposera mieux. Le PACK LUXE est loin, directeur. Commencez par vendre des petits cartons. Bonne chance.' },
+    { title:'La machine à papier',
+      text:'Bienvenue Directeur.\nPour faire du carton, il faut d’abord du papier.\nSélectionnez puis placez la machine à papier dans l’usine.' },
+    { title:'Le convoyeur',
+      text:'Placez un convoyeur à la sortie.\nVous pouvez aussi accoler directement une machine à la sortie.' },
+    { title:'L’onduleuse',
+      text:'Pour du carton, il faut des plaques ondulées.\nPlacez une onduleuse à côté du convoyeur.' },
+    { title:'Le petit carton',
+      text:'Placez une machine de production de petit carton,\npuis un convoyeur à la sortie de l’onduleuse.' },
+    { title:'L’expédition',
+      text:'Une fois le carton fabriqué, il faut l’expédier.\nPlacez un quai, puis des convoyeurs jusqu’au quai.' },
+    { title:'Votre usine est prête !',
+      text:'Vos cartons sont prêts à être vendus. Améliorez vos machines pour produire plus : chaque vente rapporte de la science, à dépenser dans RECHERCHE.\nLe jeu réserve bien d’autres découvertes — à vous de les explorer.' },
   ],
   letters: {
-    intro0:'Bienvenue au Hangar des Bords de Route, directeur.\n\nPersonne d’autre ne voulait ce poste. Le hangar penche, le toit siffle, et le contrat de livraison précédent s’est terminé en flute. Le groupe vous fait confiance — c’est une manière de dire qu’il n’a plus personne d’autre.\n\nInstallez une production de petits cartons. Le conseil attend 600 $ et 60 petits cartons vendus avant de reparler de votre avenir.\n\nPS — Conseil d’ancien : votre première chaîne doit être courte — une machine à papier, un quai, et des rubans entre les deux. Le reste viendra.',
+    intro0:'Bienvenue au Hangar des Bords de Route, directeur.\n\nPersonne d’autre ne voulait ce poste. Le hangar penche, le toit siffle, et le contrat de livraison précédent s’est terminé en flute. Le groupe vous fait confiance — c’est une manière de dire qu’il n’a plus personne d’autre.\n\nInstallez une production de petits cartons. Le conseil attend 600 $ et 60 petits cartons vendus avant de reparler de votre avenir.\n\nPS — Conseil d’ancien : la machine à papier produit les feuilles, l’onduleuse les colle en plaque, l’assembleuse fait le carton — et le quai vend tout. Suivez le guide.',
     intro1:'Le Vieux Quartier vous souhaite la bienvenue, directeur.\n\nVos cartons simples ont fait leur office. Le quartier, lui, expédie de la verrerie : il veut du RENFORCÉ. Nous avons donc pré-installé un atelier d’équerres de protection — vos machines et votre argent, eux, repartent de zéro : c’est la politique du groupe.\n\nLe conseil attend 2 500 $ et 45 cartons moyens. La science que vous avez signée vous suit, elle.\n\nPS — Conseil d’ancien : ne démolissez pas votre chaîne à cartons — bifurquez-la. Un répartiteur vous fera deux routes pour le prix d’une.',
     intro2:'Le Dépôt des Poutres, directeur. Lisez bien.\n\nCe dépôt n’était pas prévu au plan. Le service technique y a laissé des poutres maîtresses — indestructibles, paraît-il — et le quai est scellé au mur ouest : vous n’en poserez pas d’autre, c’est contractuel.\n\nC’est un exercice d’étroitesse, pas une usine. Prouvez qu’une chaîne renforcée tient entre les murs : 1 200 $ et 18 cartons moyens.\n\nPS — Conseil d’ancien : ici, la place vaut de l’or. Chaque virage compte double : comptez vos cases avant de poser.',
     intro3:'La Cartonnerie des Canaux vous est confiée, directeur.\n\nLes entrepôts des canaux expédient du volume : grands cartons obligatoires, calage compris. Un atelier d’intercalaires vous attend sur place — avec vos déblocages de carrière, vous avez tout en main.\n\nLe conseil attend 9 000 $ et 40 grands cartons. Le groupe commence à prononcer votre nom sans rire.\n\nPS — Vous allez avoir trois chaînes qui convergent. Prévoyez la place AVANT de poser : une arborescence se dessine du quai vers l’amont, comme une rivière à l’envers.',
@@ -208,7 +199,7 @@ fr: {
     transformation:'ATELIERS', assemblage:'PRODUITS', vente:'QUAI',
   },
   ui: {
-    /* ── chargement / écran-titre ── */
+
     loadingWait: 'CHARGEMENT DE L\'USINE...',
     loadingGo: 'DEMARRAGE...',
     titleSegA: 'Extrayez le ',  wordPaper: 'papier',
@@ -218,7 +209,6 @@ fr: {
     btnPlay: 'JOUER', btnOptions: 'OPTIONS', btnAwards: 'DISTINCTIONS',
     flagFr: 'FRANÇAIS', flagEn: 'ENGLISH', flagHint: 'LANGUE',
 
-    /* ── bureau des directeurs (home) ── */
     homeBack: 'RETOUR TITRE',
     homeSub: 'Groupe ToncPlay — Bureau des directeurs',
     homeSubShort: 'Groupe Papier & Ondulé',
@@ -240,12 +230,10 @@ fr: {
     homeGrid: 'Grille ', homeFunds: 'fonds ', homePrime: 'prime ', homeSci: 'sci',
     homePreinstalled: 'pré-installé',
 
-    /* ── HUD ── */
     hudScience: 'Science :',
     hudBonus: 'Bonus ventes : ',
     hudMenu: 'MENU', hudRecipes: 'RECET', hudResearch: 'RECH',
 
-    /* ── colonne latérale ── */
     sideObjectives: 'OBJECTIFS',
     sideGrid: 'grille',
     sideMachinesS: 'machine', sideMachinesP: 'machines',
@@ -254,13 +242,13 @@ fr: {
     sidePromoL1: 'Objectifs remplis — le siège',
     sidePromoL2: 'vous propose mieux.',
     sidePromoBtn: 'OUVRIR LE DOSSIER',
+    sideReplayL1: 'Usine déjà signée :',
+    sideReplayL2: 'rejouer reste libre, sans dossier.',
     sideJournal: 'JOURNAL',
 
-    /* ── barre d'outils ── */
     barTurn: 'TOURNER', barDemolish: 'DÉMOLIR',
     barCvRight: 'V. DROITE', barCvLeft: 'V. GAUCHE', barCvStraight: 'DROIT',
 
-    /* ── lettre du siège ── */
     letterCompany: 'GROUPE ONDULO',
     letterDivision: 'Division Emballages & Affection du Personnel',
     letterGoalsTitle: 'OBJECTIFS OFFICIELS DU CONSEIL',
@@ -278,17 +266,14 @@ fr: {
     letterSigShort: '— H. Vasseur',
     letterBtnResume: 'REPRENDRE LA DIRECTION',
 
-    /* ── tutoriel ── */
     tutStep: 'ÉTAPE ',
     tutBtnFinish: 'TERMINER',
     tutBtnSkip: 'PASSER LE TUTORIEL',
     tutBtnNext: 'SUIVANT',
 
-    /* ── objectifs ── */
     goalMoney: 'Gagner ',
     goalSold: 'Vendre ',
 
-    /* ── toasts ── */
     toastFirstSale: 'Première vente : ',
     toastFirstSaleUnit: ' l’unité.',
     toastFunds: 'Fonds insuffisants',
@@ -312,18 +297,10 @@ fr: {
     toastWipeBodyA: 'Nouvelle carrière disponible.',
     toastWipeBodyB: 'En mémoire — le stockage reste bloqué.',
     toastSaveNA: 'Sauvegarde indisponible',
-    toastSaveNABody: 'Environnement restreint : utilisez l’export de chaîne pour conserver la partie.',
+    toastSaveNABody: 'Le stockage est bloqué ici.',
     toastSaved: 'Partie sauvegardée',
-    toastSavedBody: 'En mémoire seulement — exportez la chaîne.',
+    toastSavedBody: 'Vous pouvez quitter la page.',
     toastCantSave: 'Sauvegarde impossible ici',
-    toastCopied: 'Sauvegarde copiée',
-    toastCopyFail: 'Copie impossible ici',
-    toastCopyFailBody: 'Sélectionnez le texte et Ctrl+C.',
-    toastEmptyChain: 'Chaîne vide',
-    toastEmptyChainBody: 'Collez une sauvegarde d’abord.',
-    toastBadChain: 'Sauvegarde invalide',
-    toastBadChainBody: 'La chaîne n’a pas pu être lue.',
-    toastLoaded: 'Sauvegarde chargée',
     toastWiped: 'Sauvegarde effacée',
     toastWipedBody: 'La partie en cours continue.',
     toastSoundOn: 'Son activé', toastSoundOff: 'Son coupé',
@@ -334,7 +311,7 @@ fr: {
     logTutDone: 'Tutoriel terminé',
     toastTutEndTitle: 'Le siège vous laisse les clés',
     toastTutEndBody: 'Objectif à terme : le PACK LUXE. Le conseil compte sur vous.',
-    /* ── fantôme de pose / aperçu ── */
+
     prevNoExit: 'AUCUNE SORTIE POSSIBLE DEVANT',
     prevRotate: 'R POUR TOURNER L’ENTRÉE',
     prevTunnel: 'TUNNEL : {M} — FONDS INSUFFISANTS',
@@ -342,7 +319,6 @@ fr: {
     prevMustTouch: 'DOIT TOUCHER',
     prevOuterWall: 'UN MUR EXTÉRIEUR',
 
-    /* ── titres de fenêtres ── */
     modalTitleOptions: 'OPTIONS',
     modalTitleMenu: 'MENU',
     modalTitleAwards: 'DISTINCTIONS DU GROUPE',
@@ -355,7 +331,6 @@ fr: {
     modalClose: 'FERMER',
     modalClose2: 'FERMER',
 
-    /* ── fenêtre recherche ── */
     resImprovements: 'AMÉLIORATIONS (5 NIVEAUX)',
     resBank: 'Banque : ',
     resScienceUnit: ' science',
@@ -367,14 +342,12 @@ fr: {
     resObtained: 'OBTENU',
     resUnlocks: 'Débloque : ',
 
-    /* ── fenêtre recettes ── */
     recCatalog: 'CATALOGUE DU GROUPE — plus un produit est transformé, plus il se vend cher.',
     recOldPaper: 'vieux papier',
     recG1: 'MATIÈRES PREMIÈRES', recG2: 'ONDULATION',
     recG3: 'ATELIERS & COMPOSANTS', recG4: 'PRODUITS FINIS',
     recSeconds: ' s', recSci: ' · +', recSciUnit: ' sci',
 
-    /* ── fenêtre statistiques ── */
     stCareer: 'CARRIÈRE',
     stDoneFactories: 'Usines terminées', stGrade: 'Grade',
     stGroupBonus: 'Bonus de vente du groupe',
@@ -388,16 +361,11 @@ fr: {
     stNoSales: 'Aucune vente pour l’instant.',
     stHours: ' h ', stMin: ' min ',
 
-    /* ── fenêtre sauvegarde ── */
-    svAuto: 'Sauvegarde automatique toutes les 30 s et à la fermeture (localStorage).',
-    svStorageNA: 'STOCKAGE INDISPONIBLE (environnement restreint) — exportez votre chaîne pour garder la partie.',
+    svAuto: 'Sauvegarde automatique toutes les 30 s et à la fermeture de la page. Cliquez avant de quitter pour être sûr.',
+    svStorageNA: 'STOCKAGE INDISPONIBLE ICI.',
     svNow: 'SAUVEGARDER MAINTENANT',
-    svCopy: 'COPIER L’EXPORT',
-    svChainLabel: 'Chaîne de sauvegarde (cliquez dedans, Ctrl+V pour coller une autre partie) :',
-    svLoad: 'CHARGER CETTE CHAÎNE',
     svWipe: 'EFFACER LA SAUVEGARDE',
 
-    /* ── fenêtre menu (en jeu) ── */
     mnGrade: 'GRADE : ',
     mnDoneLine1: 'Usines terminées : ',
     mnDoneLine2: ' · bonus de vente ×',
@@ -407,27 +375,24 @@ fr: {
     mnRestartConfirm: 'CONFIRMER ? TOUT RECOMMENCER',
     mnStats: 'STATISTIQUES',
     mnAwards: 'DISTINCTIONS (', mnAwardsEnd: ')',
-    mnSave: 'SAUVEGARDE (EXPORT / IMPORT)',
+    mnSave: 'SAUVEGARDER',
     mnSound: 'SON : ', mnOn: 'ACTIVÉ', mnOff: 'COUPÉ',
     mnSfx: 'SONS (BIPS, VENTES)', mnMus: 'MUSIQUE D’ATELIER',
     mnHelp1: 'F : plein écran · R : tourner · X : démolir · clic droit : annuler',
     mnHelp2: 'Clic gauche sur une machine : infos & amélioration',
     mnHelp3: 'U : recherche · C : recettes · molette : faire défiler',
 
-    /* ── fenêtre options ── */
-    opExport: 'SAUVEGARDE — EXPORT / IMPORT',
+    opExport: 'SAUVEGARDER',
     opWipeAll: 'EFFACER TOUTE LA PROGRESSION',
     opWipeAllConfirm: 'CONFIRMER ? TOUT EFFACER',
     opNote1: 'La sauvegarde est locale à ce navigateur : automatique toutes les 30 s,',
     opNote2: 'à la fermeture de la page, et à chaque changement d’usine.',
 
-    /* ── fenêtre distinctions ── */
     awGot: ' distinctions obtenues',
     awCatMission: 'AFFECTATIONS', awCatCareer: 'CARRIÈRE',
     awCatEng: 'INGÉNIEUR', awCatOdd: 'EXCENTRIQUES',
 
-    /* ── fenêtre promotion ── */
-    prStale: 'Ce dossier n’est plus disponible : les objectifs ne sont plus d’actualité.',
+    prStale: 'Vous avez déjà signé cette usine. Rejouer une usine terminée ne rouvre pas de dossier : retournez au siège choisir votre prochaine affectation.',
     prCloseFile: 'FERMER LE DOSSIER',
     prFinal: 'Le conseil d’administration vous attend. Les dix sites du groupe portent déjà votre signature : il ne reste plus qu’à signer la dernière.',
     prFinalBonus: 'Reconnaissance du groupe : +12 % de ventes permanentes, grade LÉGENDE DE L’EMBALLAGE.',
@@ -439,12 +404,11 @@ fr: {
     prOpen: 'OUVRIR LA PROMOTION',
     prConfirm: 'CONFIRMER — SIGNER LA PROMOTION',
 
-    /* ── fenêtre victoire ── */
     winText: 'Les dix sites du groupe tournent à plein régime et chaque caisse qui quitte un quai porte votre nom. Le conseil vous déclare LÉGENDE DE L’EMBALLAGE.',
     winBonus: 'Bonus de vente final : ×',
     winTail: '. Vous pouvez continuer à agrandir l’Impériale librement.',
     winContinue: 'CONTINUER À DIRIGER L’USINE',
-    /* ── panneau SÉLECTION ── */
+
     selTitle: 'SÉLECTION',
     selLevel: 'NIV. ',
     selMax: 'NIVEAU MAXIMUM',
@@ -454,7 +418,6 @@ fr: {
     selMore: '… +{N} ligne(s) — survolez la machine pour tout lire.',
     selSettings: 'RÉGLAGES DE FLUX',
 
-    /* ── réglages du répartiteur ── */
     rcInPriority: 'PRIORITÉ D’ENTRÉE',
     rcEquality: 'ÉGALITÉ', rcIn1: 'ENTRÉE 1', rcIn2: 'ENTRÉE 2',
     rcOutDist: 'RÉPARTITION DES SORTIES',
@@ -463,7 +426,6 @@ fr: {
     rcFiltered: ' — FILTRÉ ({N})',
     rcAcceptAll: ' — TOUT ACCEPTER',
 
-    /* ── bulles d'info (survol) ── */
     ttSoutTitle: 'Ruban souterrain', ttLvl: ' niv. ',
     ttSoutExit: ' — SORTIE', ttSoutEntry: ' — ENTRÉE',
     ttTunnelFrom: 'Tunnel actif depuis [{X},{Y}] — les items remontent ici.',
@@ -475,15 +437,15 @@ fr: {
     ttCvRight: ' — virage à droite', ttCvLeft: ' — virage à gauche',
     ttConveyorTitle: 'Convoyeur',
     ttSpeed: 'Vitesse : ', ttTilesSec: ' cases/s.',
-    ttClickInfo: 'Clic gauche : infos & amélioration.',
+    ttClickInfo: '',
     ttCurveEntry: 'Entrée : face arrière (sens de la flèche) · sortie à ',
     ttOfThisSense: ' de ce sens.',
     ttRight: 'droite', ttLeft: 'gauche',
     ttBeltBlocked: 'BLOQUÉ — la case suivante est occupée ou refuse l’item.',
-    ttInstantSale: 'Vente instantanée · faces intérieures ',
+    ttInstantSale: 'Vente instantanée.',
     ttDockImposed: 'QUAI IMPOSÉ — indestructible.',
     ttBenneTitle: 'Benne à déchets',
-    ttBenneReject: 'Rejette tout au quart de la valeur · 4 faces · pose libre.',
+    ttBenneReject: 'Rejette tout au quart de la valeur.',
     ttBenneNote: 'Les rejets ne comptent pas dans les objectifs.',
     ttRecipe: 'Recette : ', ttProduct: 'Produit : ',
     ttCycle: 'Cycle : ', ttCycleSuf: ' s (×',
@@ -504,7 +466,6 @@ fr: {
     ttNoFilter: 'Aucun filtre — cliquez pour configurer entrées, sorties et objets.',
     ttRepBlocked: 'BLOQUÉ — tampon plein et sorties refusées.',
 
-    /* ── diagnostics SORTIE BLOQUÉE ── */
     dgBeltBusy: 'SORTIE BLOQUÉE — le ruban devant la goulotte est occupé (bouchon).',
     dgBadCurve: 'SORTIE BLOQUÉE — virage mal orienté : il attend un flux ',
     dgBadCurveFix: 'Tournez le virage (clic gauche → TOURNER) ou mettez un ruban droit.',
@@ -529,52 +490,49 @@ fr: {
     dgNothingAhead: 'SORTIE BLOQUÉE — rien devant la goulotte.',
     dgPlaceBelt: 'Posez un ruban OU une machine accolée par une face d’entrée.',
 
-    /* ── panneau latéral machine sélectionnée ── */
     smSoutExit: 'SORTIE du tunnel depuis [{X},{Y}] — actif.',
     smSoutEntry: 'ENTRÉE du tunnel vers [{X},{Y}] — actif.',
-    smNoExit: 'ENTRÉE sans sortie — reprenez la pose (outil SOUTERR. + clic ici).',
-    smRange: 'Portée : 1 à 5 cases (4 de vide max) · passe sous tout.',
+    smNoExit: 'ENTRÉE sans sortie — reprenez la pose.',
+    smRange: 'Portée : 1 à 5 cases · passe sous tout.',
     smSpeed: 'Vitesse : ', ttTilesSec2: ' cases/s',
-    smCurve: 'Virage à ', smCurveEntry: ' · entrée par la face arrière (sens de la flèche).',
+    smCurve: 'Virage à ', smCurveEntry: ' · entrée par la face arrière.',
     smInstant: 'Vente instantanée de tout item entrant.',
-    smFaces: 'Faces intérieures : ', smFacesSuf: ' · 1 vente par case d’entrée et par tick.',
-    smDockMission: 'QUAI IMPOSÉ par la mission — indestructible.',
-    smQuarter: 'Rejette tout item entrant au QUART de sa valeur.',
-    smSkip4: '4 faces ouvertes · pose libre · les rejets ne comptent pas dans les objectifs.',
-    smResearch: ' (recherche Logistique)',
-    smIn1Prio: 'Entrée 1 prioritaire · l’autre en débordement.',
-    smIn2Prio: 'Entrée 2 prioritaire · l’autre en débordement.',
-    smInEqual: 'Entrées à égalité (alternance).',
+    smFaces: 'Faces intérieures : ', smFacesSuf: '',
+    smDockMission: 'QUAI IMPOSÉ — indestructible.',
+    smQuarter: 'Rejette tout au quart de sa valeur.',
+    smSkip4: '4 faces · pose libre · hors objectifs.',
+    smResearch: ' (recherche)',
+    smIn1Prio: 'Entrée 1 prioritaire.',
+    smIn2Prio: 'Entrée 2 prioritaire.',
+    smInEqual: 'Entrées à égalité.',
     smOutAPrio: 'Sortie A prioritaire.', smOutBPrio: 'Sortie B prioritaire.',
     smOutAlt: 'Sorties alternées.',
     smNoFilter: 'Aucun filtre actif.',
-    smBlockedBelt: 'BLOQUÉ — case suivante occupée ou refusée.',
-    smBlocked: 'BLOQUÉ — tampon plein, sorties occupées.',
+    smBlockedBelt: 'BLOQUÉ — case suivante occupée.',
+    smBlocked: 'BLOQUÉ — sorties occupées.',
     smInTransit: 'En transit : ', smItems: ' item(s).',
     smWaitingIng: 'En attente d’ingrédients…',
     smFabricating: 'Fabrication : ',
     smBuffer: 'Tampon : ',
 
-    /* ── bulles de la barre d'outils ── */
     tbCost: 'Coût : ', tbOwned: ' · possédés : ',
-    tbCv1: '1 case pleine · glissez pour tracer une ligne (mode droit).',
-    tbCv2: 'T : pose manuelle {V} (un par un) · la flèche marque le flux ENTRANT.',
-    tbCv3: 'En glissement, les virages se posent automatiquement quand la souris tourne.',
-    tbSout1: '2 clics : l’ENTRÉE, puis la SORTIE entre 1 et 5 cases devant (une seule pose).',
-    tbSout2: 'Passe sous machines, rubans et obstacles · sortie posée dans le même sens automatiquement.',
-    tbSout3: 'R tourne l’entrée (la sortie suivra) · clic droit / Échap : annule sans frais.',
-    tbRep1: '2×1 · 2 entrées / 2 sorties · fusion ou répartition · vitesse liée à la recherche Convoyeurs.',
-    tbRep2: 'CLIC sur un répartiteur posé : priorité d’entrée, sortie favorite, filtres d’objets par sortie.',
-    tbDock: ' · CONTRE UN MUR EXTÉRIEUR · rotation automatique · R (coins) pour choisir le mur.',
-    tbBenne1: '1×1 · POSE LIBRE (n’importe où) · accepte par ses 4 faces, même accolée aux machines.',
-    tbBenne2: 'Rejette tout item entrant pour le QUART de sa valeur — utile pour purger un flux.',
-    tbBenne3: 'Les rejets ne comptent pas dans les objectifs de vente.',
-    tbMach: ' · entrées sur les 3 faces sans goulotte : ruban OU machine accolée · R pour tourner.',
+    tbCv1: '1 case · glissez pour tracer une ligne.',
+    tbCv2: 'T : pose manuelle {V}.',
+    tbCv3: 'Les virages se posent tout seuls.',
+    tbSout1: '2 clics : l’entrée, puis la sortie (1 à 5 cases).',
+    tbSout2: 'Passe sous tout.',
+    tbSout3: 'R tourne · Échap annule.',
+    tbRep1: '2 entrées / 2 sorties · fusion ou répartition.',
+    tbRep2: 'Clic sur un répartiteur posé : réglages.',
+    tbDock: ' · CONTRE UN MUR EXTÉRIEUR.',
+    tbBenne1: '1×1 · pose libre · 4 faces.',
+    tbBenne2: 'Rejette tout au quart de la valeur.',
+    tbBenne3: 'Hors objectifs de vente.',
+    tbMach: ' · R pour tourner.',
     dgExpectFlow: '.',
   },
 },
 
-/* ═════════════════ ENGLISH ═════════════════ */
 en: {
   meta: {
     title: 'CARTONO — Cardboard Factory Tycoon',
@@ -710,23 +668,21 @@ en: {
   ],
 
   tut: [
-    { title:'Keep the shop running',
-      text:'Let’s take it easy, director. Grab the PAPER MACHINE (tab BELTS… no: PAPER, key 1) and put it anywhere you like. It takes 4 tiles (2×2). Spot the ivory chute with an arrow: that’s its OUTPUT. The other three faces — you’ll know them by their dark notches — accept paper… sorry, they accept whatever arrives. Key R rotates it before placing.' },
-    { title:'One dock, some trucks',
-      text:'Trucks load FROM outside: the DISPATCH (DOCK tab) goes AGAINST AN OUTER WALL — the yellow-and-black checkerboard must face outdoors, rotation is automatic. Its three inner faces sell instantly anything that enters. Bring the ghost close to the wall until it turns green.' },
-    { title:'Wire it all together',
-      text:'Two schools, director: BUTT machines together (a chute against a notched face feeds it directly), or draw CONVEYORS — click and DRAG: the belts follow the mouse and even lay the turns by themselves at corners. The board’s goal: watch sheets circulate and money climb. One paper sold = $1. And when an obstacle blocks the way: the UNDERGROUND BELT (same tab) — one click at the entrance, a second at the exit, up to 5 tiles away, and the flow passes underneath.' },
-    { title:'Transform, always transform',
-      text:'Selling raw paper is charity. The CORRUGATOR (CORRUGATION tab) eats 3 paper sheets and returns a corrugated board sheet — sold for $5, five times the raw. Typical setup: the paper machine’s chute INTO a notched face of the corrugator, then the corrugator’s chute toward the dock. Paper enters by the faces without a chute: by belt OR by a butted machine.' },
-    { title:'The first finished product',
-      text:'Corrugated board is the supply closet. THE EXECUTIVES, they want PRODUCT: the SMALL-BOX ASSEMBLER (PRODUCTS tab) takes 2 sheets and returns a $15 small box. Same setup: upstream chute into downstream notches, up to the dock. This format is the base of packaging — and of your reputation.' },
-    { title:'One stream, two branches',
-      text:'The SPLITTER (BELTS tab) routes one stream to two outputs — or merges two streams into one. Placed after the paper machine, it feeds the corrugator AND a second branch. You’ll need it from reinforced boxes on. Not compulsory right away: keep it in mind.' },
-    { title:'You’re operational',
-      text:'What the board expects from a director: watch the “!” signs — that’s a jam, and jams cost money. LEFT-CLICK a machine to open its status and its UPGRADE (right column); RIGHT-CLICK cancels everything; R rotates, X demolishes (50 % refunded). The OBJECTIVES are in the same column: fill them and head office will offer better. The DELUXE PACK is far away, director. Start by selling small boxes. Good luck.' },
+    { title:'The paper machine',
+      text:'Welcome, Director.\nTo make cardboard, you first need paper.\nSelect then place the paper machine in the mill.' },
+    { title:'The belt',
+      text:'Place a belt at the output.\nYou can also butt a machine straight to the output.' },
+    { title:'The corrugator',
+      text:'Cardboard needs corrugated sheets.\nPlace a corrugator next to the belt.' },
+    { title:'The small box',
+      text:'Place a small-box machine,\nthen a belt at the corrugator’s output.' },
+    { title:'Shipping',
+      text:'Once the box is made, it must be shipped.\nPlace a dock, then belts up to the dock.' },
+    { title:'Your mill is ready!',
+      text:'Your boxes are ready to sell. Upgrade your machines to produce more: every sale earns science — spend it in R&D.\nThe game has many more discoveries — explore them yourself.' },
   ],
   letters: {
-    intro0:'Welcome to the Roadside Hangar, director.\n\nNobody else wanted this post. The hangar leans, the roof whistles, and the previous delivery contract ended in a fiasco. The group trusts you — which is a way of saying it has nobody else left.\n\nSet up a production of small boxes. The board expects $600 and 60 small boxes sold before talking about your future again.\n\nPS — Old-timer’s tip: your first line must be short — one paper machine, one dock, and belts in between. The rest will come.',
+    intro0:'Welcome to the Roadside Hangar, director.\n\nNobody else wanted this post. The hangar leans, the roof whistles, and the previous delivery contract ended in a fiasco. The group trusts you — which is a way of saying it has nobody else left.\n\nSet up a production of small boxes. The board expects $600 and 60 small boxes sold before talking about your future again.\n\nPS — Old-timer’s tip: the paper machine makes the sheets, the corrugator glues them into board, the assembler makes the box — and the dock sells everything. Follow the guide.',
     intro1:'The Old Quarter welcomes you, director.\n\nYour plain boxes did the job. The quarter itself ships glassware: it wants REINFORCED. So we pre-installed a corner-brace workshop — your machines and your money, though, restart from zero: that’s group policy.\n\nThe board expects $2,500 and 45 medium boxes. The science you signed follows you, though.\n\nPS — Old-timer’s tip: don’t demolish your board line — branch it off. A splitter will get you two roads for the price of one.',
     intro2:'The Beam Depot, director. Read carefully.\n\nThis depot wasn’t in the plan. The technical service left main beams in it — indestructible, supposedly — and the dock is sealed to the west wall: you won’t place another, it’s contractual.\n\nThis is a tight-space exercise, not a factory. Prove a reinforced line fits between the walls: $1,200 and 18 medium boxes.\n\nPS — Old-timer’s tip: here, space is worth gold. Every turn counts double: count your tiles before placing.',
     intro3:'The Canals Board Mill is entrusted to you, director.\n\nThe canal warehouses ship volume: large boxes mandatory, padding included. A layer-pad workshop awaits you on site — with your career unlocks, you have everything in hand.\n\nThe board expects $9,000 and 40 large boxes. The group is starting to say your name without laughing.\n\nPS — You’re going to have three streams converging. Plan the space BEFORE placing: a tree is drawn from the dock upstream, like a river in reverse.',
@@ -774,7 +730,7 @@ en: {
     transformation:'WORKSHOPS', assemblage:'PRODUCTS', vente:'DOCK',
   },
   ui: {
-    /* ── loading / title screen ── */
+
     loadingWait: 'LOADING THE FACTORY...',
     loadingGo: 'STARTING...',
     titleSegA: 'Extract the ', wordPaper: 'paper',
@@ -784,7 +740,6 @@ en: {
     btnPlay: 'PLAY', btnOptions: 'OPTIONS', btnAwards: 'AWARDS',
     flagFr: 'FRANÇAIS', flagEn: 'ENGLISH', flagHint: 'LANGUAGE',
 
-    /* ── directors’ office (home) ── */
     homeBack: 'BACK TO TITLE',
     homeSub: 'ToncPlay Group — Directors’ Office',
     homeSubShort: 'Paper & Board Group',
@@ -806,12 +761,10 @@ en: {
     homeGrid: 'Grid ', homeFunds: 'funds ', homePrime: 'bonus ', homeSci: 'sci',
     homePreinstalled: 'pre-installed',
 
-    /* ── HUD ── */
     hudScience: 'Science:',
     hudBonus: 'Sales bonus: ',
     hudMenu: 'MENU', hudRecipes: 'RECIPES', hudResearch: 'R&D',
 
-    /* ── side column ── */
     sideObjectives: 'OBJECTIVES',
     sideGrid: 'grid',
     sideMachinesS: 'machine', sideMachinesP: 'machines',
@@ -820,13 +773,13 @@ en: {
     sidePromoL1: 'Objectives met — head office',
     sidePromoL2: 'has better for you.',
     sidePromoBtn: 'OPEN THE FILE',
+    sideReplayL1: 'Factory already signed:',
+    sideReplayL2: 'replay stays free, no new file.',
     sideJournal: 'LOG',
 
-    /* ── toolbar ── */
     barTurn: 'ROTATE', barDemolish: 'DEMOLISH',
     barCvRight: 'R. TURN', barCvLeft: 'L. TURN', barCvStraight: 'STRAIGHT',
 
-    /* ── head-office letter ── */
     letterCompany: 'ONDULO GROUP',
     letterDivision: 'Packaging & Staffing Division',
     letterGoalsTitle: 'OFFICIAL OBJECTIVES OF THE BOARD',
@@ -844,17 +797,14 @@ en: {
     letterSigShort: '— H. Vasseur',
     letterBtnResume: 'RESUME THE DIRECTION',
 
-    /* ── tutorial ── */
     tutStep: 'STEP ',
     tutBtnFinish: 'FINISH',
     tutBtnSkip: 'SKIP THE TUTORIAL',
     tutBtnNext: 'NEXT',
 
-    /* ── objectives ── */
     goalMoney: 'Earn ',
     goalSold: 'Sell ',
 
-    /* ── toasts ── */
     toastFirstSale: 'First sale: ',
     toastFirstSaleUnit: ' per unit.',
     toastFunds: 'Insufficient funds',
@@ -878,18 +828,10 @@ en: {
     toastWipeBodyA: 'New career available.',
     toastWipeBodyB: 'In memory — storage stays blocked.',
     toastSaveNA: 'Saving unavailable',
-    toastSaveNABody: 'Restricted environment: use the chain export to keep your game.',
+    toastSaveNABody: 'Storage is blocked here.',
     toastSaved: 'Game saved',
-    toastSavedBody: 'In memory only — export the chain.',
+    toastSavedBody: 'Quit the page safely.',
     toastCantSave: 'Cannot save here',
-    toastCopied: 'Save copied',
-    toastCopyFail: 'Cannot copy here',
-    toastCopyFailBody: 'Select the text and Ctrl+C.',
-    toastEmptyChain: 'Empty chain',
-    toastEmptyChainBody: 'Paste a save first.',
-    toastBadChain: 'Invalid save',
-    toastBadChainBody: 'The chain could not be read.',
-    toastLoaded: 'Save loaded',
     toastWiped: 'Save wiped',
     toastWipedBody: 'The current game continues.',
     toastSoundOn: 'Sound on', toastSoundOff: 'Sound off',
@@ -900,7 +842,7 @@ en: {
     logTutDone: 'Tutorial finished',
     toastTutEndTitle: 'Head office hands you the keys',
     toastTutEndBody: 'Long-term goal: the DELUXE PACK. The board counts on you.',
-    /* ── ghost placement / preview ── */
+
     prevNoExit: 'NO POSSIBLE EXIT AHEAD',
     prevRotate: 'R TO ROTATE THE ENTRANCE',
     prevTunnel: 'TUNNEL: {M} — INSUFFICIENT FUNDS',
@@ -908,7 +850,6 @@ en: {
     prevMustTouch: 'MUST TOUCH',
     prevOuterWall: 'AN OUTER WALL',
 
-    /* ── window titles ── */
     modalTitleOptions: 'OPTIONS',
     modalTitleMenu: 'MENU',
     modalTitleAwards: 'GROUP AWARDS',
@@ -921,7 +862,6 @@ en: {
     modalClose: 'CLOSE',
     modalClose2: 'CLOSE',
 
-    /* ── research window ── */
     resImprovements: 'UPGRADES (5 LEVELS)',
     resBank: 'Bank: ',
     resScienceUnit: ' science',
@@ -933,14 +873,12 @@ en: {
     resObtained: 'OWNED',
     resUnlocks: 'Unlocks: ',
 
-    /* ── recipes window ── */
     recCatalog: 'GROUP CATALOGUE — the more a product is transformed, the more it sells for.',
     recOldPaper: 'waste paper',
     recG1: 'RAW MATERIALS', recG2: 'CORRUGATION',
     recG3: 'WORKSHOPS & PARTS', recG4: 'FINISHED PRODUCTS',
     recSeconds: ' s', recSci: ' · +', recSciUnit: ' sci',
 
-    /* ── statistics window ── */
     stCareer: 'CAREER',
     stDoneFactories: 'Finished mills', stGrade: 'Rank',
     stGroupBonus: 'Group sales bonus',
@@ -954,16 +892,11 @@ en: {
     stNoSales: 'No sales yet.',
     stHours: ' h ', stMin: ' min ',
 
-    /* ── save window ── */
-    svAuto: 'Autosave every 30 s and on close (localStorage).',
-    svStorageNA: 'STORAGE UNAVAILABLE (restricted environment) — export your chain to keep the game.',
+    svAuto: 'Autosave every 30 s and on page close. Click before quitting to be safe.',
+    svStorageNA: 'STORAGE UNAVAILABLE HERE.',
     svNow: 'SAVE NOW',
-    svCopy: 'COPY EXPORT',
-    svChainLabel: 'Save chain (click inside, Ctrl+V to paste another game):',
-    svLoad: 'LOAD THIS CHAIN',
     svWipe: 'WIPE THE SAVE',
 
-    /* ── menu window (in game) ── */
     mnGrade: 'RANK: ',
     mnDoneLine1: 'Finished mills: ',
     mnDoneLine2: ' · sales bonus ×',
@@ -973,27 +906,24 @@ en: {
     mnRestartConfirm: 'CONFIRM? START OVER',
     mnStats: 'STATISTICS',
     mnAwards: 'AWARDS (', mnAwardsEnd: ')',
-    mnSave: 'SAVE (EXPORT / IMPORT)',
+    mnSave: 'SAVE',
     mnSound: 'SOUND: ', mnOn: 'ON', mnOff: 'OFF',
     mnSfx: 'SOUNDS (BEEPS, SALES)', mnMus: 'WORKSHOP MUSIC',
     mnHelp1: 'F: fullscreen · R: rotate · X: demolish · right-click: cancel',
     mnHelp2: 'Left-click a machine: info & upgrade',
     mnHelp3: 'U: R&D · C: recipes · wheel: scroll',
 
-    /* ── options window ── */
-    opExport: 'SAVE — EXPORT / IMPORT',
+    opExport: 'SAVE',
     opWipeAll: 'WIPE ALL PROGRESS',
     opWipeAllConfirm: 'CONFIRM? WIPE EVERYTHING',
     opNote1: 'The save is local to this browser: automatic every 30 s,',
     opNote2: 'on page close, and at every mill change.',
 
-    /* ── awards window ── */
     awGot: ' awards earned',
     awCatMission: 'ASSIGNMENTS', awCatCareer: 'CAREER',
     awCatEng: 'ENGINEER', awCatOdd: 'ODDITIES',
 
-    /* ── promotion window ── */
-    prStale: 'This file is no longer available: the objectives are out of date.',
+    prStale: 'You already signed this factory. Replaying a finished factory does not reopen a file: go back to head office and pick your next assignment.',
     prCloseFile: 'CLOSE THE FILE',
     prFinal: 'The board of directors awaits you. The group’s ten sites already carry your signature: only the last one is left to sign.',
     prFinalBonus: 'Group recognition: +12 % permanent sales, rank LEGEND OF PACKAGING.',
@@ -1005,12 +935,11 @@ en: {
     prOpen: 'OPEN THE PROMOTION',
     prConfirm: 'CONFIRM — SIGN THE PROMOTION',
 
-    /* ── win window ── */
     winText: 'The group’s ten sites run at full capacity and every crate leaving a dock carries your name. The board declares you LEGEND OF PACKAGING.',
     winBonus: 'Final sales bonus: ×',
     winTail: '. You can keep enlarging the Imperial freely.',
     winContinue: 'KEEP RUNNING THE MILL',
-    /* ── SELECTION panel ── */
+
     selTitle: 'SELECTION',
     selLevel: 'LVL. ',
     selMax: 'MAX LEVEL',
@@ -1020,7 +949,6 @@ en: {
     selMore: '… +{N} line(s) — hover the machine to read everything.',
     selSettings: 'FLOW SETTINGS',
 
-    /* ── splitter settings ── */
     rcInPriority: 'INPUT PRIORITY',
     rcEquality: 'EQUAL', rcIn1: 'INPUT 1', rcIn2: 'INPUT 2',
     rcOutDist: 'OUTPUT ROUTING',
@@ -1029,7 +957,6 @@ en: {
     rcFiltered: ' — FILTERED ({N})',
     rcAcceptAll: ' — ACCEPT ALL',
 
-    /* ── tooltips (hover) ── */
     ttSoutTitle: 'Underground belt', ttLvl: ' lvl. ',
     ttSoutExit: ' — EXIT', ttSoutEntry: ' — ENTRANCE',
     ttTunnelFrom: 'Active tunnel from [{X},{Y}] — items surface here.',
@@ -1046,10 +973,10 @@ en: {
     ttOfThisSense: ' of that direction.',
     ttRight: 'right', ttLeft: 'left',
     ttBeltBlocked: 'JAMMED — the next tile is occupied or refuses the item.',
-    ttInstantSale: 'Instant sale · inner faces ',
+    ttInstantSale: 'Instant sale.',
     ttDockImposed: 'MISSION-IMPOSED DOCK — indestructible.',
     ttBenneTitle: 'Waste skip',
-    ttBenneReject: 'Refunds everything at a quarter of the value · 4 faces · free placement.',
+    ttBenneReject: 'Refunds everything at a quarter of the value.',
     ttBenneNote: 'Refunds don’t count toward objectives.',
     ttRecipe: 'Recipe: ', ttProduct: 'Product: ',
     ttCycle: 'Cycle: ', ttCycleSuf: ' s (×',
@@ -1070,7 +997,6 @@ en: {
     ttNoFilter: 'No filter — click to configure inputs, outputs and items.',
     ttRepBlocked: 'JAMMED — buffer full and outputs refuse.',
 
-    /* ── OUTPUT JAMMED diagnostics ── */
     dgBeltBusy: 'OUTPUT JAMMED — the belt at the chute is occupied (jam).',
     dgBadCurve: 'OUTPUT JAMMED — badly oriented turn: it expects a flow ',
     dgBadCurveFix: 'Rotate the turn (left-click → ROTATE) or put a straight belt.',
@@ -1095,47 +1021,45 @@ en: {
     dgNothingAhead: 'OUTPUT JAMMED — nothing ahead of the chute.',
     dgPlaceBelt: 'Place a belt OR a machine butted to an input face.',
 
-    /* ── selected machine side panel ── */
     smSoutExit: 'Tunnel EXIT from [{X},{Y}] — active.',
     smSoutEntry: 'Tunnel ENTRANCE to [{X},{Y}] — active.',
-    smNoExit: 'ENTRANCE with no exit — resume placement (UNDERGR. tool + click here).',
-    smRange: 'Range: 1 to 5 tiles (4 empty max) · passes under everything.',
+    smNoExit: 'ENTRANCE with no exit — resume placement.',
+    smRange: 'Range: 1 to 5 tiles · passes under everything.',
     smSpeed: 'Speed: ', ttTilesSec2: ' tiles/s',
-    smCurve: 'Turn to the ', smCurveEntry: ' · entry by the rear face (direction of the arrow).',
+    smCurve: 'Turn to the ', smCurveEntry: ' · entry by the rear face.',
     smInstant: 'Instant sale of any entering item.',
-    smFaces: 'Inner faces: ', smFacesSuf: ' · 1 sale per entry tile and per tick.',
-    smDockMission: 'MISSION-IMPOSED DOCK — indestructible.',
-    smQuarter: 'Refunds any entering item at a QUARTER of its value.',
-    smSkip4: '4 open faces · free placement · refunds don’t count toward objectives.',
-    smResearch: ' (Fast logistics research)',
-    smIn1Prio: 'Input 1 priority · the other overflows.',
-    smIn2Prio: 'Input 2 priority · the other overflows.',
-    smInEqual: 'Inputs even (alternating).',
+    smFaces: 'Inner faces: ', smFacesSuf: '',
+    smDockMission: 'IMPOSED DOCK — indestructible.',
+    smQuarter: 'Refunds at a QUARTER of the value.',
+    smSkip4: '4 faces · free placement · off the record.',
+    smResearch: ' (research)',
+    smIn1Prio: 'Input 1 priority.',
+    smIn2Prio: 'Input 2 priority.',
+    smInEqual: 'Inputs even.',
     smOutAPrio: 'Output A priority.', smOutBPrio: 'Output B priority.',
     smOutAlt: 'Outputs alternate.',
     smNoFilter: 'No active filter.',
-    smBlockedBelt: 'JAMMED — next tile occupied or refused.',
-    smBlocked: 'JAMMED — buffer full, outputs busy.',
+    smBlockedBelt: 'JAMMED — next tile occupied.',
+    smBlocked: 'JAMMED — outputs busy.',
     smInTransit: 'In transit: ', smItems: ' item(s).',
     smWaitingIng: 'Waiting for ingredients…',
     smFabricating: 'Manufacturing: ',
     smBuffer: 'Buffer: ',
 
-    /* ── toolbar tooltips ── */
     tbCost: 'Cost: ', tbOwned: ' · owned: ',
-    tbCv1: '1 full tile · drag to draw a line (straight mode).',
-    tbCv2: 'T: manual placement {V} (one at a time) · the arrow marks the INCOMING flow.',
-    tbCv3: 'While dragging, turns are laid automatically when the mouse changes direction.',
-    tbSout1: '2 clicks: the ENTRANCE, then the EXIT 1 to 5 tiles ahead (single placement).',
-    tbSout2: 'Passes under machines, belts and obstacles · the exit is laid in the same direction automatically.',
-    tbSout3: 'R rotates the entrance (the exit will follow) · right-click / Esc: cancel at no cost.',
-    tbRep1: '2×1 · 2 inputs / 2 outputs · merge or split · speed tied to Belts research.',
-    tbRep2: 'CLICK a placed splitter: input priority, favourite output, item filters per output.',
-    tbDock: ' · AGAINST AN OUTER WALL · automatic rotation · R (corners) to choose the wall.',
-    tbBenne1: '1×1 · FREE PLACEMENT (anywhere) · accepts on all 4 faces, even butted to machines.',
-    tbBenne2: 'Refunds any entering item at a QUARTER of its value — handy to purge a flow.',
-    tbBenne3: 'Refunds don’t count toward sales objectives.',
-    tbMach: ' · inputs on the 3 faces without a chute: belt OR butted machine · R to rotate.',
+    tbCv1: '1 tile · drag to draw a line.',
+    tbCv2: 'T: manual placement {V}.',
+    tbCv3: 'Turns are laid automatically.',
+    tbSout1: '2 clicks: the entrance, then the exit (1 to 5 tiles).',
+    tbSout2: 'Passes under everything.',
+    tbSout3: 'R rotates · Esc cancels.',
+    tbRep1: '2 inputs / 2 outputs · merge or split.',
+    tbRep2: 'Click a placed splitter: settings.',
+    tbDock: ' · AGAINST AN OUTER WALL.',
+    tbBenne1: '1×1 · free placement · 4 faces.',
+    tbBenne2: 'Refunds at a quarter of the value.',
+    tbBenne3: 'Off the sales objectives.',
+    tbMach: ' · R to rotate.',
     dgExpectFlow: '.',
   },
 },

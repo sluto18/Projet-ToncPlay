@@ -1,8 +1,4 @@
 'use strict';
-/* ════════════════════════════════════════════════════════════════════
-   CARTONO
-   ────────────────────────────────────────────────────────────────────
- */
 
 const LANGS=['fr','en'];
 let LANG_CUR='fr';
@@ -17,7 +13,7 @@ function T(key,vars){
 }
 function multFmt(x){ return x.toFixed(2).replace('.',LANG().fmt.dec); }
 function setLang(l){
-  if(!LANGS.includes(l)) l='fr';
+  if(!LANGS.includes(l)) l='en';
   if(l===LANG_CUR) return;
   LANG_CUR=l;
   try{ stSet('cartono.lang',l); }catch(e){}
@@ -27,7 +23,7 @@ function setLang(l){
 function bootLang(){
   let l=null;
   try{ l=stGet('cartono.lang'); }catch(e){}
-  if(!LANGS.includes(l)) l='fr';
+  if(!LANGS.includes(l)) l='en';
   LANG_CUR=l;
   applyLang();
 }
@@ -52,7 +48,6 @@ function applyLang(){
   document.title=L.meta.title;
 }
 
-/* Drapeaux FR / EN cliquables (écran-titre et bureau des directeurs) */
 function drawFlag(code,x,y,w){
   const h=Math.round(w*2/3);
   R(x-2,y-2,w+4,h+4,'#14100b');
@@ -76,7 +71,7 @@ function drawFlag(code,x,y,w){
   }
   ctx.lineWidth=1; ctx.strokeStyle='#241c15'; ctx.strokeRect(x-1.5,y-1.5,w+3,h+3);
 }
-/* Paire de drapeaux centrée sur x ; labels optionnels ; renvoie la hauteur utilisée */
+
 function drawLangFlags(x,y,w,withLabels){
   const h=Math.round(w*2/3);
   const gap=Math.round(w*0.55);
@@ -96,10 +91,6 @@ function drawLangFlags(x,y,w,withLabels){
   }
   return withLabels?h+28:h+8;
 }
-
-
-
-/* ══════════════ 1. CONFIGURATION — équilibrage centralisé ══════════════ */
 
 const TICK_MS = 100;                 
 const DT      = TICK_MS/1000;
@@ -122,9 +113,6 @@ const ECO = {
   promoBonus  : 0.12,   
   tradeBonus  : 0.08,  
 };
-
-
-/* ══════════════ 2. DONNÉES ══════════════ */
 
 const ITEMS = {
   papier      : { name:'Papier',              value:1,   sci:0,   c:'#f2e9d4', c2:'#b9ad8f' },
@@ -230,12 +218,12 @@ const FACTORIES = [
     goals:[{t:'money',n:600},{t:'sold',item:'petit_carton',n:60}],
     desc:'Un vieux hangar, un contrat de livraison, et vous. Faites tourner la boutique.' },
   { name:'L’Atelier du Vieux Quartier', sub:'Affectation n°2 — Chef d’atelier',
-    grid:[20,14], start:450, sci:25,
+    grid:[20,14], start:700, sci:25,
     unlocks:['atelier_renfort','assem_moyen'], research:{belt:1},
     goals:[{t:'money',n:2500},{t:'sold',item:'carton_moyen',n:45}],
     desc:'Le quartier veut des cartons renforcés. Livrez, et le siège vous regardera d’un œil neuf.' },
   { name:'Le Dépôt des Poutres', sub:'Affectation spéciale — exercice d’étroitesse',
-    grid:[13,9], start:900, sci:45,
+    grid:[13,9], start:1000, sci:45,
     unlocks:[], research:{}, obstacles:[[2,3,4,1],[7,3,4,1],[8,5,1,3]],
     forcedDock:{type:'expedition_couloir',x:0,y:7}, goals:[{t:'money',n:1200},{t:'sold',item:'carton_moyen',n:18}],
     desc:'Dépôt minuscule, poutres indestructibles, un seul quai : le COULOIR scellé au mur ouest. Faites tenir une chaîne renforcée entre les murs.' },
@@ -277,28 +265,39 @@ const FACTORIES = [
 ];
 const GRADES = ['Stagiaire','Chef d’atelier','Chef de chantier','Directeur adjoint','Responsable de production','Directeur de site','Directeur de complexe','Directeur régional','Directeur des opérations','Directeur du groupe','Légende de l’emballage'];
 
-/* Tutoriel — */
+const tutAt=(x,y)=>cellAt(x,y);
+const tutMach=(t,x,y)=>{const e=tutAt(x,y);return !!e&&e.kind==='machine'&&e.type===t&&e.rot===0;};
+const tutBelt=(x,y)=>{const b=tutAt(x,y);return !!b&&b.kind==='belt'&&b.type==='convoyeur'&&b.rot===0&&!b.curve;};
 const TUT = [
-  { hl:'machine_papier', title:'Faites tourner la boutique',
-    text:'On va y aller doucement, directeur. Prenez la MACHINE À PAPIER (onglet RUBANS… non : PAPIER, touche 1) et posez-la où bon vous semble. Elle occupe 4 cases (2×2). Repérez la goulotte ivoire à flèche : c’est sa SORTIE. Les trois autres faces — vous les reconnaîtrez à leurs encoches sombres — acceptent papier… pardon, acceptent tout ce qui arrive. La touche R l’oriente avant la pose.',
-    check:()=>cnt('machine_papier')>=1 },
-  { hl:'expedition', title:'Un quai, des camions',
-    text:'Les camions chargent DEPUIS l’extérieur : l’EXPÉDITION (onglet QUAI) se pose CONTRE UN MUR EXTÉRIEUR — le damier jaune et noir doit regarder dehors, la rotation est automatique. Ses trois faces intérieures vendent instantanément tout ce qui y entre. Approchez le fantôme du mur jusqu’à ce qu’il passe au vert.',
-    check:()=>cnt('expedition')>=1 },
-  { hl:'convoyeur', title:'Reliez tout ça',
-    text:'Deux écoles, directeur : ACCOLER les machines (une goulotte contre une face à encoches les nourrit directement), ou tracer des CONVOYEURS — cliquez et GLISSEZ : les rubans suivent la souris et posent même les virages tout seuls aux tournants. Objectif du conseil : voir des feuilles circuler et l’argent monter. Un papier vendu = 1 $. Et quand un obstacle barre la route : le RUBAN SOUTERRAIN (même onglet) — un clic sur l’entrée, un second sur la sortie, jusqu’à 5 cases plus loin, et le flux passe dessous.',
-    check:()=>((state.stats.sold.papier)||0)>=1 },
-  { hl:'onduleuse', title:'Transformer, toujours transformer',
-    text:'Vendre du papier brut, c’est de la charitée. L’ONDULEUSE (onglet ONDULATION) avale 3 feuilles de papier et rend une plaque de carton ondulé — vendue 5 $, soit 5 fois le brut. Montage type : la goulotte de la machine à papier DANS une face à encoches de l’onduleuse, puis la goulotte de l’onduleuse vers le quai. Le papier entre par les faces sans goulotte : par ruban OU par machine accolée.',
-    skipIfOwned:true, check:()=>((state.stats.produced.carton)||0)>=1 },
-  { hl:'assem_petit', title:'Le premier produit fini',
-    text:'Le carton ondulé, c’est l’économat. Les DIRIGEANTS, ils veulent du PRODUIT : l’ASSEMBLEUSE PETIT CARTON (onglet PRODUITS) prend 2 plaques et rend un petit carton à 15 $. Même montage : goulotte amont vers encoches aval, jusqu’au quai. Ce format, c’est la base de l’emballage — et de votre réputation.',
-    skipIfOwned:true, check:()=>((state.stats.sold.petit_carton)||0)>=1 },
-  { hl:'repartiteur', title:'Un flux, deux branches',
-    text:'Le RÉPARTITEUR (onglet RUBANS) partage un flux vers deux sorties — ou fusionne deux flux en un. Posé après la machine à papier, il nourrit l’onduleuse ET une seconde branche. Vous en aurez besoin dès le carton renforcé. Ce n’est pas obligatoire tout de suite : gardez-le en tête.',
-    check:()=>cnt('repartiteur')>=1 },
-  { hl:null, title:'Vous êtes opérationnel', last:true,
-    text:'Ce que le conseil attend d’un directeur : surveillez les panneaux « ! » — c’est un bouchon, ça coûte de l’argent. Un CLIC GAUCHE sur une machine ouvre ses états et son AMÉLIORATION (colonne de droite) ; un CLIC DROIT annule tout ; R tourne, X démolit (50 % remboursés). Les OBJECTIFS sont dans la même colonne : remplis-les et le siège vous proposera mieux. Le PACK LUXE est loin, directeur. Commencez par vendre des petits cartons. Bonne chance.' },
+  { title:'La machine à papier',
+    text:'Bienvenue Directeur.\nPour faire du carton, il faut d’abord du papier.\nSélectionnez puis placez la machine à papier dans l’usine.',
+    gestures:[ {tab:'extraction', tool:'machine_papier', cells:[[2,5]]} ],
+    check:()=>tutMach('machine_papier',2,5) },
+  { title:'Le convoyeur',
+    text:'Placez un convoyeur à la sortie.\nVous pouvez aussi accoler directement une machine à la sortie.',
+    gestures:[ {tab:'logistique', tool:'convoyeur', cells:[[4,5]]} ],
+    check:()=>tutBelt(4,5) },
+  { title:'L’onduleuse',
+    text:'Pour du carton, il faut des plaques ondulées.\nPlacez une onduleuse à côté du convoyeur.',
+    gestures:[ {tab:'ondulation', tool:'onduleuse', cells:[[5,5]]} ],
+    check:()=>tutMach('onduleuse',5,5) },
+  { title:'Le petit carton',
+    text:'Placez une machine de production de petit carton,\npuis un convoyeur à la sortie de l’onduleuse.',
+    gestures:[
+      {tab:'assemblage', tool:'assem_petit', cells:[[8,5]]},
+      {tab:'logistique', tool:'convoyeur', cells:[[7,5]]},
+    ],
+    check:()=>tutBelt(7,5)&&tutMach('assem_petit',8,5) },
+  { title:'L’expédition',
+    text:'Une fois le carton fabriqué, il faut l’expédier.\nPlacez un quai, puis des convoyeurs jusqu’au quai.',
+    gestures:[
+      {tab:'vente', tool:'expedition', cells:[[14,5]]},
+      {tab:'logistique', tool:'convoyeur', cells:[[10,5],[11,5],[12,5],[13,5]], drag:true},
+    ],
+    check:()=>tutMach('expedition',14,5)&&tutBelt(10,5)&&tutBelt(11,5)&&tutBelt(12,5)&&tutBelt(13,5) },
+  { title:'Votre usine est prête !',
+    text:'Vos cartons sont prêts à être vendus. Améliorez vos machines pour produire plus : chaque vente rapporte de la science, à dépenser dans RECHERCHE.\nLe jeu réserve bien d’autres découvertes — à vous de les explorer.',
+    last:true },
 ];
 
 const LETTERS={
@@ -336,7 +335,6 @@ const ACHIEVEMENTS=[
   {id:'m10', name:'Légende de l’Emballage',      desc:'Terminer L’Impériale Emballage.', cat:'mission',
    check:()=>state.factoryDone[9]},
 
-  /* ── CARRIÈRE ── */
   {id:'first_sale',   name:'Premier franc',           desc:'Vendre un premier item.', cat:'carriere',
    check:()=>Object.keys(state.career.sold).length>0},
   {id:'first_carton', name:'Le carton cartonné',      desc:'Vendre un premier petit carton.', cat:'carriere',
@@ -350,7 +348,6 @@ const ACHIEVEMENTS=[
   {id:'money_total',  name:'Le poids des caisses',    desc:'Gagner 10 M $ au total (carrière).', cat:'carriere',
    check:()=>state.career.moneyTotal>=10000000},
 
-  /* ── INGÉNIEUR ── */
   {id:'belts100',   name:'Plat de spaghettis assumé', desc:'Poser 100 convoyeurs (cumul carrière).', cat:'ingenieur',
    check:()=>state.career.placedBelts>=100},
   {id:'belts500',   name:'La ville entière en rubans', desc:'Poser 500 convoyeurs (cumul carrière).', cat:'ingenieur',
@@ -381,9 +378,6 @@ const ACHIEVEMENTS=[
      return n>=200;
    }},
 ];
-
-
-/* ══════════════ 3. ÉTAT & GRILLE ══════════════ */
 
 const DIRS = [ {x:1,y:0},{x:0,y:1},{x:-1,y:0},{x:0,y:-1} ]; 
 
@@ -435,7 +429,9 @@ const mouse = { x:-1, y:-1 };
 const hots  = [];      
 const toasts= [];
 const log   = [];    
-const fx    = [];    
+const fx    = [];
+const rings = [];
+const bursts= [];
 const tf    = { value:'', focused:false }; 
 
 let canvas, ctx, W=0, H=0;
@@ -451,7 +447,7 @@ const iconCache={};
 const LONG={machine_papier_2:3, machine_papier_3:4, onduleuse_2:3, onduleuse_3:4};
 
 function fpSize(type,rot){
-  if(type==='convoyeur'||type==='ruban_sout') return {w:1,h:1};
+  if(type==='convoyeur'||type==='ruban_sout'||type==='benne') return {w:1,h:1};
   if(isDock(type)){
     return dockSize(type);
   }
@@ -467,52 +463,48 @@ function fpWorld(type,rot){
   return f;
 }
 
-/* ══ Ruban souterrain : portée max du saut sous terre (en cases) ══
-   5 = entrée et sortie espacées de 5 cases, soit 4 cases de vide franchies */
 const SOUT_MAX=5;
 function isSout(b){ return b&&b.type==='ruban_sout'; }
-/* La sortie souterraine autorise-t-elle une arrivée depuis dir ? (comme un ruban) */
+
 function soutExitDir(b){ return b.rot; }
-/* distance et alignement entrée→sortie : droit, ≤ SOUT_MAX, même sens de flux */
+
 function soutLinkOK(a,b){
   if(!isSout(a)||!isSout(b)||a===b) return false;
   const d=DIRS[a.rot];
   const dx=b.x-a.x, dy=b.y-a.y;
-  /* la sortie doit être DEVANT l'entrée, dans le sens du flux (pas derrière) */
+
   if(dx*d.x+dy*d.y<=0) return false;
-  /* l'axe entrée→sortie doit suivre le flux de l'entrée (pas de virage sous terre) */
+
   if(Math.abs(dx)>0&&Math.abs(dy)>0) return false;
   const len=Math.abs(dx)+Math.abs(dy);
   if(len<1||len>SOUT_MAX) return false;
-  /* la sortie poursuit le flux dans le même sens : son rot = celui de l'entrée */
+
   return b.rot===a.rot;
 }
-/* Sortie liée à une entrée souterraine (une seule sortie valide par entrée) */
+
 function soutOf(a){
   for(const e of state.entities)
     if(isSout(e)&&e!==a&&soutLinkOK(a,e)) return e;
   return null;
 }
-/* Entrée liée à cette tuile (si c'est une SORTIE de tunnel) */
+
 function soutEntranceOf(b){
   for(const a of state.entities)
     if(isSout(a)&&a!==b&&soutOf(a)===b) return a;
   return null;
 }
-/* Pose guidée en 2 clics : coût total du tunnel (entrée + sortie) ;
-   `withEntrance` à faux quand on termine une entrée déjà posée */
+
 function soutCosts(withEntrance){
   return (withEntrance?costOf('ruban_sout'):0)+costOf('ruban_sout',withEntrance?1:0);
 }
-/* (x,y) est-elle une SORTIE valide pour l'entrée (sx,sy) tournée vers rot ? */
+
 function soutExitOK(sx,sy,rot,x,y){
   const d=DIRS[rot];
-  const k=(x-sx)*d.x+(y-sy)*d.y;          /* distance signée DEVANT l'entrée */
+  const k=(x-sx)*d.x+(y-sy)*d.y;          
   const side=Math.abs((x-sx)*d.y)+Math.abs((y-sy)*d.x);
   return k>=1&&k<=SOUT_MAX&&side===0&&canPlace('ruban_sout',x,y,rot);
 }
-/* Les deux clics de pose : 1er = l'entrée (ou reprise d'une entrée orpheline),
-   2e = la sortie parmi les 4 cases devant. Rien n'est débité avant le 2e clic. */
+
 function soutClick(x,y){
   const src=build.soutSrc;
   if(src){
@@ -529,7 +521,7 @@ function soutClick(x,y){
       build.soutSrc=null;
       return;
     }
-    /* clic ailleurs : on déplace l'entrée en attente, ou on décroche une entrée posée */
+
     if(src.ent){
       if(cellAt(x,y)===src.ent) build.soutSrc=null; else SFX.err();
       return;
@@ -538,18 +530,17 @@ function soutClick(x,y){
     SFX.err();
     return;
   }
-  /* 1er clic : terminer une ENTRÉE ORPHELINE existante, ou démarrer une nouvelle pose */
+
   const here=cellAt(x,y);
   if(here&&here.kind==='belt'&&isSout(here)&&!soutOf(here)){ build.soutSrc={x:here.x,y:here.y,ent:here}; return; }
   if(canPlace('ruban_sout',x,y,build.rot)){ build.soutSrc={x,y,rot:build.rot}; return; }
   SFX.err();
 }
 
-
 function dockSize(type){ const d=MACHINES[type]; return d&&d.w?{w:d.w,h:d.h}:{w:2,h:2}; }
-/* Un type est-il un quai (multi-tailles) ? */
+
 function isDock(type){ return !!MACHINES[type]&&!!MACHINES[type].wall; }
-/* Mission à quai imposé : aucun autre quai ne peut être construit. */
+
 function dockLocked(){ return !!FACTORIES[state.factoryIdx].forcedDock; }
 
 function initGrid(){
@@ -594,7 +585,7 @@ function costOf(type,extra){
   if(!d) return 1e12;
   return Math.ceil(d.cost * Math.pow(d.growth||ECO.growthM, cnt(type)+(extra||0)) * ECO.costMult[state.research.discount]);
 }
-/* Coût du prochain niveau d'amélioration d'une entité */
+
 function upCost(e){
   return Math.ceil(MACHINES[e.type].cost * ECO.upBase * Math.pow(ECO.upGrowth, e.lvl||0) * ECO.costMult[state.research.discount]);
 }
@@ -632,26 +623,16 @@ function outCells(m){
   const cy=m.y+(d.y>0?f.h:-1); return [{x:m.x,y:cy},{x:m.x+f.w-1,y:cy}];
 }
 
-/* ══════════════ 3bis. SDK CRAZYGAMES (facultatif) ══════════════
-   Le bundle officiel charge sdk.crazygames.com/crazygames-sdk-v3.js en tête
-   de index.html. Hors CrazyGames (tests locaux, autre hébergement), le SDK
-   est absent ou inactif : chaque appel est protégé, la sauvegarde retombe
-   sur localStorage, et le jeu reste 100 % jouable sans lui. */
-
 const CG = {
   sdk:null, ready:false, dataReady:false, mutedBySDK:false,
   useData(){
-    /* SDK désactivé : l'accès à sdk.data lui-même peut lever (getter du
-       bundle) — ne jamais laisser l'intégration interrompre le jeu */
+
     try{ return (this.dataReady&&this.sdk&&this.sdk.data)||null; }
     catch(e){ return null; }
   },
-  muted(){ return this.mutedBySDK; },   /* priorité sur le réglage interne (règle CG) */
+  muted(){ return this.mutedBySDK; },   
   ev(name,arg){
-    /* corps ENTIER sous try : sur un domaine non-CrazyGames le SDK est
-       "disabled" et l'accès à sdk.game[...] peut lever synchrone — une
-       exception ici interrompait doPromotion au milieu (usine marquée
-       signée sans avancer). Ne jamais laisser l'intégration casser le jeu. */
+
     try{
       if(!this.ready||!this.sdk||!this.sdk.game) return;
       const fn=this.sdk.game[name];
@@ -665,9 +646,7 @@ const CG = {
     if(!SDK) return Promise.resolve(false);
     try{ this.sdk=SDK; }catch(e){ this.sdk=null; }
     const ok=()=>{
-      /* tout le démarrage sous try : ok() servait de gestionnaire
-         d'erreur à SDK.init() — s'il levait lui-même, la promesse
-         rejetait et restait non gérée (Uncaught in promise) */
+
       try{
         this.ready=true;
         this.dataReady=!!(SDK.data&&typeof SDK.data.setItem==='function');
@@ -675,7 +654,7 @@ const CG = {
         if(SDK.game&&typeof SDK.game.addSettingsChangeListener==='function'){
           SDK.game.addSettingsChangeListener(ns=>{
             CG.mutedBySDK=!!(ns&&ns.muteAudio);
-            if(CG.mutedBySDK&&typeof stopMusic==='function') stopMusic();  /* coupe aussi la musique en cours */
+            if(CG.mutedBySDK&&typeof stopMusic==='function') stopMusic();  
           });
         }
       }catch(e){}
@@ -690,16 +669,12 @@ function cgProgressPct(){
   catch(e){ return 0; }
 }
 
-/* Stockage unifié : module data du SDK CrazyGames quand il est actif (la
-   sauvegarde suit alors le compte du joueur), localStorage toujours en
-   miroir. Même API synchrone que localStorage. */
 function stGet(k){
   const d=CG.useData();
   if(d){
     try{
       const v=d.getItem(k);
-      /* certains environnements renvoient une promesse rejetée sdkDisabled
-         au lieu d'une valeur : retomber sur localStorage dans ce cas */
+
       if(v&&typeof v.then==='function'){ if(typeof v.catch==='function') v.catch(()=>{}); }
       else if(v!==undefined&&v!==null) return v;
     }catch(e){}
@@ -717,11 +692,7 @@ function stDel(k){
   try{ localStorage.removeItem(k); }catch(e){}
 }
 
-/* Mobile : relancer l'AudioContext suspendu dans un geste tactile
-   (exigence CrazyGames iOS/Android, remise en avant-plan). */
 document.addEventListener('touchend',()=>{ if(actx&&actx.state==='suspended'){ try{ actx.resume(); }catch(e){} } },{passive:true});
-
-/* ══════════════ 4. AUDIO — bips discrets (Web Audio API) ══════════════ */
 
 let actx=null;
 function audio(){
@@ -770,8 +741,6 @@ const SFX={
   konami(){ [392,523,659,784,1046,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.11,'square',.045),i*90)); },
 };
 
-/* ══════ MUSIQUE  */
-
 let musNodes=null, musTimer=null, musFactory=-1, musSong=null;
 const NF={C2:65.41,D2:73.42,Eb2:77.78,E2:82.41,F2:87.31,G2:98.00,Ab2:103.83,A2:110.00,Bb2:116.54,B2:123.47,
   C3:130.81,D3:146.83,Eb3:155.56,E3:164.81,F3:174.61,G3:196.00,Ab3:207.65,A3:220.00,Bb3:233.08,B3:246.94,
@@ -803,7 +772,7 @@ function startPiano(factoryIdx){
   const a=audio(); if(!a||musNodes) return;
   const song=songForFactory(factoryIdx);
   musFactory=factoryIdx;
-  const gain=a.createGain(); gain.gain.value=state.volMus*0.9;
+  const gain=a.createGain(); gain.gain.value=musicGainTarget();
   const master=a.createGain(); master.gain.value=1;
   gain.connect(master); master.connect(a.destination);
   const nb=a.createBuffer(1,a.sampleRate,a.sampleRate);
@@ -911,12 +880,14 @@ function stopMusic(){
     setTimeout(()=>{ try{ n.master.disconnect(); n.gain.disconnect(); n.delay.disconnect(); n.dGain.disconnect(); }catch(e){} },400);
   }
 }
+function musicGainTarget(){ return state.sound?state.volMus*0.9:0; }
+function applyMusicMute(){
+  if(musNodes&&actx) musNodes.gain.gain.setTargetAtTime(musicGainTarget(),actx.currentTime,0.05);
+}
 function setVolMus(v){
   state.volMus=clamp(v,0,1);
-  if(musNodes&&actx) musNodes.gain.gain.setTargetAtTime(state.volMus*0.9,actx.currentTime,0.05);
+  if(musNodes&&actx) musNodes.gain.gain.setTargetAtTime(musicGainTarget(),actx.currentTime,0.05);
 }
-
-/* ══════════════ 5. SIMULATION — tick fixe 10 Hz ══════════════ */
 
 let winMoney=0, winSci=0, rateT=0, saveT=0;
 
@@ -941,7 +912,7 @@ function tick(){
     if(np>1){
       const pd=e.curve?beltExitDir(e):e.rot;
       const d=DIRS[pd];
-      /* tunnel : la destination est la SORTIE liée, pas la case devant */
+
       let c=cellAt(e.x+d.x,e.y+d.y);
       if(isSout(e)&&!e.curve){
         const out=soutOf(e);
@@ -991,7 +962,6 @@ function tick(){
   tutCheck();
 }
 
-
 function tickMachine(m){
   if(isDock(m.type)) return;                    
   if(m.type==='repartiteur'){ tickRepartiteur(m); return; }
@@ -1020,8 +990,7 @@ function tickMachine(m){
 function emitOne(m,item){
   const cells=outCells(m);
   if(m.type==='repartiteur'){
-    /* répartiteur : cellules [A,B] — on respecte le filtre de chaque sortie
-       puis la priorité ; l'item ne part QUE vers une sortie filtrée pour lui */
+
     const cfg=repCfg(m);
     const order=repOutOrder(m);
     for(const side of order){
@@ -1062,7 +1031,7 @@ function emitOne(m,item){
       if(!beltPushOK(t,m.rot)) continue;
       t.item={ t:item, p:0, entry:m.rot };
       m.emitIdx=(start+k+1)%cells.length;
-      m.lastServed=c;                 /* case réellement servie */
+      m.lastServed=c;                 
       return true;
     }
     if(tryMachineAccept(t,item,DIRS[m.rot],c)){
@@ -1079,26 +1048,18 @@ function tryEmit(m){
 }
 function repCap(e){ return 6; }
 
-/* ══ Répartiteur configurable ══
-   config par entité : {
-     in :  'auto' | 'left' | 'right'   — priorité d'entrée (dans le repère du sprite)
-     outA: { any:true } | { items:[...] }  — filtre de la sortie A (vide = tout)
-     outB: idem
-     pri : 'auto' | 'A' | 'B'          — répartition entre sorties
-   }
-   Les lanes : +1 = sortie A (haut dans le repère du sprite), -1 = sortie B. */
 function repCfg(m){
   if(!m.rep) m.rep={in:'auto', pri:'auto', outA:null, outB:null};
   return m.rep;
 }
-/* la sortie `side` (+1=A, -1=B) accepte-t-elle l'item t ? (null/[] = tout) */
+
 function repOutAccepts(m,side,t){
   const cfg=repCfg(m);
   const f=side>0?cfg.outA:cfg.outB;
   if(!f||!f.items||!f.items.length) return true;
   return f.items.includes(t);
 }
-/* ordre de tentatives des sorties selon la priorité : FIFO simple quand auto */
+
 function repOutOrder(m){
   const cfg=repCfg(m);
   if(cfg.pri==='A') return [1,-1];
@@ -1142,10 +1103,7 @@ function tickRepartiteur(m){
 function transferBeltItem(b){
   const pushDir=b.curve?beltExitDir(b):b.rot;
   const d=DIRS[pushDir];
-  /* ruban souterrain ENTRÉE : si un tunnel part d'ici, l'item passe sous terre
-     et réapparaît sur la sortie liée — AVANT tout test sur la case devant,
-     qui peut être vide (c'est justement là que le tunnel saute). Une SORTIE
-     (pas de tunnel vers l'avant) se comporte comme un ruban ordinaire. */
+
   if(isSout(b)&&!b.curve){
     const out=soutOf(b);
     if(out){
@@ -1155,8 +1113,7 @@ function transferBeltItem(b){
       b.item=null; b.blockedT=0; reserved.set(out.x+','+out.y,b);
       return out;
     }
-    /* pas de tunnel : ce bout est une sortie (ou une entrée orpheline) →
-       il pousse devant lui comme un ruban normal */
+
   }
   const c=cellAt(b.x+d.x,b.y+d.y);
   if(!c){ b.item.p=1; b.blockedT+=DT; return null; }
@@ -1189,7 +1146,7 @@ function tryMachineAccept(m,t,dir,src){
     sellItem(t,m); return true;
   }
   if(m.type==='benne'){
-    /* la benne avale tout, par ses 4 faces, peu importe la direction */
+
     if(src){
       const k=src.x+','+src.y;
       if(m.soldThisTick&&m.soldThisTick[k]) return false;
@@ -1213,9 +1170,7 @@ function tryMachineAccept(m,t,dir,src){
       const side=(perp>0)?1:-1;
       m.knownSides=m.knownSides||{};
       m.knownSides[side]=true;
-      /* priorité d'entrée configurée : l'entrée favorite passe toujours ;
-         l'autre n'entre que si le tampon est à moitié vide (débordement).
-         sans priorité : alternance stricte d'origine */
+
       const cfg=repCfg(m);
       const prioSide=cfg.in==='left'?-1:(cfg.in==='right'?1:0);
       if(prioSide){
@@ -1252,8 +1207,7 @@ function tryMachineAccept(m,t,dir,src){
 }
 
 function sellItem(t,m){
-  /* benne à déchets : rejet au quart de la valeur, sans bonus commercial,
-     sans science et SANS compter dans les ventes des objectifs */
+
   if(m&&m.type==='benne'){
     const v=Math.round(ITEMS[t].value*0.25*10)/10;
     state.money+=v; state.stats.moneyTotal+=v; state.career.moneyTotal+=v; winMoney+=v;
@@ -1274,18 +1228,30 @@ function sellItem(t,m){
   if(state.stats.sold[t]===1 && ITEMS[t].value>=15) toast(T('ui.toastFirstSale')+ITEMS[t].name, fmt(v)+T('ui.toastFirstSaleUnit'), true);
 }
 
-
-/* ══════════════ 6. PLACEMENT, DÉMOLITION, AMÉLIORATION ══════════════ */
-
+const BELT3=['convoyeur','ruban_sout','repartiteur'];
+function swapBelt3(type,x,y,rot){
+  const fp=fpWorld(type,rot);
+  if(x<0||y<0||x+fp.w>state.gridW||y+fp.h>state.gridH) return;
+  const seen=new Set(); let ok=true;
+  for(let dy=0;dy<fp.h;dy++)for(let dx=0;dx<fp.w;dx++){
+    const occ=state.grid[y+dy][x+dx];
+    if(!occ) continue;
+    if(!BELT3.includes(occ.type)){ ok=false; break; }
+    seen.add(occ);
+  }
+  if(!ok||!seen.size) return;
+  for(const o of seen) demolishAt(o.x,o.y);
+}
 function place(type,x,y,rotIn,quiet,curve){
   if(isDock(type)&&dockLocked()){
     if(!quiet) SFX.err();
     return false;
   }
   const rot = isDock(type) ? dockRotAt(type,x,y,build.expIdx) : rotIn;
-  if(!canPlace(type,x,y,rot)){ if(!quiet) SFX.err(); return false; }
   const cost=costOf(type);
   if(state.money<cost){ if(!quiet) SFX.err(); return false; }
+  if(BELT3.includes(type)) swapBelt3(type,x,y,rot);
+  if(!canPlace(type,x,y,rot)){ if(!quiet) SFX.err(); return false; }
   state.money-=cost;
   const fp=fpWorld(type,rot);
   const e={ id:++uid, kind:(type==='convoyeur'||type==='ruban_sout')?'belt':'machine', type, x, y, rot, lvl:0, blockedT:0, flash:0 };
@@ -1313,6 +1279,8 @@ function place(type,x,y,rotIn,quiet,curve){
   }
 
   SFX.place();
+  addRing(ox+x*TILE+1,oy+y*TILE+1,fp.w*TILE-2,fp.h*TILE-2,'#8faf6a');
+  addBurst(ox+(x+fp.w/2)*TILE,oy+(y+fp.h/2)*TILE,e.kind==='belt'?'#d8c193':'#ffd9a0',6);
   return true;
 }
 
@@ -1566,7 +1534,6 @@ function bindEvents(){
       if(k==='Escape'){ tf.focused=false; return; }
       if(e.ctrlKey&&k.toLowerCase()==='a'){ tf.value=''; e.preventDefault(); return; }
       if(k==='Backspace'){ tf.value=tf.value.slice(0,-1); e.preventDefault(); return; }
-      if(k==='Enter'){ tfEnter(); return; }
       if(k.length===1&&!e.ctrlKey&&!e.metaKey){ tf.value+=k; e.preventDefault(); }
       return;
     }
@@ -1614,9 +1581,6 @@ function updateCursor(){
   canvas.style.cursor=CURSORS[c]||c;  
 }
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
-
-
-/* ══════════════ 7. SPRITES  ══════════════ */
 
 function px(g,Sc,x,y,w,h,c){
   g.fillStyle=c;
@@ -1723,7 +1687,7 @@ function drawDockSprite(g,Sc,type,m){
     px(g,Sc,-3,-ay+3,3,ay*2-6,'#d9cfae');
     if(ay>=12) px(g,Sc,-ax+5,-ay+5,5,3,'#f2e8d2');
   }
-  px(g,Sc,-ax+3,ay-6,3,3,'#d8c193');   /* voyant ivoire (ex-verte : reliquat retiré) */
+  px(g,Sc,-ax+3,ay-6,3,3,'#d8c193');   
   if(m&&m.locked){                        
     px(g,Sc,-ax+2,-ay+2,3,3,'#e8c96a'); px(g,Sc,ax-5,-ay+2,3,3,'#e8c96a');
     px(g,Sc,-ax+2,ay-5,3,3,'#e8c96a');  px(g,Sc,ax-5,ay-5,3,3,'#e8c96a');
@@ -1825,24 +1789,24 @@ function drawMachineSprite(g,type,m,Sc,pulse,compact){
       break;
     }
     case 'benne':{
-      /* benne à déchets : caisse grise à couvercle, croix de rejet, 4 faces ouvertes */
+
       chassis(g,Sc,p,'none',compact);
       px(g,Sc,-12,-12,24,24,'#4a4a52');
       px(g,Sc,-11,-11,22,22,'#5c5c66');
       px(g,Sc,-11,-11,22,2,'#767681');
       px(g,Sc,-11,9,22,2,'#3a3a42');
       px(g,Sc,-12,-12,24,2,'#2c2c33');
-      /* couvercle entrouvert selon le flux, sinon fermé */
+
       const lidUp=active?3:0;
       px(g,Sc,-13,-14+lidUp,26,3,'#6e6e7a');
       px(g,Sc,-13,-14+lidUp,26,1,'#8a8a95');
       px(g,Sc,11,-13+lidUp,2,4,'#54545e');
-      /* croix de rejet (symbole « rebut ») */
+
       px(g,Sc,-6,-6,2,2,'#c9553b'); px(g,Sc,-4,-4,2,2,'#c9553b'); px(g,Sc,-2,-2,2,2,'#c9553b');
       px(g,Sc,2,-6,2,2,'#c9553b');  px(g,Sc,0,-4,2,2,'#c9553b');  px(g,Sc,-2,-2,2,2,'#c9553b');
       px(g,Sc,-2,2,2,2,'#c9553b');  px(g,Sc,0,0,2,2,'#c9553b');   px(g,Sc,2,2,2,2,'#c9553b');
       px(g,Sc,-6,2,2,2,'#c9553b');  px(g,Sc,-4,0,2,2,'#c9553b');
-      /* cendres/tourbillon quand elle vient d'avaler */
+
       if(m&&m.flash>0&&Math.sin(animT*9)>0){
         px(g,Sc,-14,-6,2,2,'#9c9ca8'); px(g,Sc,12,-8,2,2,'#9c9ca8'); px(g,Sc,-10,-15,2,2,'#767681');
       }
@@ -1889,7 +1853,7 @@ function drawRepartiteurSprite(g,Sc,m,pulse){
   for(const yy of [-8,8]){
     px(g,Sc,-4,yy-5,3,3,c); px(g,Sc,-1,yy-2,3,4,c); px(g,Sc,-4,yy+2,3,3,c);
   }
-  /* badges A / B sur les sorties + liseré doré si la sortie est filtrée */
+
   if(m&&m.type==='repartiteur'){
     const cfg=m.rep;
     if(cfg){
@@ -1900,7 +1864,7 @@ function drawRepartiteurSprite(g,Sc,m,pulse){
       };
       mark('A',-8,cfg.outA&&cfg.outA.items&&cfg.outA.items.length>0);
       mark('B',8,cfg.outB&&cfg.outB.items&&cfg.outB.items.length>0);
-      /* flèche renforcée sur la sortie prioritaire */
+
       if(cfg.pri==='A'||cfg.pri==='B'){
         const yy=cfg.pri==='A'?-8:8;
         px(g,Sc,-7,yy-1,5,2,'#e0b552');
@@ -2007,7 +1971,7 @@ function getMachineIcon(type){
     px(g,Sc,-1,-2,3,4,'#d8c193');
     px(g,Sc,-4,2,3,3,'#d8c193');
   }else if(type==='ruban_sout'){
-    /* icône : la SORTIE puis l'ENTRÉE le long du flux — deux bouches reliées */
+
     g.save(); g.translate(8,0); drawSoutMouth(g,Sc,'in',0);  g.restore();
     g.save(); g.translate(-8,0); drawSoutMouth(g,Sc,'out',0); g.restore();
     g.strokeStyle='#8f7752'; g.lineWidth=1; g.setLineDash([2,2]);
@@ -2022,7 +1986,7 @@ function getMachineIcon(type){
     const Sc2=Math.min(Sc,44/(16*Math.max(f.w,f.h)));
     drawDockSprite(g,Sc2,type,{rot:vert?0:3});
   }else if(type==='benne'){
-    /* icône verticale (sans la rotation -90°) : la benne telle qu'en jeu */
+
     g.rotate(Math.PI/2);
     drawMachineSprite(g,'benne',null,1.15,false,true);
   }else{
@@ -2037,9 +2001,6 @@ function getItemIcon(t){
   drawItemAt(c.getContext('2d'),t,13,13,2.2);
   iconCache[k]=c; return c;
 }
-
-
-/* ══════════════ 8. RENDU JEU ══════════════ */
 
 function drawBackground(){
   R(0,0,W,H,'#191310');
@@ -2121,24 +2082,18 @@ function drawBeltCurve(g,Sc,curve,bs,floorC){
   g.globalAlpha=.9; chev(path/2,true); g.globalAlpha=1;
 }
 
-/* ══ Ruban souterrain — bouche d'entrée ('in') ou de sortie ('out') ══
-   Même socle que le convoyeur (cadre, lit, rails) : les bords se raccordent
-   au pixel près avec les rubans voisins. La bouche sombre occupe exactement
-   une MOITIÉ de la tuile — l'avant pour l'entrée (l'y plonge), l'arrière
-   pour la sortie (l'y remonte) — l'autre moitié reste un vrai ruban à
-   chevrons animés. bs = vitesse des chevrons (0 = statique, pour l'icône). */
 function drawSoutMouth(g,Sc,mode,bs){
   const ent=mode!=='out';
-  const x0=ent?1:-7;                          /* trou : x0..x0+6 */
-  px(g,Sc,-8,-8,16,16,'#3a2c1e');              /* cadre = convoyeur */
-  px(g,Sc,-8,-6,16,12,'#463525');              /* lit = convoyeur */
-  px(g,Sc,-8,-8,16,2,'#6b563c');               /* rail haut = convoyeur */
-  px(g,Sc,-8,6,16,2,'#5b4930');                /* rail bas = convoyeur */
-  /* chevrons animés sur la moitié qui reste ruban */
+  const x0=ent?1:-7;                          
+  px(g,Sc,-8,-8,16,16,'#3a2c1e');              
+  px(g,Sc,-8,-6,16,12,'#463525');              
+  px(g,Sc,-8,-8,16,2,'#6b563c');               
+  px(g,Sc,-8,6,16,2,'#5b4930');                
+
   g.save();
   g.beginPath();
-  if(ent) g.rect(-8*Sc,-6*Sc,8*Sc,12*Sc);      /* entrée : ruban à l'arrière */
-  else    g.rect(0,-6*Sc,8*Sc,12*Sc);          /* sortie : ruban à l'avant */
+  if(ent) g.rect(-8*Sc,-6*Sc,8*Sc,12*Sc);      
+  else    g.rect(0,-6*Sc,8*Sc,12*Sc);          
   g.clip();
   const off=((animT*(bs||0)*160)%8+8)%8;
   for(let q=-12;q<12;q+=8){
@@ -2146,14 +2101,14 @@ function drawSoutMouth(g,Sc,mode,bs){
     px(g,Sc,x1,-4,2,2,'#8f7752'); px(g,Sc,x1+2,-2,2,4,'#8f7752'); px(g,Sc,x1,2,2,2,'#8f7752');
   }
   g.restore();
-  /* la bouche : trou sombre cerclé d'un cadre bois (garde-corps) */
+
   px(g,Sc,x0,-5,6,10,'#191008');
-  px(g,Sc,x0,-5,6,1,'#050302');                /* ombre interne côté plafond */
-  px(g,Sc,x0-1,-6,8,1,'#8f7752');              /* linteau haut */
-  px(g,Sc,x0-1,5,8,1,'#8f7752');               /* seuil bas */
-  px(g,Sc,x0-1,-5,1,10,'#8f7752');             /* jambage amont */
-  px(g,Sc,x0+6,-5,1,10,'#8f7752');             /* jambage aval */
-  /* flèche de sens : même chevron ivoire que les convoyeurs, sur la moitié ruban */
+  px(g,Sc,x0,-5,6,1,'#050302');                
+  px(g,Sc,x0-1,-6,8,1,'#8f7752');              
+  px(g,Sc,x0-1,5,8,1,'#8f7752');               
+  px(g,Sc,x0-1,-5,1,10,'#8f7752');             
+  px(g,Sc,x0+6,-5,1,10,'#8f7752');             
+
   g.globalAlpha=.9;
   if(ent){ px(g,Sc,-7,-5,3,3,'#d8c193'); px(g,Sc,-4,-2,3,4,'#d8c193'); px(g,Sc,-7,2,3,3,'#d8c193'); }
   else   { px(g,Sc,1,-5,3,3,'#d8c193');  px(g,Sc,4,-2,3,4,'#d8c193');  px(g,Sc,1,2,3,3,'#d8c193'); }
@@ -2164,8 +2119,7 @@ function drawBeltSprite(b){
   const cx=ox+b.x*TILE+TILE/2, cy=oy+b.y*TILE+TILE/2;
   ctx.save(); ctx.translate(cx,cy); ctx.rotate(b.rot*Math.PI/2);
   if(isSout(b)){
-    /* entrée (tunnel actif ou en attente de sortie) : bouche à l'avant.
-       sortie : bouche à l'arrière. même socle que les convoyeurs. */
+
     const ent=!soutEntranceOf(b);
     drawSoutMouth(ctx,S,ent?'in':'out',beltSpeedOf(b));
   }else if(b.curve){
@@ -2186,7 +2140,7 @@ function drawBeltSprite(b){
   }
   ctx.restore();
   if(isSout(b)){
-    /* halo discret : une bouche de tunnel posée n'est pas un simple bout de ruban */
+
     ctx.strokeStyle='rgba(216,193,147,.35)';
     ctx.lineWidth=1;
     ctx.strokeRect(cx-TILE/2+1.5,cy-TILE/2+1.5,TILE-3,TILE-3);
@@ -2196,8 +2150,7 @@ function drawBeltSprite(b){
   }
 }
 function drawSoutLinks(){
-  /* trait de tunnel entre chaque entrée et sa sortie : pointillé animé
-     sous les machines/obstacles — l'item voyage sous terre */
+
   for(const a of state.entities){
     if(!isSout(a)||a.curve) continue;
     const b=soutOf(a);
@@ -2215,17 +2168,14 @@ function drawSoutLinks(){
 }
 function drawBeltItem(b,alpha){
   if(!b.item) return;
-  /* ruban souterrain : l'item s'enfonce dans la bouche d'entrée (rétrécit),
-     et SORT de la bouche de sortie (grandit) — le trajet sous terre est
-     invisible (seul le pointillé du tunnel s'anime) */
+
   if(isSout(b)){
     const cx=ox+b.x*TILE+TILE/2, cy=oy+b.y*TILE+TILE/2;
     const dOut=DIRS[b.rot], dIn=DIRS[(b.rot+2)%4];
     const sx=cx-dIn.x*TILE/2, sy=cy-dIn.y*TILE/2;
     const ex=cx+dOut.x*TILE/2, ey=cy+dOut.y*TILE/2;
     const p=clamp(b.item.p,0,1);
-    /* entrée : l'item glisse jusqu'à la bouche puis S'ENFONCE (rétrécit).
-       sortie : il REMONTE de la bouche (grandit) et continue devant. */
+
     const ent=!soutEntranceOf(b);
     const sc=S*.95*(ent?(1-0.45*p):(0.55+0.45*p));
     const px_=ent?(p<.5?p*2:1):(p<.5?0:(p-.5)*2);
@@ -2236,7 +2186,7 @@ function drawBeltItem(b,alpha){
     const din=DIRS[b.item.entry];
     const src=cellAt(b.x-din.x,b.y-din.y);
     if(src&&src.type==='repartiteur'&&src.vItem&&src.vItem.phase!=='wait'&&b.item.t===src.vItem.t){
-      b.item.p=Math.min(b.item.p,0.08);   /* gel près de la frontière */
+      b.item.p=Math.min(b.item.p,0.08);   
       const cx=ox+b.x*TILE+TILE/2, cy=oy+b.y*TILE+TILE/2;
       const dIn=DIRS[b.item.entry];
       const fx=cx-dIn.x*TILE/2, fy=cy-dIn.y*TILE/2;
@@ -2361,9 +2311,7 @@ function drawPreview(){
   const scost=staged?soutCosts(!staged.ent):costOf(type);
   const ok=canPlace(type,sx,sy,srot)&&state.money>=scost;
   if(staged){
-    /* étape 2 : l'entrée est en attente — on met en avant sa tuile et les
-       4 cases où la SORTIE peut atterrir ; la case sous le curseur est
-       surlignée si elle est valide */
+
     R(ox+sx*TILE,oy+sy*TILE,TILE,TILE,'rgba(120,160,80,.30)');
     const d=DIRS[srot];
     let any=false;
@@ -2375,7 +2323,7 @@ function drawPreview(){
       R(ox+ex*TILE+3,oy+ey*TILE+3,TILE-6,TILE-6,valid?'rgba(143,175,106,.45)':'rgba(190,70,50,.30)');
       if(valid&&!staged.ent) R(ox+ex*TILE+1,oy+ey*TILE+1,TILE-2,TILE-2,'rgba(143,175,106,.15)');
     }
-    /* le fantôme de sortie suit la souris quand elle survole la portée */
+
     if(soutExitOK(sx,sy,srot,c.x,c.y)){
       ctx.save();
       ctx.translate(ox+c.x*TILE+TILE/2,oy+c.y*TILE+TILE/2);
@@ -2385,7 +2333,7 @@ function drawPreview(){
       ctx.restore();
       ctx.globalAlpha=1;
     }
-    /* lien pointillé entrée → curseur : le futur trajet sous terre */
+
     ctx.save();
     ctx.strokeStyle='rgba(216,193,147,.6)';
     ctx.lineWidth=2; ctx.setLineDash([6,5]);
@@ -2405,7 +2353,7 @@ function drawPreview(){
     }
   }else{
     R(ox+c.x*TILE,oy+c.y*TILE,mw*TILE,mh*TILE,ok?'rgba(120,160,80,.30)':'rgba(190,70,50,.30)');
-    /* ruban souterrain : la portée du futur saut en surbrillance douce */
+
     if(type==='ruban_sout'&&ok){
       const d=DIRS[rot];
       for(let k=1;k<=SOUT_MAX;k++){
@@ -2417,7 +2365,7 @@ function drawPreview(){
   }
   ctx.save();
   if(staged){
-    /* l'entrée en attente (ou l'entrée orpheline reprise) en plein */
+
     ctx.translate(ox+sx*TILE+TILE/2,oy+sy*TILE+TILE/2);
     ctx.rotate(srot*Math.PI/2);
     ctx.globalAlpha=(staged.ent?1:.9);
@@ -2441,7 +2389,7 @@ function drawPreview(){
       drawBeltCurve(ctx,S,build.curve,ECO.beltSpeed[state.research.belt],((c.x+c.y)%2)?'#231b13':'#261e15');
       if(ok){ ctx.globalAlpha=.85; px(ctx,S,-10,-6,2,4,'#f6e8c2'); px(ctx,S,-10,2,2,4,'#f6e8c2'); }
     }else if(type==='ruban_sout'){
-      /* fantôme de la future ENTRÉE : bouche à l'avant, sens du flux */
+
       drawSoutMouth(ctx,S,'in',0);
       if(ok){ ctx.globalAlpha=.85; px(ctx,S,-10,-6,2,4,'#f6e8c2'); px(ctx,S,-10,2,2,4,'#f6e8c2'); }
     }else{
@@ -2481,7 +2429,46 @@ function drawHoverOutline(){
 }
 
 function addFx(pxX,pyY,txtStr){ if(fx.length<40) fx.push({x:pxX,y:pyY,txt:txtStr,age:0}); }
+function addRing(pxX,pyY,w,h,col){
+  if(rings.length>12) return;
+  rings.push({x:pxX,y:pyY,w,h,col,age:0});
+}
+function addBurst(pxX,pyY,col,n){
+  if(bursts.length>10) return;
+  const parts=[];
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, sp=26+Math.random()*30;
+    parts.push({dx:Math.cos(a)*sp,dy:Math.sin(a)*sp-12,vy:52,c:col,age:0});
+  }
+  bursts.push({x:pxX,y:pyY,parts,age:0});
+}
 function drawFx(rdt){
+  for(let i=rings.length-1;i>=0;i--){
+    const r=rings[i]; r.age+=rdt;
+    if(r.age>.5){ rings.splice(i,1); continue; }
+    const p=r.age/.5, rad=p*14;
+    ctx.globalAlpha=(1-p)*.9;
+    ctx.lineWidth=3;
+    ctx.strokeStyle=r.col;
+    ctx.beginPath();
+    ctx.roundRect(r.x-rad,r.y-rad,r.w+rad*2,r.h+rad*2,6);
+    ctx.stroke();
+    ctx.globalAlpha=1;
+  }
+  for(let i=bursts.length-1;i>=0;i--){
+    const b=bursts[i]; b.age+=rdt;
+    if(b.age>.42){ bursts.splice(i,1); continue; }
+    for(const p of b.parts){
+      p.age+=rdt;
+      const t=p.age/.42;
+      const x=b.x+p.dx*t;
+      const y=b.y+p.dy*t+p.vy*t*t;
+      ctx.globalAlpha=1-t;
+      ctx.fillStyle=p.c;
+      ctx.fillRect(Math.round(x)-2,Math.round(y)-2,4,4);
+    }
+    ctx.globalAlpha=1;
+  }
   ctx.font='17px VT323'; ctx.textAlign='center';
   for(let i=fx.length-1;i>=0;i--){
     const f=fx[i]; f.age+=rdt;
@@ -2494,9 +2481,6 @@ function drawFx(rdt){
   }
   ctx.textAlign='left';
 }
-
-
-/* ══════════════ 9. RENDU INTERFACE ══════════════ */
 
 function hot(x,y,w,h,fn,cursor){ hots.push({x,y,w,h,fn,cursor}); }
 function noop(){}
@@ -2531,19 +2515,21 @@ function f1(x){ return (Math.round(x*10)/10).toString().replace('.',LANG().fmt.d
 function button(x,y,w,h,label,fn,o){
   o=o||{};
   const dis=o.disabled;
+  const hov=!dis&&mouse.x>=0&&inRect(mouse.x,mouse.y,x,y,w,h);
   let bg=dis?'#2e2418':o.armed?'#6b3419':o.primary?'#4a3418':'#3a2d20';
   let bd=dis?'#453720':o.armed?'#d06b4f':o.danger?'#8a4a34':o.primary?'#e08a3c':'#6a5236';
+  if(hov){ bg=dis?bg:(o.armed?'#7a3d1e':o.primary?'#5a4022':'#4a382a'); bd=dis?bd:'#c99e6a'; }
   if(o.pulse&&Math.sin(animT*6)>0){ bd='#ffd9a0'; bg='#5a4020'; }
   ctx.fillStyle='#14100b'; ctx.fillRect(x,y+3,w,h);
   ctx.fillStyle=bg; ctx.fillRect(x,y,w,h);
   ctx.lineWidth=2; ctx.strokeStyle=bd; ctx.strokeRect(x+1,y+1,w-2,h-2);
   ctx.font='700 '+(o.small?8:9)+'px Silkscreen';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle=dis?'#6b563c':o.danger?'#e8a284':o.primary?'#ffd9a0':'#e6d6b8';
+  ctx.fillStyle=dis?'#6b563c':hov?'#fff3d8':(o.danger?'#e8a284':o.primary?'#ffd9a0':'#e6d6b8');
   ctx.fillText(label,x+w/2-(o.key?7:0),y+h/2+1);
   if(o.key){ ctx.font='8px Silkscreen'; ctx.fillStyle='#9c8a70'; ctx.fillText('['+o.key+']',x+w-16,y+h/2+1); }
   ctx.textBaseline='alphabetic'; ctx.textAlign='left';
-  if(!dis) hot(x,y,w,h,fn);
+  if(!dis) hot(x,y,w,h,fn,'pointer');
 }
 
 function slider(x,y,w,label,val,set){
@@ -2552,23 +2538,23 @@ function slider(x,y,w,label,val,set){
   const ty=y+18;
   R(x,ty,w,h,'#141009');
   ctx.lineWidth=2; ctx.strokeStyle='#4a3a28'; ctx.strokeRect(x+1,ty+1,w-2,h-2);
-  
+
   const ncrans=Math.max(1, Math.floor(w/12));
   const filled=Math.round(val*ncrans);
-  
+
   for(let i=0;i<ncrans;i++){
     const cxi=x+4+i*12;
     R(cxi,ty+3,8,h-6,i<filled?'#e08a3c':'#2b221a');
     if(i<filled) R(cxi,ty+3,8,2,'#ffd9a0');
   }
-  
+
   const phx = x + Math.round(val * (w - 12));
-  
+
   R(phx,ty-3,12,h+6,'#c99e6a');
   R(phx,ty-3,12,3,'#e9d3a8'); R(phx,ty+h,12,3,'#8a6136');
   R(phx+4,ty+3,4,h-6,'#8a6136');
   txt(Math.round(val*100)+'%',x+w+8,ty+h-4,15,'#c9b58a');
-  
+
   hot(x,ty,w,h,()=>{ sliderDrag={x,w,set}; }, 'pointer');
   hot(phx,ty-3,12,h+6,()=>{ sliderDrag={x,w,set}; }, 'pointer');
 }
@@ -2645,76 +2631,51 @@ function entTipLines(e){
     if(isSout(e)){
       const out=soutOf(e);
       const exit=soutEntranceOf(e);
-      L.push({t:T('ui.ttSoutTitle')+(e.lvl?T('ui.ttLvl')+e.lvl:'')+(exit?T('ui.ttSoutExit'):T('ui.ttSoutEntry')),c:'#fff3d8',sz:20});
+      L.push({t:T('ui.ttSoutTitle')+(exit?T('ui.ttSoutExit'):T('ui.ttSoutEntry')),c:'#fff3d8',sz:20});
       if(exit) L.push({t:T('ui.ttTunnelFrom',{X:exit.x+1,Y:exit.y+1}),c:'#8faf6a'});
       else if(out) L.push({t:T('ui.ttTunnelTo',{X:out.x+1,Y:out.y+1}),c:'#8faf6a'});
       else L.push({t:T('ui.ttEntryNoExit'),c:'#f0a35e'});
-      if(!out&&!exit) L.push({t:T('ui.ttOrDemolish'),c:'#9c8a70'});
       if(e.item) L.push({t:T('ui.ttContains')+ITEMS[e.item.t].name,c:ITEMS[e.item.t].c});
       if(e.blockedT>1.5) L.push({t:T('ui.ttSoutBlocked'),c:'#e8926f'});
       return L;
     }
     const cvName=e.curve===1?T('ui.ttCvRight'):(e.curve===2?T('ui.ttCvLeft'):'');
-    L.push({t:T('ui.ttConveyorTitle')+cvName+(e.lvl?T('ui.ttLvl')+e.lvl:''),c:'#fff3d8',sz:20});
-    L.push({t:T('ui.ttSpeed')+f1(beltSpeedOf(e)*10)+T('ui.ttTilesSec')+' '+T('ui.ttClickInfo'),c:'#9c8a70'});
-    if(e.curve) L.push({t:T('ui.ttCurveEntry')+(e.curve===1?T('ui.ttRight'):T('ui.ttLeft'))+T('ui.ttOfThisSense'),c:'#9c8a70'});
+    L.push({t:T('ui.ttConveyorTitle')+cvName,c:'#fff3d8',sz:20});
+    L.push({t:T('ui.ttSpeed')+f1(beltSpeedOf(e)*10)+T('ui.ttTilesSec'),c:'#9c8a70'});
     if(e.item) L.push({t:T('ui.ttContains')+ITEMS[e.item.t].name,c:ITEMS[e.item.t].c});
     if(e.blockedT>1.5) L.push({t:T('ui.ttBeltBlocked'),c:'#e8926f'});
     return L;
   }
     if(isDock(e.type)){
-      const f=fpSize(e.type,e.rot);
       L.push({t:MACHINES[e.type].name,c:'#fff3d8',sz:20});
-      L.push({t:T('ui.ttInstantSale')+f.w+'×'+f.h+'.',c:'#8faf6a'});
+      L.push({t:T('ui.ttInstantSale'),c:'#8faf6a'});
       if(e.locked) L.push({t:T('ui.ttDockImposed'),c:'#e8c96a'});
       return L;
     }
     if(e.type==='benne'){
       L.push({t:T('ui.ttBenneTitle'),c:'#fff3d8',sz:20});
       L.push({t:T('ui.ttBenneReject'),c:'#c9b58a'});
-      L.push({t:T('ui.ttBenneNote'),c:'#9c8a70'});
       return L;
     }
     const def=MACHINES[e.type];
     L.push({t:def.name+(e.lvl?' — niv. '+e.lvl:''),c:'#fff3d8',sz:20});
-  if(def.desc) L.push({t:def.desc,c:'#9c8a70'});
   if(e.type==='repartiteur'){
     const cfg=repCfg(e);
     L.push({t:T('ui.ttBuffer')+e.queue.length+' / '+repCap(e)+T('ui.ttItems'),c:'#c9b58a'});
     const inTxt=cfg.in==='left'?T('ui.ttIn1Prio'):(cfg.in==='right'?T('ui.ttIn2Prio'):T('ui.ttInEqual'));
     const priTxt=cfg.pri==='A'?T('ui.ttOutAPrio'):(cfg.pri==='B'?T('ui.ttOutBPrio'):T('ui.ttOutAlt'));
     L.push({t:T('ui.ttSettings')+inTxt+' · '+priTxt+'.',c:'#e0b552'});
-    const fA=(cfg.outA&&cfg.outA.items)||[], fB=(cfg.outB&&cfg.outB.items)||[];
-    if(fA.length||fB.length){
-      L.push({t:T('ui.ttFilterA')+(fA.length?fA.map(k=>ITEMS[k].name).join(', '):T('ui.ttEverything'))+'.',c:'#9c8a70'});
-      L.push({t:T('ui.ttFilterB')+(fB.length?fB.map(k=>ITEMS[k].name).join(', '):T('ui.ttEverything'))+'.',c:'#9c8a70'});
-    }else{
-      L.push({t:T('ui.ttNoFilter'),c:'#9c8a70'});
-    }
     if(e.blockedT>1.5) L.push({t:T('ui.ttRepBlocked'),c:'#e8926f'});
     return L;
   }
-  if(def.in) L.push({t:T('ui.ttRecipe')+recIn(def.in)+' → '+ITEMS[def.out].name,c:'#c9b58a'});
-  else if(def.out) L.push({t:T('ui.ttProduct')+ITEMS[def.out].name+' / '+f1(def.time)+' s',c:'#c9b58a'});
+  if(def.in) L.push({t:recIn(def.in)+' → '+ITEMS[def.out].name,c:'#c9b58a'});
+  else if(def.out) L.push({t:T('ui.ttProduct')+ITEMS[def.out].name,c:'#c9b58a'});
   if(def.time&&def.in) L.push({t:T('ui.ttCycle')+f1(def.time/speedMultOf(e))+T('ui.ttCycleSuf')+multFmt(speedMultOf(e))+T('ui.ttCycleEnd'),c:'#9c8a70'});
-  L.push({t:T('ui.ttEntries'),c:'#8a755c'});
-  if(def.in){
-    const parts=Object.keys(def.in).map(k=>{
-      const have=e.inBuf[k]||0, need=def.in[k];
-      return {t:ITEMS[k].name+' '+have+'/'+need+(have>=need*2+1?T('ui.ttFull'):''), c:have>=need?ITEMS[k].c:'#9c8a70'};
-    });
-    L.push({t:T('ui.ttInputs'),c:'#9c8a70'});
-    for(const p of parts) L.push(p);
-  }
   if(e.outItem){ const d=diagnoseOut(e); if(d.length) L.push(...d); }
   else if(e.active) L.push({t:T('ui.ttFabricating')+Math.round(100*e.timer/def.time)+' %',c:'#8faf6a'});
   else if(def.in){
     const missing=Object.keys(def.in).filter(k=>(e.inBuf[k]||0)<def.in[k]);
-    if(missing.length){
-      L.push({t:T('ui.ttWaiting')+missing.map(k=>(def.in[k]-(e.inBuf[k]||0))+'× '+ITEMS[k].name).join(', ')+'.',c:'#f0a35e'});
-      const mach=Object.keys(MACHINES).find(mt=>mt!==e.type&&MACHINES[mt].out===missing[0]);
-      if(mach) L.push({t:T('ui.ttBuildMachine',{N:MACHINES[mach].name}),c:'#f0a35e'});
-    }
+    if(missing.length) L.push({t:T('ui.ttWaiting')+missing.map(k=>(def.in[k]-(e.inBuf[k]||0))+'× '+ITEMS[k].name).join(', ')+'.',c:'#f0a35e'});
   }else L.push({t:T('ui.ttReady'),c:'#8faf6a'});
   return L;
 }
@@ -2764,6 +2725,51 @@ function diagnoseOut(e){
           {t:T('ui.dgPlaceBelt'),c:'#f0a35e'}];
 }
 
+function drawSoundGlyph(cx,cy,on){
+  const g=on?'#e6d6b8':'#9c8a70';
+  R(cx-12,cy-5,4,10,g);
+  R(cx-8,cy-3,3,6,g);
+  R(cx-5,cy-6,3,12,g);
+  R(cx-2,cy-9,3,18,g);
+  if(on){
+    R(cx+4,cy-4,2,8,g);
+    R(cx+8,cy-7,2,14,g);
+  }else{
+    for(let i=0;i<6;i++){
+      R(cx+4+i*2,cy-6+i*2,2,2,g);
+      R(cx+14-i*2,cy-6+i*2,2,2,g);
+    }
+  }
+}
+function drawScreenGlyph(cx,cy,on){
+  const g=on?'#e6d6b8':'#9c8a70';
+  R(cx-13,cy-8,26,17,g);
+  R(cx-10,cy-5,20,11,'#241c15');
+  if(on){
+    R(cx-1,cy-1,3,3,g);
+    R(cx-6,cy+2,2,4,g);
+    R(cx-3,cy+2,5,2,g);
+  }else{
+    R(cx-5,cy-3,5,2,g);
+    R(cx-5,cy-3,2,5,g);
+    R(cx+1,cy+2,5,2,g);
+    R(cx+4,cy-1,2,5,g);
+  }
+}
+let fsOn=false;
+function toggleFullscreen(){
+  const d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement){
+    const xf=d.exitFullscreen||d.webkitExitFullscreen;
+    if(xf){ try{ xf.call(d); }catch(e){} }
+  }else{
+    const el=d.documentElement;
+    const rf=el.requestFullscreen||el.webkitRequestFullscreen;
+    if(rf){ try{ rf.call(el); }catch(e){} }
+  }
+}
+document.addEventListener('fullscreenchange',()=>{ fsOn=!!document.fullscreenElement; });
+document.addEventListener('webkitfullscreenchange',()=>{ fsOn=!!document.webkitFullscreenElement; });
 function drawHUD(){
   R(hudX,hudY,blockW,hudH,'#241c15');
   R(hudX,hudY+hudH-3,blockW,3,'#4a3a28');
@@ -2781,7 +2787,7 @@ function drawHUD(){
   txt('(+ '+fmtSci(state.rate.sci)+'/s)',x,hudY+31,15,'#9c8a70');
   x+=txtW('(+ '+fmtSci(state.rate.sci)+'/s)',15)+26;
   txt(T('ui.hudBonus')+'×'+multFmt(sellMult()),x,hudY+31,17,'#c9b58a');
-  /* boutons collés au bord droit du bloc */
+
   let bx=hudX+blockW-10;
   const btns=[
     [T('ui.hudMenu'),'M',()=>toggleModal('menu'),{}],
@@ -2793,6 +2799,10 @@ function drawHUD(){
     bx-=w+6;
     button(bx,hudY+9,w,28,lab,fn,Object.assign({key},o));
   }
+  button(bx-46,hudY+9,40,28,'',()=>{toggleSound();},{});
+  drawSoundGlyph(bx-26,hudY+23,state.sound);
+  button(bx-92,hudY+9,40,28,'',()=>{toggleFullscreen();},{});
+  drawScreenGlyph(bx-72,hudY+23,fsOn);
 }
 function drawSide(){
   const x=sideX, y=sideY, w=sideW, h=sideH;
@@ -2828,7 +2838,7 @@ function drawSide(){
     R(x+33,cy-5,Math.round((w-104)*Math.min(1,v/g.n)),3,done?'#8faf6a':'#e08a3c');
     cy+=10;
   }
-  
+
   if(state.letter===null||state.letter===undefined){
     const nMach=state.entities.filter(e=>e.kind==='machine').length;
     const nBelt=state.entities.length-nMach;
@@ -2846,7 +2856,7 @@ function drawSide(){
     cy+=94;
   }
   else if(allGoalsDone()&&state.factoryDone[state.factoryIdx]){
-    /* usine rejouée après signature : pas de dossier, le replay est libre */
+
     R(x+8,cy,w-16,46,'#241c15');
     ctx.lineWidth=1; ctx.strokeStyle='#4a3a28'; ctx.strokeRect(x+8,cy,w-16,46);
     txt(T('ui.sideReplayL1'),x+16,cy+18,13,'#9c8a70');
@@ -2867,14 +2877,11 @@ function drawSide(){
     ly+=15;
   }
 }
-/* ══ Réglages du répartiteur (panneau latéral, section SÉLECTION) ══
-   1 ligne priorité d'entrée · 1 ligne répartition · par sortie :
-   une rangée de mini-icônes d'items (filtre) + un badge TOUT/FILTRÉ.
-   Les icônes sont cliquables : ajout/retrait de l'item au filtre de la sortie. */
+
 function drawRepConfig(x,w,by,e){
   const cfg=repCfg(e);
   const bw=(w-40)/3;
-  /* ── priorité d'entrée ── */
+
   txt(T('ui.rcInPriority'),x+16,by+9,8,'#ffd9a0','left','s');
   const inOpts=[['auto',T('ui.rcEquality')],['left',T('ui.rcIn1')],['right',T('ui.rcIn2')]];
   let bx=x+16;
@@ -2884,7 +2891,7 @@ function drawRepConfig(x,w,by,e){
     bx+=bw;
   }
   by+=38;
-  /* ── répartition des sorties ── */
+
   txt(T('ui.rcOutDist'),x+16,by+9,8,'#ffd9a0','left','s');
   const outOpts=[['auto',T('ui.rcAlternating')],['A',T('ui.rcOutA')],['B',T('ui.rcOutB')]];
   bx=x+16;
@@ -2894,7 +2901,7 @@ function drawRepConfig(x,w,by,e){
     bx+=bw;
   }
   by+=38;
-  /* ── filtres par sortie ── */
+
   const keys=Object.keys(ITEMS);
   const cell=Math.min(22,(w-58)/keys.length);
   for(const side of [1,-1]){
@@ -2903,7 +2910,7 @@ function drawRepConfig(x,w,by,e){
     const items=(f&&f.items)||[];
     const filtered=items.length>0;
     txt(label+(filtered?T('ui.rcFiltered',{N:items.length}):T('ui.rcAcceptAll')),x+16,by+9,8,filtered?'#e0b552':'#9c8a70','left','s');
-    /* bouton RAZ */
+
     button(x+w-64,by+2,48,14,T('ui.rcReset'),()=>{
       if(side>0) cfg.outA=null; else cfg.outB=null;
       uiSnd('tab'); saveGame();
@@ -2948,37 +2955,29 @@ function drawSideMachine(x,w,cy){
       L.push({t:T('ui.smRange'),c:'#9c8a70'});
     }else{
       L.push({t:T('ui.smSpeed')+f1(beltSpeedOf(e)*10)+T('ui.ttTilesSec2'),c:'#c9b58a'});
-      if(e.curve) L.push({t:T('ui.smCurve')+(e.curve===1?T('ui.ttRight'):T('ui.ttLeft'))+T('ui.smCurveEntry'),c:'#9c8a70'});
     }
     if(e.item) L.push({t:T('ui.ttContains')+ITEMS[e.item.t].name,c:ITEMS[e.item.t].c});
     if(e.blockedT>1.5) L.push({t:T('ui.smBlockedBelt'),c:'#e8926f'});
   }else if(isDock(e.type)){
-    const f=fpSize(e.type,e.rot);
     L.push({t:T('ui.smInstant'),c:'#8faf6a'});
-    L.push({t:T('ui.smFaces')+f.w+'×'+f.h+T('ui.smFacesSuf'),c:'#9c8a70'});
     if(e.locked) L.push({t:T('ui.smDockMission'),c:'#e8c96a'});
   }else if(e.type==='benne'){
     L.push({t:T('ui.smQuarter'),c:'#c9b58a'});
     L.push({t:T('ui.smSkip4'),c:'#9c8a70'});
   }else if(e.type==='repartiteur'){
-    L.push({t:T('ui.smSpeed')+f1(beltSpeedOf(e)*10)+T('ui.ttTilesSec2')+T('ui.smResearch'),c:'#c9b58a'});
+    L.push({t:T('ui.smSpeed')+f1(beltSpeedOf(e)*10)+T('ui.ttTilesSec2'),c:'#c9b58a'});
     L.push({t:T('ui.smBuffer')+e.queue.length+' / '+repCap(e),c:'#c9b58a'});
     const cfg=repCfg(e);
     L.push({t:cfg.in==='left'?T('ui.smIn1Prio'):(cfg.in==='right'?T('ui.smIn2Prio'):T('ui.smInEqual')),c:'#e0b552'});
     L.push({t:cfg.pri==='A'?T('ui.smOutAPrio'):(cfg.pri==='B'?T('ui.smOutBPrio'):T('ui.smOutAlt')),c:'#e0b552'});
-    const fA=(cfg.outA&&cfg.outA.items)||[], fB=(cfg.outB&&cfg.outB.items)||[];
-    if(fA.length) L.push({t:T('ui.ttFilterA')+fA.map(k=>ITEMS[k].name).join(', '),c:'#9c8a70'});
-    if(fB.length) L.push({t:T('ui.ttFilterB')+fB.map(k=>ITEMS[k].name).join(', '),c:'#9c8a70'});
-    if(!fA.length&&!fB.length) L.push({t:T('ui.smNoFilter'),c:'#9c8a70'});
     if(e.blockedT>1.5) L.push({t:T('ui.smBlocked'),c:'#e8926f'});
-    else if(e.queue.length) L.push({t:T('ui.smInTransit')+e.queue.length+T('ui.smItems'),c:'#8faf6a'});
   }else{
-    if(def.in) L.push({t:T('ui.ttRecipe')+recIn(def.in)+' → '+ITEMS[def.out].name,c:'#c9b58a'});
+    if(def.in) L.push({t:recIn(def.in)+' → '+ITEMS[def.out].name,c:'#c9b58a'});
     else L.push({t:T('ui.ttProduct')+ITEMS[def.out].name,c:'#c9b58a'});
-    L.push({t:T('ui.ttCycle')+f1(def.time/speedMultOf(e))+T('ui.ttCycleSuf')+multFmt(speedMultOf(e))+T('ui.ttCycleEnd'),c:'#9c8a70'});
+    if(def.time) L.push({t:T('ui.ttCycle')+f1(def.time/speedMultOf(e))+T('ui.ttCycleSuf')+multFmt(speedMultOf(e))+T('ui.ttCycleEnd'),c:'#9c8a70'});
     if(def.in) for(const k in def.in){
       const have=e.inBuf[k]||0;
-      L.push({t:ITEMS[k].name+' : '+have+' / '+def.in[k]+(have>=def.in[k]*2+1?T('ui.ttFull'):''),c:have>=def.in[k]?ITEMS[k].c:'#9c8a70'});
+      L.push({t:ITEMS[k].name+' : '+have+' / '+def.in[k],c:have>=def.in[k]?ITEMS[k].c:'#9c8a70'});
     }
     if(e.outItem){ const d=diagnoseOut(e); if(d.length) L.push(...d); }
     else if(e.active) L.push({t:T('ui.smFabricating')+Math.round(100*e.timer/def.time)+' %',c:'#8faf6a'});
@@ -2989,13 +2988,10 @@ function drawSideMachine(x,w,cy){
   for(const l of L) for(const s of wrap(l.t,iw,14)) WL.push({t:s,c:l.c});
   const bottomLimit=sideY+sideH-112;
   if(bottomLimit-cy<130) return cy;
-  /* Zone d'info à HAUTEUR FIXE : les diagnostics « SORTIE BLOQUÉE »
-     n'ajoutent plus de lignes variables — les boutons ne bougent plus
-     quand l'état de la machine change. Les lignes surnuméraires sont
-     tronquées avec un marqueur. */
+
   const INFO_LINES=8;
   const isRep=e.type==='repartiteur';
-  /* répartiteur : + les blocs de réglages (2×38 + 2×42 + en-tête ~10) */
+
   const repExtra=isRep?170:0;
   const fixed=(upgable?152:112)+repExtra;
   const maxLines=Math.max(0,Math.floor((bottomLimit-cy-fixed)/15));
@@ -3006,7 +3002,7 @@ function drawSideMachine(x,w,cy){
   ctx.lineWidth=2; ctx.strokeStyle='#6a5236'; ctx.strokeRect(x+8,cy,w-16,hSec);
   txt(T('ui.selTitle'),x+16,cy+14,8,'#ffd9a0','left','s');
   button(x+w-84,cy+4,72,18,T('ui.modalClose2'),()=>{state.inspect=null;},{small:true});
-  /* icône + nom + niveau */
+
   ctx.drawImage(getMachineIcon(e.type),x+14,cy+22,36,36);
   let ny=cy+32;
   for(const nl of wrap(def.name,w-96,8,'s').slice(0,2)){ txt(nl,x+56,ny,8,'#fff3d8','left','s'); ny+=12; }
@@ -3019,7 +3015,7 @@ function drawSideMachine(x,w,cy){
   if(WL.length>cap) txt(T('ui.selMore',{N:WL.length-cap}),x+16,iy,13,'#6b563c');
   let by=cy+74+INFO_LINES*15+6;
   if(isRep){
-    /* réglages du répartiteur : priorités, répartition, filtres d'items */
+
     txt(T('ui.selSettings'),x+16,by+9,8,'#ffd9a0','left','s');
     by=drawRepConfig(x,w,by+14,e);
   }
@@ -3060,9 +3056,10 @@ function textLink(x,y,key,label,fn,active,dim){
   const w=kw+txtW(label,9,'s');
   const hov=mouse.x>=0&&inRect(mouse.x,mouse.y,x-3,y-11,w+9,15);
   if(hov||active) R(x-3,y-11,w+9,15,active?'#4a2418':'#3a2a1a');
+  if(hov&&!active&&Math.sin(animT*7)>-.4) R(x-3,y-2,w+9,2,'#e08a3c');
   txt(key,x,y,9,active?'#e8926f':(dim?'#6b563c':'#e08a3c'),'left','s');
   txt(label,x+kw,y,9,active?'#ffd9a0':(dim?'#6b563c':(hov?'#ffd9a0':'#e6d6b8')),'left','s');
-  if(!dim) hot(x-3,y-11,w+9,15,fn);
+  if(!dim) hot(x-3,y-11,w+9,15,fn,'pointer');
 }
 
 function drawBar(){
@@ -3092,12 +3089,14 @@ function drawBar(){
     const label=CAT_LABELS[cat]||cat.toUpperCase();
     const tw=txtW(label,8,'s')+16;
     const sel=state.barCat===cat;
-    ctx.fillStyle=sel?'#3a2a1a':'#241c15';
+    const hov=mouse.x>=0&&inRect(mouse.x,mouse.y,tx,tabY,tw,tabH);
+    ctx.fillStyle=sel?'#3a2a1a':hov?'#241c15':'#1c150e';
     ctx.fillRect(tx,tabY,tw,tabH);
-    ctx.lineWidth=2; ctx.strokeStyle=sel?'#e08a3c':'#4a3a28';
+    ctx.lineWidth=2; ctx.strokeStyle=sel?'#e08a3c':hov?'#c99e6a':'#3a2d20';
     ctx.strokeRect(tx+1,tabY+1,tw-2,tabH-2);
-    txt(label,tx+tw/2,tabY+14,8,sel?'#ffd9a0':'#9c8a70','center','s');
-    hot(tx,tabY,tw,tabH,()=>setBarCat(cat));
+    txt(label,tx+tw/2,tabY+14,8,sel?'#ffd9a0':hov?'#e6d6b8':'#9c8a70','center','s');
+    tabRects[cat]={x:tx,y:tabY,w:tw,h:tabH};
+    hot(tx,tabY,tw,tabH,()=>setBarCat(cat),'pointer');
     tx+=tw+6;
   }
   const ty=y+30, th=barH-38;
@@ -3124,52 +3123,37 @@ function drawBar(){
     ctx.globalAlpha=1;
   }
 }
+const toolRects={};
 function drawTool(type,x,y,h,slot){
   const cost=costOf(type), sel=build.type===type, poor=state.money<cost;
-  const tutoHl=!state.tutDone&&TUT[state.tut]&&TUT[state.tut].hl===type;
+  const curGs=(!state.tutDone&&TUT[state.tut])?tutGesture(TUT[state.tut]):null;
+  const tutoHl=!!curGs&&curGs.tool===type;
+  const hov=mouse.x>=0&&inRect(mouse.x,mouse.y,x,y,106,h);
   const w=106;
-  ctx.fillStyle=sel?'#3a2a1a':'#2b221a'; ctx.fillRect(x,y,w,h);
+  toolRects[type]={x,y,w,h};
+  ctx.fillStyle=sel?'#3a2a1a':hov?'#332819':'#2b221a'; ctx.fillRect(x,y,w,h);
   ctx.lineWidth=2;
-  ctx.strokeStyle=sel?'#e08a3c':(tutoHl&&Math.sin(animT*6)>0?'#ffd9a0':'#55432c');
+  ctx.strokeStyle=sel?'#e08a3c':tutoHl&&Math.sin(animT*6)>0?'#ffd9a0':hov?'#c99e6a':'#55432c';
   ctx.strokeRect(x+1,y+1,w-2,h-2);
   txt(String(slot%10),x+w-11,y+13,8,'#6b563c','center','s');
   ctx.globalAlpha=poor&&!sel?.55:1;
   ctx.drawImage(getMachineIcon(type),x+5,y+(h-38)/2,38,38);
   ctx.globalAlpha=1;
   let ny=y+16;
-  for(const nl of wrap(MACHINES[type].short,52,7,'s').slice(0,2)){ txt(nl,x+48,ny,7,'#e6d6b8','left','s'); ny+=10; }
+  for(const nl of wrap(MACHINES[type].short,52,7,'s').slice(0,2)){ txt(nl,x+48,ny,7,hov&&!sel?'#fff3d8':'#e6d6b8','left','s'); ny+=10; }
   txt(fmt(cost)+' $',x+48,y+h-8,15,poor?'#d06b4f':'#e0b552');
-  hot(x,y,w,h,()=>selectTool(type));
-  if(mouse.x>=0&&inRect(mouse.x,mouse.y,x,y,w,h)&&!state.modal) barTip=toolTipLines(type,cost);
+  hot(x,y,w,h,()=>selectTool(type),'pointer');
+  if(hov&&!state.modal) barTip=toolTipLines(type,cost);
 }
 function toolTipLines(type,cost){
   const d=MACHINES[type], L=[{t:d.name,c:'#fff3d8',sz:20}];
-  if(d.desc) L.push({t:d.desc,c:'#9c8a70'});
-  if(d.in) L.push({t:T('ui.ttRecipe')+recIn(d.in)+' → '+ITEMS[d.out].name,c:'#c9b58a'});
-  else if(d.out) L.push({t:T('ui.ttProduct')+ITEMS[d.out].name+' / '+f1(d.time)+' s',c:'#c9b58a'});
-  L.push({t:T('ui.tbCost')+fmt(cost)+' $'+T('ui.tbOwned')+cnt(type),c:'#e0b552'});
-  if(type==='convoyeur'){
-    L.push({t:T('ui.tbCv1'),c:'#9c8a70'});
-    const cvm=build.curve===1?T('ui.barCvRight'):(build.curve===2?T('ui.barCvLeft'):T('ui.barCvStraight'));
-    L.push({t:T('ui.tbCv2',{V:cvm}),c:'#9c8a70'});
-    L.push({t:T('ui.tbCv3'),c:'#9c8a70'});
-  }
-  else if(type==='ruban_sout'){
-    L.push({t:T('ui.tbSout1'),c:'#9c8a70'});
-    L.push({t:T('ui.tbSout2'),c:'#9c8a70'});
-    L.push({t:T('ui.tbSout3'),c:'#9c8a70'});
-  }
-  else if(type==='repartiteur'){ L.push({t:T('ui.tbRep1'),c:'#9c8a70'});
-    L.push({t:T('ui.tbRep2'),c:'#e0b552'}); }
-  else if(isDock(type)){
-    const f=dockSize(type);
-    L.push({t:f.w+'×'+f.h+T('ui.tbDock'),c:'#9c8a70'});
-  }
-  else if(type==='benne'){
-    L.push({t:T('ui.tbBenne1'),c:'#9c8a70'});
-    L.push({t:T('ui.tbBenne2'),c:'#9c8a70'});
-    L.push({t:T('ui.tbBenne3'),c:'#9c8a70'});
-  }
+  if(d.in) L.push({t:recIn(d.in)+' → '+ITEMS[d.out].name,c:'#c9b58a'});
+  L.push({t:T('ui.tbCost')+fmt(cost)+' $ · '+cnt(type),c:'#e0b552'});
+  if(type==='convoyeur') L.push({t:T('ui.tbCv1'),c:'#9c8a70'});
+  else if(type==='ruban_sout') L.push({t:T('ui.tbSout1'),c:'#9c8a70'});
+  else if(type==='repartiteur') L.push({t:T('ui.tbRep1'),c:'#9c8a70'});
+  else if(isDock(type)) L.push({t:T('ui.tbDock'),c:'#9c8a70'});
+  else if(type==='benne') L.push({t:T('ui.tbBenne1'),c:'#9c8a70'});
   else{
     const f=fpSize(type,0);
     L.push({t:Math.min(f.w,f.h)+'×'+Math.max(f.w,f.h)+T('ui.tbMach'),c:'#9c8a70'});
@@ -3181,13 +3165,19 @@ function tutVisible(){
     &&(state.letter===null||state.letter===undefined)
     &&!state.tutDone&&state.tut<TUT.length;
 }
+function tutLines(st){
+  const out=[];
+  for(const seg of String(st.text).split('\n')){
+    if(!seg){ out.push(''); continue; }
+    for(const l of wrap(seg,Math.min(600,gameW-60),19)) out.push(l);
+  }
+  return out;
+}
 function tutBoxH(){
   if(!tutVisible()) return 0;
-  /* texte à partir de y+40, boutons sur y+h-28..y+h-4 : la hauteur
-     couvre en-tête + lignes + bande de boutons, sans chevauchement */
-  return 40+wrap(TUT[state.tut].text,Math.min(600,gameW-60),19).length*19+38;
+  return 44+tutLines(TUT[state.tut]).length*19+34;
 }
-/* Lettre du siège */
+
 function drawLetter(){
   const idx=state.letter;
   if(idx===null||idx===undefined) return;
@@ -3256,25 +3246,219 @@ function drawLetter(){
     button(x+24,y+h-40,w-48,28,T('ui.letterBtnResume'),()=>{ uiSnd('confirm'); state.letter=null; state.letterGain=null; },{primary:true,small:true});
   }
 }
-function drawTutorial(){
+const tabRects={};
+const TUTGuide={g:0,phase:'idle',t:0,x:0,y:0,fx:0,fy:0,alpha:0};
+function tutGuideReset(){ TUTGuide.g=0; TUTGuide.phase='idle'; TUTGuide.t=0; TUTGuide.alpha=0; }
+function easeIO(p){ return p<.5 ? 2*p*p : 1-((-2*p+2)**2)/2; }
+function tutGesture(st){ return st&&st.gestures?st.gestures[TUTGuide.g]:null; }
+function tutGDone(gs){ return gs.cells.every(([cx,cy])=>!!cellAt(cx,cy)); }
+function tutGNext(){
+  const st=TUT[state.tut];
+  if(!st||!st.gestures||!st.gestures.length) return;
+  const n=st.gestures.length;
+  for(let k=1;k<=n;k++){
+    const i=(TUTGuide.g+k)%n;
+    if(!tutGDone(st.gestures[i])){ TUTGuide.g=i; return; }
+  }
+}
+function tutSprite(type){
+  const k='tut_'+type;
+  if(iconCache[k]) return iconCache[k];
+  const c=document.createElement('canvas'); c.width=64; c.height=64;
+  const g=c.getContext('2d');
+  g.imageSmoothingEnabled=false;
+  g.translate(32,32);
+  if(type==='convoyeur'){
+    px(g,1.7,-8,-8,16,16,'#3a2c1e');
+    px(g,1.7,-8,-6,16,12,'#463525');
+    px(g,1.7,-8,-8,16,2,'#6b563c');
+    px(g,1.7,-8,6,16,2,'#5b4930');
+    px(g,1.7,-4,-5,3,3,'#d8c193');
+    px(g,1.7,-1,-2,3,4,'#d8c193');
+    px(g,1.7,-4,2,3,3,'#d8c193');
+  }else{
+    drawMachineSprite(g,type,{rot:0},1.7,false,true);
+  }
+  iconCache[k]=c; return c;
+}
+function tutGuideFrame(st,rdt){
+  TUTGuide.t+=rdt;
+  const g=TUTGuide;
+  let gs=tutGesture(st);
+  if(gs&&tutGDone(gs)){
+    tutGNext();
+    const ns=tutGesture(st);
+    if(!ns||tutGDone(ns)){ if(g.phase!=='idle') tutGuideReset(); return; }
+    if(ns!==gs){
+      gs=ns;
+      g.phase=(ns.tab&&ns.tab!==state.barCat&&tabRects[ns.tab])?'tab':'tool';
+      g.t=0; g.fx=g.x; g.fy=g.y;
+    }
+  }
+  if(!gs||tutGDone(gs)){ if(g.phase!=='idle') tutGuideReset(); return; }
+  const free=gs.cells.filter(([cx,cy])=>!cellAt(cx,cy));
+  if(!free.length){ if(g.phase!=='idle') tutGuideReset(); return; }
+  const tabPt=()=>{ const r=gs.tab?tabRects[gs.tab]:null; return r?{x:r.x+r.w/2,y:r.y+r.h/2}:null; };
+  const btnPt=()=>{ const r=toolRects[gs.tool]; return r?{x:r.x+r.w/2,y:r.y+r.h/2}:null; };
+  const cellPts=free.map(([cx,cy])=>({x:ox+cx*TILE+TILE/2,y:oy+cy*TILE+TILE/2}));
+  if(g.phase==='idle'){
+    g.x=blockX+170; g.y=barY+44; g.alpha=0;
+    g.phase=(gs.tab&&gs.tab!==state.barCat&&tabPt())?'tab':'tool';
+    g.t=0; g.fx=g.x; g.fy=g.y;
+  }
+  if(g.phase==='tab'){
+    const tp=tabPt();
+    if(!tp||gs.tab===state.barCat){ g.phase='tool'; g.t=0; g.fx=g.x; g.fy=g.y; }
+  }
+  if(g.phase==='tool'){
+    if(!btnPt()){
+      if(gs.tab&&gs.tab!==state.barCat&&tabPt()){ g.phase='tab'; g.t=0; g.fx=g.x; g.fy=g.y; }
+      else { tutGuideReset(); return; }
+    }
+  }
+  switch(g.phase){
+    case 'tab':{
+      const tp=tabPt();
+      const p=Math.min(1,g.t/.35);
+      g.x=g.fx+(tp.x-g.fx)*easeIO(p); g.y=g.fy+(tp.y-g.fy)*easeIO(p);
+      g.alpha=Math.min(1,g.alpha+rdt*5);
+      if(p>=1){ g.phase='pressTab'; g.t=0; }
+      break; }
+    case 'pressTab':
+      if(g.t>.18){
+        if(gs.tab===state.barCat){ g.phase='tool'; g.t=0; g.fx=g.x; g.fy=g.y; }
+        else { g.phase='tabfade'; g.t=0; }
+      }
+      break;
+    case 'tabfade':{
+      g.alpha=Math.max(0,g.alpha-rdt*4);
+      if(g.alpha<=0){
+        if(gs.tab===state.barCat){ g.phase='tool'; g.t=0; g.fx=g.x; g.fy=g.y; }
+        else { g.phase='tab'; g.x=blockX+170; g.y=barY+44; g.fx=g.x; g.fy=g.y; g.t=0; }
+      }
+      return; }
+    case 'tool':{
+      const bp=btnPt();
+      const p=Math.min(1,g.t/.35);
+      g.x=g.fx+(bp.x-g.fx)*easeIO(p); g.y=g.fy+(bp.y-g.fy)*easeIO(p);
+      g.alpha=Math.min(1,g.alpha+rdt*5);
+      if(p>=1){ g.phase='pressTool'; g.t=0; }
+      break; }
+    case 'pressTool':
+      if(g.t>.2){ g.phase='go'; g.t=0; g.fx=g.x; g.fy=g.y; }
+      break;
+    case 'go':{
+      const sp=cellPts[0];
+      const p=Math.min(1,g.t/.5);
+      g.x=g.fx+(sp.x-g.fx)*easeIO(p); g.y=g.fy+(sp.y-g.fy)*easeIO(p);
+      g.alpha=Math.min(1,g.alpha+rdt*5);
+      if(p>=1){ g.phase=gs.drag?'down':'press'; g.t=0; }
+      break; }
+    case 'press':
+      if(g.t>.3){ g.phase='fade'; g.t=0; }
+      break;
+    case 'down':
+      if(g.t>.18){ g.phase='slide'; g.t=0; g.fx=g.x; g.fy=g.y; }
+      break;
+    case 'slide':{
+      const ep=cellPts[cellPts.length-1];
+      const p=Math.min(1,g.t/.4);
+      g.x=g.fx+(ep.x-g.fx)*easeIO(p); g.y=g.fy+(ep.y-g.fy)*easeIO(p);
+      if(p>=1){ g.phase='up'; g.t=0; }
+      break; }
+    case 'up':
+      if(g.t>.25){ g.phase='fade'; g.t=0; }
+      break;
+    case 'fade':{
+      g.alpha=Math.max(0,g.alpha-rdt*4);
+      if(g.alpha<=0){
+        if(tutGDone(gs)) tutGNext();
+        const ns=tutGesture(st);
+        if(!ns||tutGDone(ns)){ tutGuideReset(); return; }
+        g.phase=(ns.tab&&ns.tab!==state.barCat&&tabRects[ns.tab])?'tab':'tool';
+        g.t=0; g.fx=g.x; g.fy=g.y;
+      }
+      return; }
+  }
+  if(g.alpha<=0) return;
+  ctx.save();
+  ctx.globalAlpha=g.alpha;
+  const pressing=(g.phase==='pressTab'||g.phase==='pressTool'||g.phase==='press'||g.phase==='down'||g.phase==='up');
+  if(pressing){
+    const p=Math.min(1,g.t/.28);
+    ctx.strokeStyle='rgba(255,214,160,'+(1-p)*.9+')';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(g.x,g.y,5+p*26,0,Math.PI*2); ctx.stroke();
+  }
+  if(g.phase==='go'||g.phase==='down'){
+    const spr=tutSprite(gs.tool);
+    if(spr) ctx.drawImage(spr,Math.round(g.x+6),Math.round(g.y-72));
+  }
+  const dy=pressing?2:0, sc=pressing?.88:1;
+  ctx.translate(g.x,g.y+dy); ctx.scale(sc,sc);
+  ctx.fillStyle='#171008';
+  ctx.strokeStyle='#ffe6a8'; ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(0,0); ctx.lineTo(0,17); ctx.lineTo(5,12); ctx.lineTo(9,20);
+  ctx.lineTo(13,18); ctx.lineTo(9,10); ctx.lineTo(15,9);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function drawTutTarget(st){
+  const gs=tutGesture(st);
+  if(!st||!gs) return;
+  const pulse=.5+.5*Math.sin(animT*5);
+  const cells=gs.cells.filter(([cx,cy])=>!cellAt(cx,cy));
+  if(!cells.length) return;
+  const fp=gs.tool==='convoyeur'?{w:1,h:1}:fpWorld(gs.tool,0);
+  const spr=tutSprite(gs.tool);
+  for(const [cx,cy] of cells){
+    const x=ox+cx*TILE, y=oy+cy*TILE, w=fp.w*TILE, h=fp.h*TILE;
+    ctx.fillStyle='rgba(143,175,106,'+(.15+pulse*.15).toFixed(3)+')';
+    ctx.fillRect(x,y,w,h);
+    ctx.lineWidth=2;
+    ctx.strokeStyle='rgba(143,175,106,'+(.5+pulse*.5).toFixed(3)+')';
+    if(gs.drag){
+      ctx.setLineDash([6,5]);
+      ctx.lineDashOffset=-((animT*16)%11);
+    }
+    ctx.strokeRect(x+1,y+1,w-2,h-2);
+    ctx.setLineDash([]);
+    if(spr&&w>=64&&h>=64) ctx.drawImage(spr,x+w/2-32,y+h/2-32);
+  }
+  const first=cells[0];
+  const ax=ox+first[0]*TILE+fp.w*TILE/2;
+  const ay=oy+first[1]*TILE-16+Math.sin(animT*5)*5;
+  ctx.fillStyle='#171008';
+  ctx.strokeStyle='#ffd9a0'; ctx.lineWidth=2;
+  for(let k=0;k<2;k++){
+    const yy=ay+k*11;
+    ctx.beginPath();
+    ctx.moveTo(ax-11,yy-7); ctx.lineTo(ax+11,yy-7); ctx.lineTo(ax,yy+6);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+}
+function drawTutorial(rdt){
   if(!tutVisible()) return;
   const st=TUT[state.tut];
   const w=Math.min(640,gameW-16), x=gameX+(gameW-w)/2, y=gameY+8, h=tutBoxH();
   R(x+3,y+3,w,h,'#0b0806');
   R(x,y,w,h,'rgba(22,16,10,.94)');
   ctx.lineWidth=2; ctx.strokeStyle='#e08a3c'; ctx.strokeRect(x+1,y+1,w-2,h-2);
-  txt(T('ui.tutStep')+(state.tut+1)+'/'+TUT.length+' — '+st.title.toUpperCase(),x+14,y+20,8,'#ffd9a0','left','s');
-  let yy=y+40;
-  for(const l of wrap(st.text,w-28,19)){ txt(l,x+14,yy,19,'#e6d6b8'); yy+=19; }
+  txt(T('ui.tutStep')+(state.tut+1)+'/'+TUT.length+' — '+st.title.toUpperCase(),x+14,y+22,8,'#ffd9a0','left','s');
+  let yy=y+44;
+  for(const l of tutLines(st)){ if(l) txt(l,x+14,yy,19,'#e6d6b8'); yy+=19; }
   if(st.last){
     const bw2=txtW(T('ui.tutBtnFinish'),8,'s')+30;
-    button(x+w-20-bw2,y+h-28,bw2,24,T('ui.tutBtnFinish'),()=>{ uiSnd('confirm'); finishTut(); },{primary:true,small:true});
+    button(x+w-20-bw2,y+h-30,bw2,24,T('ui.tutBtnFinish'),()=>{ uiSnd('confirm'); finishTut(); },{primary:true,small:true});
   }else{
     const bw2=txtW(T('ui.tutBtnSkip'),8,'s')+26;
-    button(x+14,y+h-28,bw2,24,T('ui.tutBtnSkip'),()=>{ uiSnd('close'); finishTut(); },{small:true});
+    button(x+14,y+h-30,bw2,24,T('ui.tutBtnSkip'),()=>{ uiSnd('close'); finishTut(); },{small:true});
     const bw3=txtW(T('ui.tutBtnNext'),8,'s')+30;
-    button(x+w-20-bw3,y+h-28,bw3,24,T('ui.tutBtnNext'),()=>{ uiSnd('tab'); tutAdvance(); },{primary:true,small:true});
+    button(x+w-20-bw3,y+h-30,bw3,24,T('ui.tutBtnNext'),()=>{ uiSnd('tab'); tutAdvance(); },{primary:true,small:true});
   }
+  drawTutTarget(st);
+  tutGuideFrame(st,rdt||.016);
 }
 function drawSelection(){
   const e=state.inspect;
@@ -3319,7 +3503,7 @@ function drawSelection(){
           ctx.stroke();
           ctx.setLineDash([]);
           drawItemAt(ctx,k,fx-face.x*18,fy-face.y*18,S*1.1);
-          /* compteur */
+
           txt('×'+need[k],fx-face.x*18,fy-face.y*18+S+8,13,'#f0a35e','center');
         }
       }
@@ -3349,7 +3533,7 @@ function modalFrame(title){
   ctx.lineWidth=2; ctx.strokeStyle='#55432c'; ctx.strokeRect(x+1,y+1,w-2,h-2);
   hot(x,y,w,h,noop);                         
   txt(title,x+16,y+26,12,'#c99e6a','left','s');
-  button(x+w-94,y+10,82,26,T('ui.modalClose'),()=>{ uiSnd('close'); closeModal(); },{small:true});
+  button(x+w-94,y+10,82,26,T('ui.modalClose'),()=>{ uiSnd('close'); closeModal(); },{small:true,primary:true});
   return {x:x+14,y:y+42,w:w-28,h:h-54};
 }
 
@@ -3420,12 +3604,12 @@ function drawModal(){
         if(!state.unlocked.includes(t)) continue;
         const d=MACHINES[t];
         if(!d) continue;
-        /* ── fiche : cadre, icône, chaîne, prix ── */
+
         const fh=46;
         R(body.x,cy,body.w,fh,'#261e15');
         ctx.lineWidth=1; ctx.strokeStyle='#3a2d20'; ctx.strokeRect(body.x+.5,cy+.5,body.w-1,fh-1);
         ctx.drawImage(getMachineIcon(t),body.x+8,cy+5,36,36);
-        /* chaîne d'entrée */
+
         let ix=body.x+56;
         if(d.in){
           for(const k in d.in){
@@ -3441,9 +3625,9 @@ function drawModal(){
         txt('→',ix,cy+21,20,'#e08a3c'); ix+=24;
         ctx.drawImage(getItemIcon(d.out),ix,cy+6,22,22);
         txt(ITEMS[d.out].name,ix+28,cy+20,18,'#e6d6b8');
-        /* prix : gros, à droite */
+
         txt(fmt(ITEMS[d.out].value)+' $',body.x+body.w-8,cy+22,22,'#e0b552','right');
-        /* machine + cycle : sous la chaîne */
+
         txt(d.name+' · '+f1(d.time)+T('ui.recSeconds')+(ITEMS[d.out].sci?T('ui.recSci')+f1(ITEMS[d.out].sci)+T('ui.recSciUnit'):''),body.x+56,cy+37,13,'#8a755c');
         cy+=fh+8; contentH+=fh+8;
       }
@@ -3478,22 +3662,21 @@ function drawModal(){
     if(!any) line(T('ui.stNoSales'),16,'#8a755c');
   }
   else if(m.id==='save'){
-    cy+=2; line(T('ui.svAuto'),16,'#9c8a70');
+    cy+=4; line(T('ui.svAuto'),16,'#9c8a70');
     if(!checkStorage()) line(T('ui.svStorageNA'),15,'#e8926f');
-    cy+=8;
-    button(body.x,cy,190,28,T('ui.svNow'),()=>{
+    cy+=12;
+    const bw2=Math.min(320,body.w-24);
+    button(body.x+(body.w-bw2)/2,cy,bw2,34,T('ui.svNow'),()=>{
       saveGame();
+      uiSnd('confirm');
       toast(checkStorage()?T('ui.toastSaved'):T('ui.toastCantSave'),T('ui.toastSavedBody'),checkStorage());
-    },{small:true});
-    button(body.x+200,cy,150,28,T('ui.svCopy'),copyExport,{small:true});
-    cy+=40; contentH+=48;
-    txt(T('ui.svChainLabel'),body.x,cy,16,'#8a755c'); cy+=20;
-    textField(body.x,cy,body.w,58); cy+=70; contentH+=90;
-    button(body.x,cy,220,28,T('ui.svLoad'),tfEnter,{primary:true,small:true});
-    button(body.x+230,cy,200,28,m.data.armed?T('ui.selConfirm'):T('ui.svWipe'),()=>{
-      if(!m.data.armed){ m.data.armed=true; setTimeout(()=>{m.data.armed=false;},3000); return; }
+    },{primary:true,small:true});
+    cy+=48; contentH+=64;
+    button(body.x+(body.w-bw2)/2,cy,bw2,28,m.data.armed?T('ui.selConfirm'):T('ui.svWipe'),()=>{
+      if(!m.data.armed){ m.data.armed=true; uiSnd('danger'); setTimeout(()=>{m.data.armed=false;},3000); return; }
+      m.data.armed=false;
       stDel(SAVE_KEY);
-      m.data.armed=false; toast(T('ui.toastWiped'),T('ui.toastWipedBody'));
+      toast(T('ui.toastWiped'),T('ui.toastWipedBody'));
     },{danger:true,small:true});
     cy+=34; contentH+=34;
   }
@@ -3527,7 +3710,7 @@ function drawModal(){
       centered(T('ui.mnAwards')+n+'/'+ACHIEVEMENTS.length+T('ui.mnAwardsEnd'),()=>{closeModal();uiSnd('open');openModal('awards');},{});
     }
     cy+=36;
-    centered(T('ui.mnSave'),()=>{closeModal();uiSnd('open');openModal('save');},{}); cy+=36;
+    centered(T('ui.mnSave'),()=>{closeModal();uiSnd('open');openModal('save');saveGame();},{}); cy+=36;
     centered(T('ui.mnSound')+(state.sound?T('ui.mnOn'):T('ui.mnOff')),()=>{toggleSound();uiSnd('option');},{}); cy+=44;
     const sw2=Math.min(220,body.w-160);
     slider(body.x+(body.w-sw2)/2,cy,sw2,T('ui.mnSfx'),state.volSfx,v=>{state.volSfx=v;});
@@ -3592,7 +3775,7 @@ function drawModal(){
       for(const a of ACHIEVEMENTS){
         if(a.cat!==cat) continue;
         const ok=state.achievements[a.id];
-        /* fiche : fond selon obtenu, pastille, nom, description, date */
+
         R(body.x,cy,body.w,30,ok?'#2b221a':'#1e1711');
         ctx.lineWidth=1; ctx.strokeStyle=ok?'#6a5236':'#33281a';
         ctx.strokeRect(body.x+.5,cy+.5,body.w-1,29);
@@ -3670,22 +3853,14 @@ function textField(x,y,w,h){
   ctx.textBaseline='alphabetic';
   hot(x,y,w,h,()=>{ tf.focused=true; },'text');
 }
-function copyExport(){
-  if(navigator.clipboard) navigator.clipboard.writeText(exportString())
-    .then(()=>toast(T('ui.toastCopied'),'',true))
-    .catch(()=>toast(T('ui.toastCopyFail'),T('ui.toastCopyFailBody')));
-  else toast(T('ui.toastCopyFail'),T('ui.toastCopyFailBody'));
+function copyExport(){}
+function tfEnter(){}
+function toggleSound(){
+  state.sound=!state.sound;
+  uiSnd(state.sound?'option':'close');
+  applyMusicMute();
+  toast(state.sound?T('ui.toastSoundOn'):T('ui.toastSoundOff'),'');
 }
-function tfEnter(){
-  const s=tf.value.trim();
-  if(!s){ toast(T('ui.toastEmptyChain'),T('ui.toastEmptyChainBody')); return; }
-  if(importString(s)){ closeModal(); toast(T('ui.toastLoaded'),'',true); }
-  else toast(T('ui.toastBadChain'),T('ui.toastBadChainBody'));
-}
-function toggleSound(){ state.sound=!state.sound; uiSnd(state.sound?'option':'close'); toast(state.sound?T('ui.toastSoundOn'):T('ui.toastSoundOff'),''); }
-
-
-/* ══════ ÉCRAN-TITRE  ══════ */
 
 const TITLE_GLYPHS={
   C:['.XXX.','X...X','X....','X...X','.XXX.'],
@@ -3745,8 +3920,7 @@ function drawTitle(rdt){
     }
   }
   txt(T('ui.titleTagline'),cx,wb+64,15,'#c99e6a','center');
-  /* ── Ruban en U inversé : branche gauche, virage, barre du haut,
-     virage, branche droite — items qui font TOUT le circuit ── */
+
   const uw=Math.min(440,W-60);
   const uh=190;
   const ux=cx-uw/2, uy=wb+78;
@@ -3823,7 +3997,7 @@ function drawTitle(rdt){
   button(cx-bw3/2,bstackY,bw3,bhh2,T('ui.btnPlay'),()=>{ uiSnd('game'); state.screen='home'; },{primary:true});
   button(cx-bw3/2,bstackY+bhh2+gap,bw3,bhh2,T('ui.btnOptions'),()=>{ uiSnd('open'); openModal('options'); },{});
   button(cx-bw3/2,bstackY+2*(bhh2+gap),bw3,bhh2,T('ui.btnAwards'),()=>{ uiSnd('open'); openModal('awards');},{});
-  /* ── Choix de la langue : drapeaux FR / EN, sous les boutons ── */
+
   txt(T('ui.flagHint'),cx,uy+190,8,'#8a755c','center','s');
   drawLangFlags(cx,uy+200,34,true);
 }
@@ -3838,7 +4012,7 @@ function drawHome(rdt){
   txt('CARTONO',lx+36,36,24,'#c99e6a','left','s');
   const subFull=T('ui.homeSub');
   txt(txtW(subFull,16)>cw-360?T('ui.homeSubShort'):subFull,lx+36,56,16,'#8a755c');
-  /* drapeaux FR/EN en haut à droite, à gauche des stats */
+
   drawLangFlags(x+cw-218,26,30,false);
   const doneN=state.factoryDone.filter(Boolean).length;
   const rx=x+cw-16;
@@ -3855,11 +4029,13 @@ function drawHome(rdt){
     const isCur=i===state.factoryIdx;
     const locked=i>state.maxFactoryIdx;
     const ch=132;
-    ctx.fillStyle=locked?'#1e1711':isDone?'#261e15':'#2b221a';
+    const hovCard=mouse.x>=0&&inRect(mouse.x,mouse.y,x,y,cw,ch)&&!locked;
+    ctx.fillStyle=locked?'#1e1711':isDone?'#261e15':hovCard?'#312619':'#2b221a';
     ctx.fillRect(x,y,cw,ch);
     ctx.lineWidth=2;
-    ctx.strokeStyle=isCur?'#e08a3c':isDone?'#6a5236':'#4a3a28';
+    ctx.strokeStyle=isCur?'#e08a3c':hovCard?'#c99e6a':isDone?'#6a5236':'#4a3a28';
     ctx.strokeRect(x+1,y+1,cw-2,ch-2);
+    if(hovCard&&isCur) R(x+8,y+ch-6,cw-16,2,'#e08a3c');
     if(isCur&&Math.sin(animT*4)>0){ ctx.strokeStyle='#ffd9a0'; ctx.strokeRect(x+1,y+1,cw-2,ch-2); }
     txt(F.name,x+16,y+24,11,locked?'#6b563c':'#e6d6b8','left','s');
     if(locked) txt(T('ui.homeLocked'),x+cw-16,y+24,8,'#5a4a38','right','s');
@@ -3902,8 +4078,6 @@ function drawHome(rdt){
   drawToasts(rdt);   
 }
 
-/* ══════════════ 10. PROGRESSION  ══════════════ */
-
 function goalText(g){
   if(g.t==='money') return T('ui.goalMoney')+fmt(g.n)+' $';
   if(g.t==='sold')  return T('ui.goalSold')+g.n+'× '+ITEMS[g.item].name;
@@ -3938,8 +4112,7 @@ function doPromotion(){
   if(state.factoryDone[state.factoryIdx]||!allGoalsDone()){ closeModal(); return; }
   state.factoryDone[state.factoryIdx]=true;
   closeModal();
-  /* avancer le jeu AVANT tout événement SDK décoratif : une intégration
-     défaillante ne doit jamais laisser l'usine marquée signée sans progression */
+
   if(state.factoryIdx>=FACTORIES.length-1){
     openModal('win'); SFX.promo();
     toast(T('ui.toastCareer'),T('ui.toastCareerBody'),true);
@@ -3951,7 +4124,7 @@ function doPromotion(){
     SFX.promo();
     toast(T('ui.toastPromoSigned'),T('ui.toastPromoBody2')+FACTORIES[state.factoryIdx].name,true);
   }
-  CG.ev('happytime');                            /* remise des clés : célébration CrazyGames */
+  CG.ev('happytime');                            
   CG.ev('reportGameCompletedPercentage',cgProgressPct());
   saveGame();
 }
@@ -3977,7 +4150,7 @@ function resetRun(i){
   for(let j=0;j<=i;j++) for(const t of FACTORIES[j].unlocks||[]) if(!state.unlocked.includes(t)) state.unlocked.push(t);
   for(const u of RESEARCH_UNLOCK) if(state.unlocksDone[u.id]) for(const t of u.unlocks) if(!state.unlocked.includes(t)) state.unlocked.push(t);
   state.research=Object.assign({belt:0,prod:0,craft:0,discount:0,trade:0},F.research||{});
-  /* les pré-acquis de l'usine marquent les recherches correspondantes comme obtenues */
+
   for(const u of RESEARCH_UNLOCK) if(u.unlocks.every(t=>state.unlocked.includes(t))) state.unlocksDone[u.id]=true;
   state.stats={sold:{},produced:{},moneyTotal:0,sciTotal:0,placed:0,destroyed:0,playTime:0};
   state.rate={money:0,sci:0};
@@ -3986,7 +4159,8 @@ function resetRun(i){
   tutEntered=-1;                       
   build.type=null; build.rot=0; build.destroy=false; build.dragging=false; build.soutSrc=null;
   state.inspect=null;
-  fx.length=0; toasts.length=0;
+  fx.length=0; toasts.length=0; rings.length=0; bursts.length=0;
+  tutGuideReset();
   initGrid();
   const fd=F.forcedDock;
   if(fd){
@@ -4024,17 +4198,12 @@ function buyUnlock(u){
   rebuildToolOrder();
 }
 
-
-/* ══════════════ 11. TUTORIEL ══════════════ */
-
 let tutEntered=-1;
 function tutStepEnter(){
-  const st=TUT[state.tut];
-  if(!st) return;
-  if(tutEntered===state.tut) return; 
+  if(!TUT[state.tut]) return;
+  if(tutEntered===state.tut) return;
   tutEntered=state.tut;
-  if(st.hl) for(const [cat,ts] of CATS) if(ts.includes(st.hl)){ setBarCat(cat); break; }
-  if(st.skipIfOwned&&cnt(st.hl)>=1) tutAdvance();   
+  tutGuideReset();
 }
 function tutAdvance(){
   state.tut++;
@@ -4052,12 +4221,10 @@ function tutCheck(){
 }
 function finishTut(){
   state.tutDone=true;
+  tutGuideReset();
   addLog(T('ui.logTutDone'));
   toast(T('ui.toastTutEndTitle'),T('ui.toastTutEndBody'),true);
 }
-
-
-/* ══════════════ 12. SAUVEGARDE ══════════════ */
 
 function serialize(){
   return {
@@ -4104,7 +4271,7 @@ function applySave(d){
   state.time=d.time||0;
   state.research=Object.assign({belt:0,prod:0,craft:0,discount:0,trade:0},d.research);
   state.unlocksDone=d.unlocksDone||{};
-  /* unlocked = base + pré-acquis CUMULÉS des usines ≤ factoryIdx + recherches signées */
+
   state.unlocked=[...BASE_UNLOCKED];
   for(let j=0;j<=state.factoryIdx;j++) for(const t of FACTORIES[j].unlocks||[]) if(!state.unlocked.includes(t)) state.unlocked.push(t);
   for(const u of RESEARCH_UNLOCK) if(state.unlocksDone[u.id]) for(const t of u.unlocks) if(!state.unlocked.includes(t)) state.unlocked.push(t);
@@ -4131,13 +4298,7 @@ function applySave(d){
   }
   initGrid();
   rebuildToolOrder();
-  /* ── auto-réparation des sauvegardes bloquées ──
-     Ancien bug : la signature de la promotion était interrompue par une
-     erreur du SDK CrazyGames après factoryDone[i]=true mais AVANT
-     factoryIdx++ — l'usine restait marquée signée sans que la suite soit
-     débloquée (mission suivante verrouillée pour toujours). La signature
-     avait pourtant été acceptée : avancer jusqu'à la première usine non
-     signée. Idempotent (l'état réparé ne re-déclenche pas la condition). */
+
   while(state.factoryDone[state.factoryIdx]&&state.factoryIdx<FACTORIES.length-1){
     state.factoryIdx++;
     state.maxFactoryIdx=Math.max(state.maxFactoryIdx,state.factoryIdx);
@@ -4146,15 +4307,6 @@ function applySave(d){
   return d.t;
 }
 function exportString(){ return 'CARTO3.'+btoa(unescape(encodeURIComponent(JSON.stringify(serialize())))); }
-function importString(s){
-  try{
-    if(s.startsWith('CARTO3.')) s=s.slice(7);
-    const d=JSON.parse(decodeURIComponent(escape(atob(s))));
-    if(d.v<3||d.v>5) return false;
-    applySave(d);
-    return true;
-  }catch(e){ return false; }
-}
 
 function calcGains(){
   const sec=Math.max(0,(Date.now()-(state.leaveTime||Date.now()))/1000);
@@ -4174,9 +4326,6 @@ function applyReturnGains(){
   }
   state.leaveTime=Date.now();
 }
-
-
-/* ══════════════ 13. RENDU PRINCIPAL, INIT & BOUCLE ══════════════ */
 
 function layout(){
   W=canvas.width; H=canvas.height;
@@ -4203,7 +4352,7 @@ function resize(){
 }
 function render(alpha,rdt){
   layout();
-  ctx.setTransform(1,0,0,1,0,0);        /* garde-fou : aucune transformation ne doit fuiter d'une frame */
+  ctx.setTransform(1,0,0,1,0,0);        
   ctx.globalAlpha=1;
   drawBackground();
   drawHUD();
@@ -4213,15 +4362,14 @@ function render(alpha,rdt){
   drawSoutLinks();
   for(const e of state.entities) if(e.kind==='belt') drawBeltSprite(e);
   for(const e of state.entities) if(e.kind==='machine') drawMachine(e);
-  /* les items passent TOUJOURS au-dessus des rubans et des machines :
-     plus jamais masqués en entrant sur le ruban voisin */
+
   for(const e of state.entities) if(e.kind==='machine'&&e.outItem) drawOutItem(e);
   for(const e of state.entities) if(e.kind==='belt') drawBeltItem(e,alpha);
   for(const e of state.entities) drawBlocked(e);
   drawHoverOutline();
   drawPreview();
   drawFx(rdt);
-  drawTutorial();
+  drawTutorial(rdt);
   drawSelection();   
   drawToasts(rdt);
   drawLetter();      
@@ -4242,8 +4390,7 @@ function frame(now){
   const rdt=Math.min(.5,(now-lastFrame)/1000);
   lastFrame=now; animT=now/1000;
   hots.length=0;
-  /* CrazyGames : début/fin de gameplay — une modale d'inspection n'interrompt
-     pas la partie ; seule la sortie d'écran ou l'ouverture d'une lettre compte. */
+
   const cgPlaying=state.screen==='game'&&(state.letter===null||state.letter===undefined);
   if(cgPlaying!==cgWasPlaying){ cgWasPlaying=cgPlaying; CG.ev(cgPlaying?'gameplayStart':'gameplayStop'); }
   const wantMusic=state.screen==='game'&&(state.letter===null||state.letter===undefined)&&!state.modal&&!CG.muted();
@@ -4257,7 +4404,7 @@ function frame(now){
   if(state.screen==='loading'){ drawLoading(rdt); return; }
   if(state.screen==='title'){ drawTitle(rdt); drawModal(); return; }
   if(state.screen==='home'){ drawHome(rdt); drawModal(); return; }
-  /* simulation à pas FIXES de 100 ms, quel que soit le framerate */
+
   acc+=rdt*1000;
   let n=0;
   while(acc>=TICK_MS&&n<12){ tick(); acc-=TICK_MS; n++; }
@@ -4265,7 +4412,6 @@ function frame(now){
   render(Math.min(1,acc/TICK_MS),rdt);
 }
 
-/* ══════ CURSEURS & FAVICON══════ */
 const CURSORS={};
 function buildCursors(){
   const mk=(w,h,draw,hx,hy)=>{
@@ -4355,7 +4501,7 @@ function drawLoading(rdt){
   R(cx-pw/2,cy+40,pw,8,'#141009');
   R(cx-pw/2,cy+40,Math.round(pw*pc),8,'#e08a3c');
   R(cx-pw/2,cy+40,Math.round(pw*pc),2,'#ffd9a0');
-  ctx.font='16px monospace'; ctx.textAlign='center';
+  ctx.font='16px VT323'; ctx.textAlign='center';
   ctx.fillStyle='#8a755c';
   ctx.fillText(fontsDone?T('ui.loadingGo'):T('ui.loadingWait'),cx,cy+72);
   ctx.textAlign='left';
@@ -4401,7 +4547,7 @@ function init(){
   ctx.imageSmoothingEnabled=false;
   resize();
   bindEvents();
-  bootLang();                     /* langue sauvegardée → traduit toutes les données */
+  bootLang();                     
   if(!checkStorage()) toast(T('ui.toastSaveNA'),T('ui.toastSaveNABody'));
   bootFromSave();
   state.letter=null;  
@@ -4419,10 +4565,6 @@ function init(){
 }
 init();
 
-/* CrazyGames : une fois le SDK prêt (rapide), la sauvegarde du module data
-   peut être plus récente que le localStorage local (autre appareil) — si le
-   joueur n'a pas encore quitté l'écran de chargement, on la relit et on la
-   réapplique ; applySave reconstruit tout l'état, la réapplication est sûre. */
 CG.init().then(()=>{
   if(state.screen==='loading') CG.ev('loadingStart');
   else{ CG.ev('loadingStart'); CG.ev('loadingStop'); }
@@ -4431,4 +4573,4 @@ CG.init().then(()=>{
   try{ d=JSON.parse(stGet(SAVE_KEY)); }catch(e){ d=null; }
   if(d&&d.v>=3&&d.v<=5) applySave(d);
   CG.ev('reportGameCompletedPercentage',cgProgressPct());
-}).catch(()=>{});   /* un rejet résiduel ne doit jamais remonter en console */
+}).catch(()=>{});   

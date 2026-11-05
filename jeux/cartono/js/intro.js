@@ -1,16 +1,3 @@
-/* ════════════════════════════════════════════════════════════════════
-   Projet ToncPlay — écran d'intro studio (version locale CARTONO)
-   ────────────────────────────────────────────────────────────────────
-   Adapté depuis la version d'origine du studio :
-   • police « Press Start 2 » (Google)  → Silkscreen locale
-     (déclarée dans style.css, fonts/slkscr.ttf) : zéro requête réseau ;
-   • images/logo.png                   → même chemin racine du jeu,
-     donc résolu tel quel ;
-   • le chemin racine reste déduit de l'emplacement de intro.js
-     (js/intro.js → racine du jeu), comme dans la version d'origine ;
-   • intro.js est chargé dans <head> : on attend DOMContentLoaded
-     avant d'insérer le calque (document.body n'existe pas encore sinon).
-   ════════════════════════════════════════════════════════════════════ */
 (()=>{
   const start = () => {
     if (!document.body) { document.addEventListener('DOMContentLoaded', start); return; }
